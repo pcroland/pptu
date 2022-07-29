@@ -288,7 +288,7 @@ python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,>=2.7"
 name = "platformdirs"
 version = "2.5.2"
 description = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-category = "dev"
+category = "main"
 optional = false
 python-versions = ">=3.7"
 
@@ -498,7 +498,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "d4aa8d23890b18867ca22edc623c29069fcffca441357216a5d407782064c29d"
+content-hash = "4e22f29cd43fbcfafefa3ad3d6d2138244907f3f99268a0d415d67984283613e"
 
 [metadata.files]
 anyio = [

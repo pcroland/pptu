@@ -16,6 +16,7 @@ httpx = "^0.23.0"
 beautifulsoup4 = "^4.11.1"
 langcodes = "^3.3.0"
 lxml = "^4.9.1"
+platformdirs = "^2.5.2"
 "ruamel.yaml" = "^0.17.21"
 
 [tool.poetry.dev-dependencies]

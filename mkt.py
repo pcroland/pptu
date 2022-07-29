@@ -7,6 +7,7 @@ import subprocess
 from pathlib import Path
 
 import requests
+from platformdirs import PlatformDirs
 from rich import print
 from ruamel.yaml import YAML
 
@@ -35,8 +36,9 @@ def main():
     parser.add_argument("--auto", action="store_true")
     args = parser.parse_args()
 
-    script_path = Path(__file__).resolve().parent.parent.parent
-    config = YAML().load(script_path / "config.yml")
+    dirs = PlatformDirs(appname="pymkt", appauthor=False)
+
+    config = YAML().load(dirs.user_config_path / "config.yml")
 
     session = requests.Session()
 

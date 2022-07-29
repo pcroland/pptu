@@ -21,11 +21,11 @@ BroadcasTheNet | `btn`        | :warning: Dedicated servers only, requires staff
 HDBits         | `hdb`        | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
 
 ## Usage
-Place cookies in `cookies/TRACKER.txt` where `TRACKER` is the 3-letter code of the tracker above
+Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the 3-letter code of the tracker above
 (all lowercase).
 
 If you need to use a proxy (because you're uploading from a server for example),
-you can define it in `config.yml` (see `config.yml.example` for the format).
+you can define it in `~/.config/pymkt/config.yml` (see `config.yml.example` for the format).
 
 ```
 $ ./mkt.py -t tracker1,tracker2,tracker3 FILE_OR_FOLDER

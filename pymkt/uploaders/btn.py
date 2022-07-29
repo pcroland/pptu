@@ -8,6 +8,7 @@ from pathlib import Path
 import requests
 from bs4 import BeautifulSoup
 from langcodes import Language
+from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
 from ruamel.yaml import YAML
@@ -123,10 +124,11 @@ class BTNUploader(Uploader):
     }
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
-        script_path = Path(__file__).resolve().parent.parent.parent
-        config = YAML().load(script_path / "config.yml")
+        dirs = PlatformDirs(appname="pymkt", appauthor=False)
 
-        jar = MozillaCookieJar(script_path / "cookies" / "btn.txt")
+        config = YAML().load(dirs.user_config_path / "config.yml")
+
+        jar = MozillaCookieJar(dirs.user_data_path / "cookies" / "btn.txt")
         jar.load()
 
         session = requests.Session()
