@@ -188,7 +188,7 @@ def main():
         uploader.upload(args.file, mediainfo, snapshots, thumbnails, auto=args.auto)
         torrent_path = Path(d / f"{args.file.name}[{tracker_str}].torrent")
         if watch_dir := config.get("watch_dir"):
-            shutil.copyfile(torrent_path, (watch_dir / torrent_path.name).expanduser())
+            shutil.copyfile(torrent_path, (Path(watch_dir) / torrent_path.name).expanduser())
 
 
 if __name__ == "__main__":
