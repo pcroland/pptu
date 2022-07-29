@@ -70,6 +70,8 @@ class HDBUploader(Uploader):
             category = "Movie"
 
         if category == "TV":
+            imdb = None
+
             res = session.get(
                 url="https://hdbits.org/ajax/tvdb.php",
                 params={
@@ -79,8 +81,20 @@ class HDBUploader(Uploader):
                 },
             ).json()
             print(res)
-            imdb = None
-            tvdb = res.get("tvdb_id") or input("Enter TVDB ID: ")
+            if not (tvdb := res.get("tvdb_id")):
+                r = session.get(
+                    url="https://hdbits.org/ajax/tvdb.php",
+                    params={
+                        "action": "showsearch",
+                        "search": res["showname"],
+                        "uid": int(time.time() * 1000),
+                    },
+                )
+                r.raise_for_status()
+                res2 = r.json()
+                tvdb = next(iter(res2.keys()))
+            tvdb = tvdb or input("Enter TVDB ID: ")
+
             season = res["season"]
             episode = res["episode"]
         else:
