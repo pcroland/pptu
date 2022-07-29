@@ -1,2 +1,3 @@
 proxy:
   btn: 'http://user:pass@example.com:6060'
+watch_dir: '~/rtorrent/watch/start'

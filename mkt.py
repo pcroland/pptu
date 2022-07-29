@@ -8,6 +8,7 @@ from pathlib import Path
 
 import requests
 from rich import print
+from ruamel.yaml import YAML
 
 from pymkt.uploaders import (
     AvZUploader,
@@ -33,6 +34,9 @@ def main():
     parser.add_argument('--short', action='store_true')
     parser.add_argument('--auto', action='store_true')
     args = parser.parse_args()
+
+    script_path = Path(__file__).resolve().parent.parent.parent
+    config = YAML().load(script_path / 'config.yml')
 
     session = requests.Session()
 
@@ -174,7 +178,8 @@ def main():
         uploader = uploader_cls()
         uploader.upload(args.file, mediainfo, snapshots, thumbnails, auto=args.auto)
         torrent_path = Path(d / f'{args.file.name}[{tracker_str}].torrent')
-        shutil.copyfile(torrent_path, (Path('~/rtorrent/watch/start') / torrent_path.name).expanduser())
+        if watch_dir := config.get('watch_dir'):
+            shutil.copyfile(torrent_path, (watch_dir / torrent_path.name).expanduser())
 
 
 if __name__ == '__main__':
