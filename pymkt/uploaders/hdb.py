@@ -162,7 +162,7 @@ class HDBUploader(Uploader):
         res = session.post(
             url="https://hdbits.org/upload/upload",
             files={
-                "file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
+                "file": (torrent_path.name.replace("[HDB]", ""), torrent_path.open("rb"), "application/x-bittorrent"),
             },
             data=data,
         ).text
