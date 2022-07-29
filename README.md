@@ -8,6 +8,10 @@ Python torrent creator and auto-uploader
 * torrenttools (for creating torrents)
 * `chtor` from pyrocore (for creating fast resume metadata).
   This dependency will probably be eliminated eventually.
+* MediaInfo CLI (for generating tech info)
+* FFmpeg (for creating snapshots)
+* ImageMagick + oxipng (for optimizing snapshots) [optional but recommended]
+* `PTPIMG_API_KEY` environment variable (for uploading snapshots)
 
 ## Supported trackers
 Name           | Abbreviation | Server upload allowed
