@@ -1,0 +1,2 @@
+proxy:
+  btn: 'http://user:pass@example.com:6060'

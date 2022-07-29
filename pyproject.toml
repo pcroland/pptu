@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "mkt"
+version = "0.1.0"
+description = ""
+authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+requests = "^2.28.0"
+rich = "^12.4.4"
+httpx = "^0.23.0"
+beautifulsoup4 = "^4.11.1"
+langcodes = "^3.3.0"
+"ruamel.yaml" = "^0.17.21"
+lxml = "^4.9.1"
+
+[tool.poetry.dev-dependencies]
+
+[tool.poetry.scripts]
+mkt = "mkt:main"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
