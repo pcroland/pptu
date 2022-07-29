@@ -5,7 +5,7 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "mkt"
 version = "0.1.0"
-description = ""
+description = "Python torrent creator and auto-uploader"
 authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
 
 [tool.poetry.dependencies]
@@ -15,11 +15,29 @@ rich = "^12.4.4"
 httpx = "^0.23.0"
 beautifulsoup4 = "^4.11.1"
 langcodes = "^3.3.0"
-"ruamel.yaml" = "^0.17.21"
 lxml = "^4.9.1"
+"ruamel.yaml" = "^0.17.21"
 
 [tool.poetry.dev-dependencies]
+black = "^22.6.0"
+flake8 = "^4.0.1"
+isort = {git = "https://github.com/PyCQA/isort.git", rev = "main"}
+pre-commit = "^2.20.0"
+pyupgrade = "^2.37.3"
 
 [tool.poetry.scripts]
 mkt = "mkt:main"
 
+[tool.black]
+line-length = 120
+target-version = ["py38", "py39", "py310"]
+
+[tool.isort]
+line_length = 120
+profile = "black"
+split_on_trailing_comma = true
+
+[tool.vulture]
+paths = ["."]
+exclude = [".venv/"]
+min_confidence = 100
