@@ -83,6 +83,11 @@ class AvZUploader(Uploader):
         soup = BeautifulSoup(res, "lxml-html")
         token = soup.select_one('meta[name="_token"]')["content"]
 
+        year = None
+        if m := re.search(r" (\d{4})$", title):
+            title = title.replace(m.group(0), "")
+            year = int(m.group(1))
+
         r = session.get(
             url="https://avistaz.to/ajax/movies/2",
             params={
@@ -97,7 +102,7 @@ class AvZUploader(Uploader):
         res = r.json()
         print(res)
         r.raise_for_status()
-        res = res["data"][0]
+        res = next(x for x in res["data"] if x.get("release_year") == year or not year)
         movie_id = res["id"]
         print(
             f'Found title: [bold][cyan]{res["title"]}[/cyan][/bold] ([bold][green]{res["release_year"]}[/green][/bold])'
