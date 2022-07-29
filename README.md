@@ -10,9 +10,11 @@ Python torrent creator and auto-uploader
   This dependency will probably be eliminated eventually.
 
 ## Supported trackers
-* AvistaZ (`avz`)
-* BroadcasTheNet (`btn`)
-* HDBits (`hdb`)
+Name           | Abbreviation | Server upload allowed
+-------------- | ------------ | -------------------------------------------------------------------
+AvistaZ        | `avz`        | :white_check_mark: Yes, if added as seedbox in profile
+BroadcasTheNet | `btn`        | :warning: Dedicated servers only, requires staff approval
+HDBits         | `hdb`        | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
 
 ## Usage
 Place cookies in `cookies/TRACKER.txt` where `TRACKER` is the 3-letter code of the tracker above
