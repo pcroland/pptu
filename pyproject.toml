@@ -1,3 +1,7 @@
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
 [tool.poetry]
 name = "mkt"
 version = "0.1.0"
@@ -19,6 +23,3 @@ lxml = "^4.9.1"
 [tool.poetry.scripts]
 mkt = "mkt:main"
 
-[build-system]
-requires = ["poetry-core>=1.0.0"]
-build-backend = "poetry.core.masonry.api"
