@@ -1,14 +1,9 @@
 import re
-from http.cookiejar import MozillaCookieJar
 from pathlib import Path
 
-import requests
 from bs4 import BeautifulSoup
 from imdb import Cinemagoer
-from platformdirs import PlatformDirs
-from requests.adapters import HTTPAdapter, Retry
 from rich import print
-from ruamel.yaml import YAML
 
 from pymkt.uploaders import Uploader
 
@@ -16,35 +11,10 @@ ia = Cinemagoer()
 
 
 class PTPUploader(Uploader):
+    def __init__(self):
+        super().__init__("PTP")
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
-        dirs = PlatformDirs(appname="pymkt", appauthor=False)
-
-        config = YAML().load(dirs.user_config_path / "config.yml")
-
-        jar = MozillaCookieJar(dirs.user_data_path / "cookies" / "ptp.txt")
-        jar.load()
-
-        session = requests.Session()
-        for scheme in ("http://", "https://"):
-            session.mount(
-                scheme,
-                HTTPAdapter(
-                    max_retries=Retry(
-                        total=5,
-                        backoff_factor=1,
-                        allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
-                        status_forcelist=[429, 500, 502, 503, 504],
-                        raise_on_status=False,
-                    ),
-                ),
-            )
-        session.cookies = jar
-        session.proxies = (
-            {
-                "all": config.get("proxy", {}).get("ptp"),
-            },
-        )
-
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = m.group(1).replace(".", " ")
@@ -63,7 +33,7 @@ class PTPUploader(Uploader):
         print(f"IMDb: [cyan][bold]{title}[/bold] ({year})[/cyan]")
 
         groupid = None
-        res = session.get(
+        res = self.session.get(
             url="https://passthepopcorn.me/ajax.php",
             params={
                 "action": "torrent_info",
@@ -78,7 +48,7 @@ class PTPUploader(Uploader):
         torrent_path = Path(f"{path}_files/{path.name}[PTP].torrent")
 
         if groupid:
-            res = session.get(
+            res = self.session.get(
                 url="https://passthepopcorn.me/upload.php",
                 params={
                     "groupid": groupid,
@@ -114,7 +84,7 @@ class PTPUploader(Uploader):
                 print("Press Enter to upload")
                 input()
 
-            session.post(
+            self.session.post(
                 url="https://passthepopcorn.me/upload.php",
                 params={
                     "groupid": groupid,

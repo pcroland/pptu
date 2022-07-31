@@ -1,15 +1,10 @@
 import re
 import sys
 import uuid
-from http.cookiejar import MozillaCookieJar
 from pathlib import Path
 
-import requests
 from bs4 import BeautifulSoup
-from platformdirs import PlatformDirs
-from requests.adapters import HTTPAdapter, Retry
 from rich import print
-from ruamel.yaml import YAML
 
 from pymkt.uploaders import Uploader
 
@@ -21,35 +16,10 @@ class AvZUploader(Uploader):
         "series": 3,
     }
 
+    def __init__(self):
+        super().__init__("AvZ")
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
-        dirs = PlatformDirs(appname="pymkt", appauthor=False)
-
-        config = YAML().load(dirs.user_config_path / "config.yml")
-
-        jar = MozillaCookieJar(dirs.user_data_path / "cookies" / "avz.txt")
-        jar.load()
-
-        session = requests.Session()
-        for scheme in ("http://", "https://"):
-            session.mount(
-                scheme,
-                HTTPAdapter(
-                    max_retries=Retry(
-                        total=5,
-                        backoff_factor=1,
-                        allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
-                        status_forcelist=[429, 500, 502, 503, 504],
-                        raise_on_status=False,
-                    ),
-                ),
-            )
-        session.cookies = jar
-        session.proxies = (
-            {
-                "all": config.get("proxy", {}).get("avz"),
-            },
-        )
-
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
             collection = "episode"
@@ -79,7 +49,7 @@ class AvZUploader(Uploader):
         else:
             episode = None
 
-        res = session.get(url="https://avistaz.to/", timeout=60).text
+        res = self.session.get(url="https://avistaz.to/", timeout=60).text
         soup = BeautifulSoup(res, "lxml-html")
         token = soup.select_one('meta[name="_token"]')["content"]
 
@@ -88,7 +58,7 @@ class AvZUploader(Uploader):
             title = title.replace(m.group(0), "")
             year = int(m.group(1))
 
-        r = session.get(
+        r = self.session.get(
             url="https://avistaz.to/ajax/movies/2",
             params={
                 "term": title,
@@ -120,7 +90,7 @@ class AvZUploader(Uploader):
             input()
 
         torrent_path = Path(f"{path}_files/{path.name}[AvZ].torrent")
-        r = session.post(
+        r = self.session.post(
             url="https://avistaz.to/upload/tv",
             data=data,
             files={
@@ -136,7 +106,7 @@ class AvZUploader(Uploader):
         images = []
         for i in ("01", "02", "03"):
             img = Path(f"{path}_files/{i}.png")
-            r = session.post(
+            r = self.session.post(
                 url="https://avistaz.to/ajax/image/upload",
                 data={
                     "_token": token,
@@ -193,11 +163,11 @@ class AvZUploader(Uploader):
             print("Press Enter to upload")
             input()
 
-        r = session.post(url=upload_url, data=data, timeout=60)
+        r = self.session.post(url=upload_url, data=data, timeout=60)
         print(r)
         res = r.text
         soup = BeautifulSoup(res, "lxml-html")
         print(soup.prettify())
         r.raise_for_status()
         torrent_url = soup.select_one('a[href*="/download/"]')["href"]
-        session.get(torrent_url, timeout=60)
+        self.session.get(torrent_url, timeout=60)

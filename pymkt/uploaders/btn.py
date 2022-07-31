@@ -2,16 +2,11 @@ import json
 import re
 import subprocess
 import sys
-from http.cookiejar import MozillaCookieJar
 from pathlib import Path
 
-import requests
 from bs4 import BeautifulSoup
 from langcodes import Language
-from platformdirs import PlatformDirs
-from requests.adapters import HTTPAdapter, Retry
 from rich import print
-from ruamel.yaml import YAML
 
 from pymkt.uploaders import Uploader
 
@@ -123,33 +118,10 @@ class BTNUploader(Uploader):
         "ZA": 26,
     }
 
+    def __init__(self):
+        super().__init__("BTN")
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
-        dirs = PlatformDirs(appname="pymkt", appauthor=False)
-
-        config = YAML().load(dirs.user_config_path / "config.yml")
-
-        jar = MozillaCookieJar(dirs.user_data_path / "cookies" / "btn.txt")
-        jar.load()
-
-        session = requests.Session()
-        for scheme in ("http://", "https://"):
-            session.mount(
-                scheme,
-                HTTPAdapter(
-                    max_retries=Retry(
-                        total=5,
-                        backoff_factor=1,
-                        allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
-                        status_forcelist=[429, 500, 502, 503, 504],
-                        raise_on_status=False,
-                    ),
-                ),
-            )
-        session.cookies = jar
-        session.proxies = {
-            "all": config.get("proxy", {}).get("btn"),
-        }
-
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
             type_ = "Episode"
@@ -162,7 +134,7 @@ class BTNUploader(Uploader):
 
         release_name = path.stem if path.is_file() else path.name
 
-        r = session.post(
+        r = self.session.post(
             url="https://broadcasthe.net/upload.php",
             data={
                 "type": type_,
@@ -240,7 +212,7 @@ class BTNUploader(Uploader):
             input()
 
         torrent_path = Path(f"{path}_files/{path.name}[BTN].torrent")
-        r = session.post(
+        r = self.session.post(
             url="https://broadcasthe.net/upload.php",
             data=data,
             files={

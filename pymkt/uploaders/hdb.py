@@ -1,16 +1,11 @@
 import re
 import sys
 import time
-from http.cookiejar import MozillaCookieJar
 from pathlib import Path
 
-import requests
 from bs4 import BeautifulSoup
 from imdb import Cinemagoer
-from platformdirs import PlatformDirs
-from requests.adapters import HTTPAdapter, Retry
 from rich import print
-from ruamel.yaml import YAML
 
 from pymkt.uploaders import Uploader
 
@@ -38,35 +33,10 @@ class HDBUploader(Uploader):
         "WEB-DL": 6,
     }
 
+    def __init__(self):
+        super().init("HDB")
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
-        dirs = PlatformDirs(appname="pymkt", appauthor=False)
-
-        config = YAML().load(dirs.user_config_path / "config.yml")
-
-        jar = MozillaCookieJar(dirs.user_data_path / "cookies" / "hdb.txt")
-        jar.load()
-
-        session = requests.Session()
-        for scheme in ("http://", "https://"):
-            session.mount(
-                scheme,
-                HTTPAdapter(
-                    max_retries=Retry(
-                        total=5,
-                        backoff_factor=1,
-                        allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
-                        status_forcelist=[429, 500, 502, 503, 504],
-                        raise_on_status=False,
-                    ),
-                ),
-            )
-        session.cookies = jar
-        session.proxies = (
-            {
-                "all": config.get("proxy", {}).get("hdb"),
-            },
-        )
-
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
             category = "TV"
@@ -77,7 +47,7 @@ class HDBUploader(Uploader):
         if category == "TV":
             imdb = None
 
-            res = session.get(
+            res = self.session.get(
                 url="https://hdbits.org/ajax/tvdb.php",
                 params={
                     "action": "parsename",
@@ -87,7 +57,7 @@ class HDBUploader(Uploader):
             ).json()
             print(res)
             if not (tvdb := res.get("tvdb_id")):
-                r = session.get(
+                r = self.session.get(
                     url="https://hdbits.org/ajax/tvdb.php",
                     params={
                         "action": "showsearch",
@@ -171,7 +141,7 @@ class HDBUploader(Uploader):
             print("Press Enter to upload")
             input()
 
-        res = session.post(
+        res = self.session.post(
             url="https://hdbits.org/upload/upload",
             files={
                 "file": (torrent_path.name.replace("[HDB]", ""), torrent_path.open("rb"), "application/x-bittorrent"),
@@ -180,4 +150,4 @@ class HDBUploader(Uploader):
         ).text
         soup = BeautifulSoup(res, "lxml-html")
         torrent_url = f'https://hdbits.org{soup.select_one(".js-download")["href"]}'
-        torrent_path.write_bytes(session.get(torrent_url).content)
+        torrent_path.write_bytes(self.session.get(torrent_url).content)
