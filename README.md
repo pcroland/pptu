@@ -19,6 +19,7 @@ Name           | Abbreviation | Server upload allowed
 AvistaZ        | `avz`        | :white_check_mark: Yes, if added as seedbox in profile
 BroadcasTheNet | `btn`        | :warning: Dedicated servers only, requires staff approval
 HDBits         | `hdb`        | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
+PassThePopcorn | `ptp`        | :warning: Dedicated servers only, requires staff approval
 
 ## Usage
 Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the 3-letter code of the tracker above
