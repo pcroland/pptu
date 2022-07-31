@@ -6,12 +6,15 @@ from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
+from imdb import Cinemagoer
 from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
 from ruamel.yaml import YAML
 
 from pymkt.uploaders import Uploader
+
+ia = Cinemagoer()
 
 
 class HDBUploader(Uploader):
@@ -100,7 +103,16 @@ class HDBUploader(Uploader):
             season = res["season"]
             episode = res["episode"]
         else:
-            imdb = input("Enter IMDb URL: ")
+            imdb = None
+            if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
+                title = m.group(1).replace(".", " ")
+                print(f"Detected title: [bold][cyan]{title}[/cyan][/bold]")
+
+                if imdb_results := ia.search_movie(title):
+                    imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
+            else:
+                print("[yellow][bold]WARNING[/bold]: Unable to extract title from filename[/yellow]")
+            imdb = imdb or input("Enter IMDb URL: ")
             tvdb = None
             season = None
             episode = None

@@ -10,6 +10,7 @@ authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
+cinemagoer = "^2022.2.11"
 requests = "^2.28.0"
 rich = "^12.4.4"
 httpx = "^0.23.0"
