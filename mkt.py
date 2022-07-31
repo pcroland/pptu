@@ -16,6 +16,7 @@ from pymkt.uploaders import (
     AvZUploader,
     BTNUploader,
     HDBUploader,
+    PTPUploader,
 )
 
 TRACKER_MAP = {
@@ -25,6 +26,7 @@ UPLOADER_MAP = {
     "AvZ": AvZUploader,
     "BTN": BTNUploader,
     "HDB": HDBUploader,
+    "PTP": PTPUploader,
 }
 
 
