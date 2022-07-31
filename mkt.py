@@ -8,6 +8,7 @@ from pathlib import Path
 
 import requests
 from platformdirs import PlatformDirs
+from requests.adapters import HTTPAdapter, Retry
 from rich import print
 from ruamel.yaml import YAML
 
@@ -41,6 +42,19 @@ def main():
     config = YAML().load(dirs.user_config_path / "config.yml")
 
     session = requests.Session()
+    for scheme in ("http://", "https://"):
+        session.mount(
+            scheme,
+            HTTPAdapter(
+                max_retries=Retry(
+                    total=5,
+                    backoff_factor=1,
+                    allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
+                    status_forcelist=[429, 500, 502, 503, 504],
+                    raise_on_status=False,
+                ),
+            ),
+        )
 
     d = Path(f"{args.file}_files")
     d.mkdir(exist_ok=True)
