@@ -57,7 +57,7 @@ class PTPUploader(Uploader):
             soup = BeautifulSoup(res, "lxml-html")
 
             data = {
-                "AntiCsrfToken": soup.select_one("#upload")["data-AntiCsrfToken"],
+                "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
                 "groupid": groupid,
                 "type": "Feature Film",
                 "remaster_title": "",
