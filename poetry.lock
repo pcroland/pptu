@@ -365,6 +365,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pymediainfo"
+version = "5.1.0"
+description = "A Python wrapper for the mediainfo library."
+category = "main"
+optional = false
+python-versions = ">=3.6"
+
+[[package]]
 name = "pyupgrade"
 version = "2.37.3"
 description = "A tool to automatically upgrade syntax for newer versions."
@@ -558,7 +566,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "04ac7a9db57afd378df89b4c7973959ceacfbb2bea7a861e45adb10923dd1793"
+content-hash = "37a43a4a1bf9dced7bc5bc01bf9c10dca82ce26c4d6ffa1c6bebde9d6ea022df"
 
 [metadata.files]
 anyio = [
@@ -823,6 +831,12 @@ pyflakes = [
 pygments = [
     {file = "Pygments-2.12.0-py3-none-any.whl", hash = "sha256:dc9c10fb40944260f6ed4c688ece0cd2048414940f1cea51b8b226318411c519"},
     {file = "Pygments-2.12.0.tar.gz", hash = "sha256:5eb116118f9612ff1ee89ac96437bb6b49e8f04d8a13b514ba26f620208e26eb"},
+]
+pymediainfo = [
+    {file = "pymediainfo-5.1.0-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:99bd7e562dc2040c7c60f7a57a603be964c95e2d6b34684fdc5c6046c12dba71"},
+    {file = "pymediainfo-5.1.0-py3-none-win32.whl", hash = "sha256:5df10ff7d65631a68f80846f91b06d8844cc307588788443f1716c7543d4ff8e"},
+    {file = "pymediainfo-5.1.0-py3-none-win_amd64.whl", hash = "sha256:ffba87bbac9b020526d34b7aef3094b6e9afb23b208051ffef0fbd4833007455"},
+    {file = "pymediainfo-5.1.0.tar.gz", hash = "sha256:d996c69d50081a24d6dca9679abf43ffd2be368b065f953c2c9082e5d649c734"},
 ]
 pyupgrade = [
     {file = "pyupgrade-2.37.3-py2.py3-none-any.whl", hash = "sha256:9746efd064dbf53d7f86d6f88a1d48120f58dbfc378f517768634740ea2225e2"},

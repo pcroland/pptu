@@ -3,6 +3,7 @@ from pathlib import Path
 
 from bs4 import BeautifulSoup
 from imdb import Cinemagoer
+from pymediainfo import MediaInfo
 from rich import print
 
 from pymkt.uploaders import Uploader
@@ -30,7 +31,7 @@ class PTPUploader(Uploader):
         title = imdb_movie.data["original title"]
         year = imdb_movie.data["year"]
 
-        print(f"IMDb: [cyan][bold]{title}[/bold] ({year})[/cyan]")
+        print(f"IMDb: [cyan][bold]{title}[/bold] [not bold]({year})[/not bold][/cyan]")
 
         groupid = None
         res = self.session.get(
@@ -56,6 +57,15 @@ class PTPUploader(Uploader):
             ).text
             soup = BeautifulSoup(res, "lxml-html")
 
+            if path.is_dir():
+                file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
+            else:
+                file = path
+            mediainfo_obj = MediaInfo.parse(file)
+            no_eng_subs = all(not x.language.startswith("en") for x in mediainfo_obj.audio_tracks) and all(
+                not x.language.startswith("en") for x in mediainfo_obj.text_tracks
+            )
+
             data = {
                 "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
                 "groupid": groupid,
@@ -73,11 +83,27 @@ class PTPUploader(Uploader):
                 "release_desc": "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
                     mediainfo=mediainfo, snapshots="\n".join(snapshots)
                 ),
-                "subtitles[]": [],  # TODO
                 "nfo_text": "",
-                "trumpable[]": [],  # No English Subtitles = 14
+                "trumpable[]": [14] if no_eng_subs else [],
                 "uploadtoken": "",
             }
+
+            res = self.session.post(
+                url="https://passthepopcorn.me/ajax.php",
+                params={
+                    "action": "preview_upload",
+                },
+                data={
+                    "ReleaseDescription": data["release_desc"],
+                    "AntiCsrfToken": data["AntiCsrfToken"],
+                },
+            ).json()
+            data.update(
+                {
+                    "subtitles[]": res["SubtitleIds"],
+                }
+            )
+
             print(data)
 
             if not auto:
@@ -89,28 +115,7 @@ class PTPUploader(Uploader):
                 params={
                     "groupid": groupid,
                 },
-                data={
-                    "AntiCsrfToken": soup.select_one("#upload")["data-AntiCsrfToken"],
-                    "groupid": groupid,
-                    "type": "Feature Film",
-                    "remaster_title": "",
-                    "remaster_year": "",
-                    "internalrip": "on",  # TODO: Allow customizing this
-                    "source": "WEB",  # TODO: Auto-detect this instead of hardcoding
-                    "other_source": "",
-                    "codec": "* Auto-detect",
-                    "container": "* Auto-detect",
-                    "resolution": "* Auto-detect",
-                    "other_resolution_width": "",
-                    "other_resolution_height": "",
-                    "release_desc": "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
-                        mediainfo=mediainfo, snapshots="\n".join(snapshots)
-                    ),
-                    "subtitles[]": [],  # TODO
-                    "nfo_text": "",
-                    "trumpable[]": [],  # No English Subtitles = 14
-                    "uploadtoken": "",
-                },
+                data=data,
                 files={
                     "file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
                 },
