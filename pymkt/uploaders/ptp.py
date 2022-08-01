@@ -43,82 +43,78 @@ class PTPUploader(Uploader):
             },
         ).json()
         print(res)
-        if res:
-            groupid = res[0]["groupid"]
+        groupid = res[0].get("groupid")
 
         torrent_path = Path(f"{path}_files/{path.name}[PTP].torrent")
 
-        if groupid:
-            res = self.session.get(
-                url="https://passthepopcorn.me/upload.php",
-                params={
-                    "groupid": groupid,
-                },
-            ).text
-            soup = BeautifulSoup(res, "lxml-html")
-
-            if path.is_dir():
-                file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
-            else:
-                file = path
-            mediainfo_obj = MediaInfo.parse(file)
-            no_eng_subs = all(not x.language.startswith("en") for x in mediainfo_obj.audio_tracks) and all(
-                not x.language.startswith("en") for x in mediainfo_obj.text_tracks
-            )
-
-            data = {
-                "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
+        res = self.session.get(
+            url="https://passthepopcorn.me/upload.php",
+            params={
                 "groupid": groupid,
-                "type": "Feature Film",
-                "remaster_title": "",
-                "remaster_year": "",
-                "internalrip": "on",  # TODO: Allow customizing this
-                "source": "WEB",  # TODO: Auto-detect this instead of hardcoding
-                "other_source": "",
-                "codec": "* Auto-detect",
-                "container": "* Auto-detect",
-                "resolution": "* Auto-detect",
-                "other_resolution_width": "",
-                "other_resolution_height": "",
-                "release_desc": "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
-                    mediainfo=mediainfo, snapshots="\n".join(snapshots)
-                ),
-                "nfo_text": "",
-                "trumpable[]": [14] if no_eng_subs else [],
-                "uploadtoken": "",
-            }
+            },
+        ).text
+        soup = BeautifulSoup(res, "lxml-html")
 
-            res = self.session.post(
-                url="https://passthepopcorn.me/ajax.php",
-                params={
-                    "action": "preview_upload",
-                },
-                data={
-                    "ReleaseDescription": data["release_desc"],
-                    "AntiCsrfToken": data["AntiCsrfToken"],
-                },
-            ).json()
-            data.update(
-                {
-                    "subtitles[]": res["SubtitleIds"],
-                }
-            )
-
-            print(data)
-
-            if not auto:
-                print("Press Enter to upload")
-                input()
-
-            self.session.post(
-                url="https://passthepopcorn.me/upload.php",
-                params={
-                    "groupid": groupid,
-                },
-                data=data,
-                files={
-                    "file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
-                },
-            )
+        if path.is_dir():
+            file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
         else:
-            print("[red][bold]ERROR[/bold]: Uploading new titles is not implemented yet")
+            file = path
+        mediainfo_obj = MediaInfo.parse(file)
+        no_eng_subs = all(not x.language.startswith("en") for x in mediainfo_obj.audio_tracks) and all(
+            not x.language.startswith("en") for x in mediainfo_obj.text_tracks
+        )
+
+        data = {
+            "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
+            "type": "Feature Film",
+            "remaster_title": "",
+            "remaster_year": "",
+            "internalrip": "on",  # TODO: Allow customizing this
+            "source": "WEB",  # TODO: Auto-detect this instead of hardcoding
+            "other_source": "",
+            "codec": "* Auto-detect",
+            "container": "* Auto-detect",
+            "resolution": "* Auto-detect",
+            "other_resolution_width": "",
+            "other_resolution_height": "",
+            "release_desc": "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
+                mediainfo=mediainfo, snapshots="\n".join(snapshots)
+            ),
+            "nfo_text": "",
+            "trumpable[]": [14] if no_eng_subs else [],
+            "uploadtoken": "",
+            **res[0],
+        }
+
+        res = self.session.post(
+            url="https://passthepopcorn.me/ajax.php",
+            params={
+                "action": "preview_upload",
+            },
+            data={
+                "ReleaseDescription": data["release_desc"],
+                "AntiCsrfToken": data["AntiCsrfToken"],
+            },
+        ).json()
+        data.update(
+            {
+                "subtitles[]": res["SubtitleIds"],
+            }
+        )
+
+        print(data)
+
+        if not auto:
+            print("Press Enter to upload")
+            input()
+
+        self.session.post(
+            url="https://passthepopcorn.me/upload.php",
+            params={
+                "groupid": groupid,
+            },
+            data=data,
+            files={
+                "file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
+            },
+        )
