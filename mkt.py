@@ -115,6 +115,8 @@ def main():
     snapshots = []
     for i in range(args.snapshots):
         snap = d / f"{(i + 1):02}.png"
+        if snap.exists():
+            continue
         subprocess.run(
             [
                 "ffmpeg",
@@ -159,6 +161,8 @@ def main():
     thumbnails = ""
     for i in range(args.snapshots):
         thumb = d / f"{(i + 1):02}_thumb.png"
+        if thumb.exists():
+            continue
         subprocess.run(
             ["ffmpeg", "-y", "-v", "error", "-stats", "-i", d / f"{(i + 1):02}.png", "-vf", "scale=300:-1", thumb],
             check=True,
