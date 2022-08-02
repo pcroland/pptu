@@ -58,8 +58,8 @@ def main():
             ),
         )
 
-    d = Path(f"{args.file}_files")
-    d.mkdir(exist_ok=True)
+    d = dirs.user_cache_path / f"{args.file.name}_files"
+    d.mkdir(parents=True, exist_ok=True)
 
     print(r"[bold green]\[1/5] Creating torrent files[/bold green]")
     base_torrent_path = d / f"{args.file.name}.torrent"

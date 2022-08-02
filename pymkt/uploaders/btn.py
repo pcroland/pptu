@@ -2,7 +2,6 @@ import json
 import re
 import subprocess
 import sys
-from pathlib import Path
 
 from bs4 import BeautifulSoup
 from langcodes import Language
@@ -211,7 +210,7 @@ class BTNUploader(Uploader):
             print("Press Enter to upload")
             input()
 
-        torrent_path = Path(f"{path}_files/{path.name}[BTN].torrent")
+        torrent_path = self.dirs.user_cache_dir / f"{path}_files" / f"{path.name}[BTN].torrent"
         r = self.session.post(
             url="https://broadcasthe.net/upload.php",
             data=data,

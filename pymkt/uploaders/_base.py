@@ -9,11 +9,11 @@ from ruamel.yaml import YAML
 
 class Uploader(ABC):
     def __init__(self, name):
-        dirs = PlatformDirs(appname="pymkt", appauthor=False)
+        self.dirs = PlatformDirs(appname="pymkt", appauthor=False)
 
-        config = YAML().load(dirs.user_config_path / "config.yml")
+        config = YAML().load(self.dirs.user_config_path / "config.yml")
 
-        jar = MozillaCookieJar(dirs.user_data_path / "cookies" / f"{name.lower()}.txt")
+        jar = MozillaCookieJar(self.dirs.user_data_path / "cookies" / f"{name.lower()}.txt")
         jar.load()
 
         self.session = requests.Session()

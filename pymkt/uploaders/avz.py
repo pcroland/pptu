@@ -1,7 +1,6 @@
 import re
 import sys
 import uuid
-from pathlib import Path
 
 from bs4 import BeautifulSoup
 from rich import print
@@ -90,7 +89,7 @@ class AvZUploader(Uploader):
             print("Press Enter to continue")
             input()
 
-        torrent_path = Path(f"{path}_files/{path.name}[AvZ].torrent")
+        torrent_path = self.dirs.user_cache_path / f"{path}_files" / f"{path.name}[AvZ].torrent"
         r = self.session.post(
             url=f"https://avistaz.to/upload/{'movie' if collection == 'movie' else 'tv'}",
             data=data,
@@ -106,7 +105,7 @@ class AvZUploader(Uploader):
 
         images = []
         for i in ("01", "02", "03"):
-            img = Path(f"{path}_files/{i}.png")
+            img = torrent_path.parent / f"{i}.png"
             r = self.session.post(
                 url="https://avistaz.to/ajax/image/upload",
                 data={
