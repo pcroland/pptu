@@ -33,7 +33,7 @@ class HDBUploader(Uploader):
     }
 
     def __init__(self):
-        super().init("HDB")
+        super().__init__("HDB")
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
