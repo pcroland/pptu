@@ -14,7 +14,7 @@ class PassThePopcornUploader(Uploader):
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
-            title = m.group(1).replace(".", " ")
+            title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
             print(f"Detected title: [bold][cyan]{title}[/cyan][/bold]")
 
             if imdb_results := ia.search_movie(title):
