@@ -10,7 +10,7 @@ from rich import print
 from pymkt.uploaders import Uploader
 
 
-class BTNUploader(Uploader):
+class BroadcasTheNetUploader(Uploader):
     COUNTRY_MAP = {
         "AD": 65,
         "AF": 51,
@@ -116,9 +116,6 @@ class BTNUploader(Uploader):
         "YU": 35,
         "ZA": 26,
     }
-
-    def __init__(self):
-        super().__init__("BTN")
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):

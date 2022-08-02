@@ -11,7 +11,7 @@ from pymkt.uploaders import Uploader
 ia = Cinemagoer()
 
 
-class HDBUploader(Uploader):
+class HDBitsUploader(Uploader):
     CATEGORY_MAP = {
         "Movie": 1,
         "TV": 2,
@@ -31,9 +31,6 @@ class HDBUploader(Uploader):
         "Remux": 5,
         "WEB-DL": 6,
     }
-
-    def __init__(self):
-        super().__init__("HDB")
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):

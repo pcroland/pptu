@@ -13,20 +13,20 @@ from rich import print
 from ruamel.yaml import YAML
 
 from pymkt.uploaders import (
-    AvZUploader,
-    BTNUploader,
-    HDBUploader,
-    PTPUploader,
+    AvistaZUploader,
+    BroadcasTheNetUploader,
+    HDBitsUploader,
+    PassThePopcornUploader,
 )
 
 TRACKER_MAP = {
     "AVZ": "AvZ",
 }
 UPLOADER_MAP = {
-    "AvZ": AvZUploader,
-    "BTN": BTNUploader,
-    "HDB": HDBUploader,
-    "PTP": PTPUploader,
+    "AvZ": AvistaZUploader,
+    "BTN": BroadcasTheNetUploader,
+    "HDB": HDBitsUploader,
+    "PTP": PassThePopcornUploader,
 }
 
 

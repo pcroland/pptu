@@ -8,10 +8,12 @@ from ruamel.yaml import YAML
 
 
 class Uploader(ABC):
-    def __init__(self, name):
+    def __init__(self):
         self.dirs = PlatformDirs(appname="pymkt", appauthor=False)
 
         config = YAML().load(self.dirs.user_config_path / "config.yml")
+
+        name = self.__class__.__name__.replace("Uploader", "")
 
         jar = MozillaCookieJar(self.dirs.user_data_path / "cookies" / f"{name.lower()}.txt")
         jar.load(ignore_expires=True, ignore_discard=True)

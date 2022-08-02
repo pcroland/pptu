@@ -8,16 +8,13 @@ from rich import print
 from pymkt.uploaders import Uploader
 
 
-class AvZUploader(Uploader):
+class AvistaZUploader(Uploader):
     COLLECTION_MAP = {
         "movie": None,
         "episode": 1,
         "season": 2,
         "series": 3,
     }
-
-    def __init__(self):
-        super().__init__("AvZ")
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):

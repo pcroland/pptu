@@ -10,10 +10,7 @@ from pymkt.uploaders import Uploader
 ia = Cinemagoer()
 
 
-class PTPUploader(Uploader):
-    def __init__(self):
-        super().__init__("PTP")
-
+class PassThePopcornUploader(Uploader):
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
