@@ -14,7 +14,7 @@ class Uploader(ABC):
         config = YAML().load(self.dirs.user_config_path / "config.yml")
 
         jar = MozillaCookieJar(self.dirs.user_data_path / "cookies" / f"{name.lower()}.txt")
-        jar.load()
+        jar.load(ignore_expires=True, ignore_discard=True)
 
         self.session = requests.Session()
         for scheme in ("http://", "https://"):
