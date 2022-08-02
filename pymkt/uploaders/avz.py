@@ -11,6 +11,7 @@ from pymkt.uploaders import Uploader
 
 class AvZUploader(Uploader):
     COLLECTION_MAP = {
+        "movie": None,
         "episode": 1,
         "season": 2,
         "series": 3,
@@ -29,8 +30,7 @@ class AvZUploader(Uploader):
         elif re.search(r"\.S\d+-S?\d+\.", str(path)):
             collection = "series"
         else:
-            print("[red][bold]ERROR[/bold]: Movies are not yet supported[/red]")
-            sys.exit(1)
+            collection = "movie"
 
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = m.group(1).replace(".", " ")
@@ -39,15 +39,16 @@ class AvZUploader(Uploader):
             print("[red][bold]ERROR[/bold]: Unable to extract title from filename[/red]")
             sys.exit(1)
 
-        if m := re.search(r"\.S(\d+)[E.]", path.name):
-            season = int(m.group(1))
-        else:
-            print("[red][bold]ERROR[/bold]: Unable to extract season from filename[/red]")
+        season = None
+        if collection != "movie":
+            if m := re.search(r"\.S(\d+)[E.]", path.name):
+                season = int(m.group(1))
+            else:
+                print("[red][bold]ERROR[/bold]: Unable to extract season from filename[/red]")
 
+        episode = None
         if m := re.search(r"\.S\d+E(\d+)\.", path.name):
             episode = int(m.group(1))
-        else:
-            episode = None
 
         res = self.session.get(url="https://avistaz.to/", timeout=60).text
         soup = BeautifulSoup(res, "lxml-html")
@@ -59,7 +60,7 @@ class AvZUploader(Uploader):
             year = int(m.group(1))
 
         r = self.session.get(
-            url="https://avistaz.to/ajax/movies/2",
+            url=f"https://avistaz.to/ajax/movies/{'1' if collection == 'movie' else '2'}",
             params={
                 "term": title,
             },
@@ -79,7 +80,7 @@ class AvZUploader(Uploader):
         )
         data = {
             "_token": token,
-            "type_id": 2,
+            "type_id": 1 if collection == "movie" else 2,
             "movie_id": movie_id,
             "media_info": mediainfo,
         }
@@ -91,7 +92,7 @@ class AvZUploader(Uploader):
 
         torrent_path = Path(f"{path}_files/{path.name}[AvZ].torrent")
         r = self.session.post(
-            url="https://avistaz.to/upload/tv",
+            url=f"https://avistaz.to/upload/{'movie' if collection == 'movie' else 'tv'}",
             data=data,
             files={
                 "torrent_file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
@@ -132,7 +133,7 @@ class AvZUploader(Uploader):
             "_token": token,
             "info_hash": soup.select_one('input[name="info_hash"]')["value"],
             "torrent_id": "",
-            "type_id": 2,
+            "type_id": 1 if collection == "movie" else 2,
             "task_id": upload_url.split("/")[-1],
             "file_name": (
                 (path.stem if path.is_file() else path.name)
