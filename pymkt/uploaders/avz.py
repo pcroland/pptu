@@ -49,7 +49,9 @@ class AvZUploader(Uploader):
         if m := re.search(r"\.S\d+E(\d+)\.", path.name):
             episode = int(m.group(1))
 
-        res = self.session.get(url="https://avistaz.to/", timeout=60).text
+        r = self.session.get(url="https://avistaz.to/", timeout=60)
+        print(r, r.url)
+        res = r.text
         soup = BeautifulSoup(res, "lxml-html")
         token = soup.select_one('meta[name="_token"]')["content"]
 
