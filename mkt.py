@@ -116,29 +116,28 @@ def main():
         snapshots = []
         for i in range(args.snapshots):
             snap = d / f"{(i + 1):02}.png"
-            if snap.exists():
-                continue
-            subprocess.run(
-                [
-                    "ffmpeg",
-                    "-y",
-                    "-v",
-                    "error",
-                    "-stats",
-                    "-ss",
-                    str((60 if args.short else 300) * (i + 1)),
-                    "-i",
-                    files[i],
-                    "-vf",
-                    "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
-                    "-frames:v",
-                    "1",
-                    snap,
-                ],
-                check=True,
-            )
-            subprocess.run(["convert", snap, "-depth", "8", snap], capture_output=True)
-            subprocess.run(["oxipng", snap], capture_output=True)
+            if not snap.exists():
+                subprocess.run(
+                    [
+                        "ffmpeg",
+                        "-y",
+                        "-v",
+                        "error",
+                        "-stats",
+                        "-ss",
+                        str((60 if args.short else 300) * (i + 1)),
+                        "-i",
+                        files[i],
+                        "-vf",
+                        "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
+                        "-frames:v",
+                        "1",
+                        snap,
+                    ],
+                    check=True,
+                )
+                subprocess.run(["convert", snap, "-depth", "8", snap], capture_output=True)
+                subprocess.run(["oxipng", snap], capture_output=True)
             with open(snap, "rb") as fd:
                 r = session.post(
                     url="https://ptpimg.me/upload.php",
@@ -162,14 +161,24 @@ def main():
         thumbnails = ""
         for i in range(args.snapshots):
             thumb = d / f"{(i + 1):02}_thumb.png"
-            if thumb.exists():
-                continue
-            subprocess.run(
-                ["ffmpeg", "-y", "-v", "error", "-stats", "-i", d / f"{(i + 1):02}.png", "-vf", "scale=300:-1", thumb],
-                check=True,
-            )
-            subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
-            subprocess.run(["oxipng", thumb], capture_output=True)
+            if not thumb.exists():
+                subprocess.run(
+                    [
+                        "ffmpeg",
+                        "-y",
+                        "-v",
+                        "error",
+                        "-stats",
+                        "-i",
+                        d / f"{(i + 1):02}.png",
+                        "-vf",
+                        "scale=300:-1",
+                        thumb,
+                    ],
+                    check=True,
+                )
+                subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
+                subprocess.run(["oxipng", thumb], capture_output=True)
             with open(thumb, "rb") as fd:
                 r = session.post(
                     url="https://ptpimg.me/upload.php",
