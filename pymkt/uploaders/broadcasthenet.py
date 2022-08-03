@@ -207,7 +207,7 @@ class BroadcasTheNetUploader(Uploader):
             print("Press Enter to upload")
             input()
 
-        torrent_path = self.dirs.user_cache_dir / f"{path}_files" / f"{path.name}[BTN].torrent"
+        torrent_path = self.dirs.user_cache_path / f"{path}_files" / f"{path.name}[BTN].torrent"
         r = self.session.post(
             url="https://broadcasthe.net/upload.php",
             data=data,
