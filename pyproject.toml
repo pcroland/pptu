@@ -10,17 +10,17 @@ authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
 
 [tool.poetry.dependencies]
 python = "^3.10"
-cinemagoer = "^2022.2.11"
-requests = "^2.28.0"
-rich = "^12.4.4"
-httpx = "^0.23.0"
 beautifulsoup4 = "^4.11.1"
+cinemagoer = "^2022.2.11"
+guessit = "^3.4.3"
+httpx = "^0.23.0"
 langcodes = "^3.3.0"
 lxml = "^4.9.1"
 platformdirs = "^2.5.2"
 pymediainfo = "^5.1.0"
+requests = "^2.28.0"
 "ruamel.yaml" = "^0.17.21"
-guessit = "^3.4.3"
+rich = "^12.4.4"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
