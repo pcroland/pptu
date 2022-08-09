@@ -20,6 +20,7 @@ lxml = "^4.9.1"
 platformdirs = "^2.5.2"
 pymediainfo = "^5.1.0"
 "ruamel.yaml" = "^0.17.21"
+guessit = "^3.4.3"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"

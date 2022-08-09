@@ -3,6 +3,7 @@ import sys
 import time
 
 from bs4 import BeautifulSoup
+from guessit import guessit
 from imdb import Cinemagoer
 from rich import print
 
@@ -117,8 +118,11 @@ class HDBitsUploader(Uploader):
 
         torrent_path = self.dirs.user_cache_path / f"{path}_files" / f"{path.name}[HDB].torrent"
 
+        gi = guessit(path.name)
+        name = path.name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
+
         data = {
-            "name": path.name,
+            "name": name,
             "category": self.CATEGORY_MAP[category],
             "codec": self.CODEC_MAP[codec],
             "medium": self.MEDIUM_MAP[medium],
