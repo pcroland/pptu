@@ -119,7 +119,10 @@ class HDBitsUploader(Uploader):
         torrent_path = self.dirs.user_cache_path / f"{path}_files" / f"{path.name}[HDB].torrent"
 
         gi = guessit(path.name)
+        # Strip episode title
         name = path.name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
+        # Strip streaming service
+        name = re.sub(r"(\d+p)\.[a-z0-9]+\.(web)", r"\1.\2", name, flags=re.IGNORECASE)
 
         data = {
             "name": name,
