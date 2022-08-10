@@ -154,3 +154,5 @@ class HDBitsUploader(Uploader):
         soup = BeautifulSoup(res, "lxml-html")
         torrent_url = f'https://hdbits.org{soup.select_one(".js-download")["href"]}'
         torrent_path.write_bytes(self.session.get(torrent_url).content)
+
+        return True

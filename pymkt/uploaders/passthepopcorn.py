@@ -114,3 +114,5 @@ class PassThePopcornUploader(Uploader):
                 "file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
             },
         )
+
+        return True

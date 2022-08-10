@@ -222,3 +222,5 @@ class BroadcasTheNetUploader(Uploader):
             },
             timeout=60,
         )
+
+        return True

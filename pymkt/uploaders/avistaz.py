@@ -171,3 +171,5 @@ class AvistaZUploader(Uploader):
         r.raise_for_status()
         torrent_url = soup.select_one('a[href*="/download/"]')["href"]
         self.session.get(torrent_url, timeout=60)
+
+        return True

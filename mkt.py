@@ -215,10 +215,12 @@ def main():
                 print(thumbnails.replace("[", r"\["))
                 continue
             uploader = uploader_cls()
-            uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto)
-            torrent_path = Path(d / f"{file.name}[{tracker_str}].torrent")
-            if watch_dir := config.get("watch_dir"):
-                shutil.copyfile(torrent_path, (Path(watch_dir) / torrent_path.name).expanduser())
+            if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
+                torrent_path = Path(d / f"{file.name}[{tracker_str}].torrent")
+                if watch_dir := config.get("watch_dir"):
+                    shutil.copyfile(torrent_path, (Path(watch_dir) / torrent_path.name).expanduser())
+            else:
+                print(f"[red][bold]ERROR[/bold]: Upload to {tracker_str} failed[/red]")
 
 
 if __name__ == "__main__":
