@@ -22,7 +22,7 @@ HDBits         | `hdb`        | :white_check_mark: Yes, if IP whitelisted in pro
 PassThePopcorn | `ptp`        | :warning: Dedicated servers only, requires staff approval
 
 ## Usage
-Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the 3-letter code of the tracker above
+Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the name of the tracker above
 (all lowercase).
 
 If you need to use a proxy (because you're uploading from a server for example),
