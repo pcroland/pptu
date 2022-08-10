@@ -4,6 +4,7 @@ import subprocess
 import sys
 
 from bs4 import BeautifulSoup
+from guessit import guessit
 from langcodes import Language
 from rich import print
 
@@ -177,6 +178,11 @@ class BroadcasTheNetUploader(Uploader):
         print(f"Detected country as {lang.territory}")
 
         print(soup.prettify())
+
+        # Strip episode title if name is too long
+        if len(release_name) > 100:
+            gi = guessit(release_name)
+            release_name = release_name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
 
         data = {
             "submit": "true",
