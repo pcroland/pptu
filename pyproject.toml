@@ -9,7 +9,7 @@ description = "Python torrent creator and auto-uploader"
 authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.8"
 beautifulsoup4 = "^4.11.1"
 cinemagoer = "^2022.2.11"
 guessit = "^3.4.3"
