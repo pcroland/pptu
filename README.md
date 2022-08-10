@@ -6,8 +6,6 @@ Python torrent creator and auto-uploader
 * Python 3.8+
 * Python package dependencies (`poetry install` or `pip install .`)
 * torrenttools (for creating torrents)
-* `chtor` from pyrocore (for creating fast resume metadata).
-  This dependency will probably be eliminated eventually.
 * MediaInfo CLI (for generating tech info)
 * FFmpeg (for creating snapshots)
 * ImageMagick + oxipng (for optimizing snapshots) [optional but recommended]

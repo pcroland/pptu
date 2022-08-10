@@ -22,6 +22,14 @@ html5lib = ["html5lib"]
 lxml = ["lxml"]
 
 [[package]]
+name = "bencode.py"
+version = "4.0.0"
+description = "Simple bencode parser (for Python 2, Python 3 and PyPy)"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "black"
 version = "22.6.0"
 description = "The uncompromising code formatter."
@@ -335,6 +343,21 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pyrosimple"
+version = "1.2.0"
+description = ""
+category = "main"
+optional = false
+python-versions = ">3.6,<4"
+
+[package.dependencies]
+"bencode.py" = ">=4.0.0,<5.0.0"
+Tempita = ">=0.5.2,<0.6.0"
+
+[package.extras]
+torque = ["pyinotify (>=0.9.6,<0.10.0)", "APScheduler (>=3.9.0,<4.0.0)"]
+
+[[package]]
 name = "python-dateutil"
 version = "2.8.2"
 description = "Extensions to the standard Python datetime module"
@@ -482,6 +505,14 @@ pymysql = ["pymysql (<1)", "pymysql"]
 sqlcipher = ["sqlcipher3-binary"]
 
 [[package]]
+name = "tempita"
+version = "0.5.2"
+description = "A very small text templating language"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "tokenize-rt"
 version = "4.2.1"
 description = "A wrapper around the stdlib `tokenize` which roundtrips."
@@ -538,7 +569,7 @@ testing = ["coverage (>=4)", "coverage-enable-subprocess (>=1)", "flaky (>=3)", 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10"
-content-hash = "b7b704b2ea49689a52442be536dd274b0825cd09d8bcaeed7cedb1a5e3d58985"
+content-hash = "7cbe9349e79ca000f409344a447ce2008f79a17752a26b27c3dcfe2ca32a4140"
 
 [metadata.files]
 babelfish = [
@@ -548,6 +579,10 @@ babelfish = [
 beautifulsoup4 = [
     {file = "beautifulsoup4-4.11.1-py3-none-any.whl", hash = "sha256:58d5c3d29f5a36ffeb94f02f0d786cd53014cf9b3b3951d42e0080d8a9498d30"},
     {file = "beautifulsoup4-4.11.1.tar.gz", hash = "sha256:ad9aa55b65ef2808eb405f46cf74df7fcb7044d5cbc26487f96eb2ef2e436693"},
+]
+"bencode.py" = [
+    {file = "bencode.py-4.0.0-py2.py3-none-any.whl", hash = "sha256:99c06a55764e85ffe81622fdf9ee78bd737bad3ea61d119784a54bb28860d962"},
+    {file = "bencode.py-4.0.0.tar.gz", hash = "sha256:2a24ccda1725a51a650893d0b63260138359eaa299bb6e7a09961350a2a6e05c"},
 ]
 black = [
     {file = "black-22.6.0-cp310-cp310-macosx_10_9_universal2.whl", hash = "sha256:f586c26118bc6e714ec58c09df0157fe2d9ee195c764f630eb0d8e7ccce72e69"},
@@ -802,6 +837,10 @@ pymediainfo = [
     {file = "pymediainfo-5.1.0-py3-none-win_amd64.whl", hash = "sha256:ffba87bbac9b020526d34b7aef3094b6e9afb23b208051ffef0fbd4833007455"},
     {file = "pymediainfo-5.1.0.tar.gz", hash = "sha256:d996c69d50081a24d6dca9679abf43ffd2be368b065f953c2c9082e5d649c734"},
 ]
+pyrosimple = [
+    {file = "pyrosimple-1.2.0-py3-none-any.whl", hash = "sha256:dbeab56cd501c5f63704c3fe01fda44cada275195a3ab2f3ae76de7e24357b83"},
+    {file = "pyrosimple-1.2.0.tar.gz", hash = "sha256:3eaeaebaa77c5e11dbc397e5fe25046c6a668825e8a701fcaf6782bac6147d35"},
+]
 python-dateutil = [
     {file = "python-dateutil-2.8.2.tar.gz", hash = "sha256:0123cacc1627ae19ddf3c27a5de5bd67ee4586fbdd6440d9748f8abb483d3e86"},
     {file = "python_dateutil-2.8.2-py2.py3-none-any.whl", hash = "sha256:961d03dc3453ebbc59dbdea9e4e11c5651520a876d0f4db161e8674aae935da9"},
@@ -933,6 +972,10 @@ sqlalchemy = [
     {file = "SQLAlchemy-1.4.39-cp39-cp39-win32.whl", hash = "sha256:d1f665e50592caf4cad3caed3ed86f93227bffe0680218ccbb293bd5a6734ca8"},
     {file = "SQLAlchemy-1.4.39-cp39-cp39-win_amd64.whl", hash = "sha256:8b773c9974c272aae0fa7e95b576d98d17ee65f69d8644f9b6ffc90ee96b4d19"},
     {file = "SQLAlchemy-1.4.39.tar.gz", hash = "sha256:8194896038753b46b08a0b0ae89a5d80c897fb601dd51e243ed5720f1f155d27"},
+]
+tempita = [
+    {file = "Tempita-0.5.2-py3-none-any.whl", hash = "sha256:f4554840cb59c6b4a5df4fad27eea4e3cb47ca7089bfeefb5890ff1bb8af2117"},
+    {file = "Tempita-0.5.2.tar.gz", hash = "sha256:cacecf0baa674d356641f1d406b8bff1d756d739c46b869a54de515d08e6fc9c"},
 ]
 tokenize-rt = [
     {file = "tokenize_rt-4.2.1-py2.py3-none-any.whl", hash = "sha256:08a27fa032a81cf45e8858d0ac706004fcd523e8463415ddf1442be38e204ea8"},
