@@ -120,7 +120,7 @@ class HDBitsUploader(Uploader):
 
         gi = guessit(path.name)
         # Strip episode title
-        name = path.name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
+        name = path.name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
         # Strip streaming service
         name = re.sub(r"(\d+p)\.[a-z0-9]+\.(web)", r"\1.\2", name, flags=re.IGNORECASE)
 
