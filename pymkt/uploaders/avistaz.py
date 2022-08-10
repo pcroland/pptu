@@ -1,6 +1,7 @@
 import re
 import sys
 import uuid
+from http.cookiejar import MozillaCookieJar
 
 from bs4 import BeautifulSoup
 from rich import print
@@ -46,8 +47,23 @@ class AvistaZUploader(Uploader):
         if m := re.search(r"\.S\d+E(\d+)\.", path.name):
             episode = int(m.group(1))
 
-        r = self.session.get(url="https://avistaz.to/", timeout=60)
-        self.session.cookies.save(ignore_expires=True, ignore_discard=True)
+        while True:
+            r = self.session.get(url="https://avistaz.to/account", allow_redirects=False, timeout=60)
+            if r.status_code == 200:
+                break
+
+            if auto:
+                print("[red][bold]ERROR[/bold]: Cookies expired, skipping upload.[/red]")
+                return False
+            else:
+                print(
+                    "[yellow][bold]WARNING[/bold]: "
+                    "Cookies expired, please replace them and press Enter to continue.[/yellow]"
+                )
+                input()
+                jar = MozillaCookieJar(self.dirs.user_data_path / "cookies" / "avistaz.txt")
+                jar.load(ignore_expires=True, ignore_discard=True)
+                self.session.cookies = jar
         print(r, r.url)
         res = r.text
         soup = BeautifulSoup(res, "lxml-html")
