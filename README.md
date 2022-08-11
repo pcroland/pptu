@@ -27,7 +27,7 @@ Make sure to set a passkey for each tracker, and you can optionally specify a pr
 Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the name or the abbreviation of the
 tracker above (all lowercase).
 
-Install dependencies and the script with `poetry install`.
+Install dependencies and the script with `./install.sh`. You can re-run the script to update after a git pull.
 
 ```
 $ mkt -t tracker1,tracker2,tracker3 FILE_OR_FOLDER
