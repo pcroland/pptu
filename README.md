@@ -9,7 +9,6 @@ Python torrent creator and auto-uploader
 * MediaInfo CLI (for generating tech info)
 * FFmpeg (for generating snapshots)
 * ImageMagick + oxipng (for optimizing snapshots) [optional but recommended]
-* `PTPIMG_API_KEY` environment variable (for uploading snapshots)
 
 ## Supported trackers
 Name           | Abbreviation | Server upload allowed
