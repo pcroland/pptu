@@ -12,6 +12,9 @@ from pymkt.uploaders import Uploader
 
 
 class BroadcasTheNetUploader(Uploader):
+    name = "BroadcasTheNet"
+    abbrev = "BTN"
+
     COUNTRY_MAP = {
         "AD": 65,
         "AF": 51,

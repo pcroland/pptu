@@ -11,7 +11,6 @@ import requests
 from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
-from ruamel.yaml import YAML
 
 from pymkt.uploaders import (
     AvistaZUploader,
@@ -19,15 +18,13 @@ from pymkt.uploaders import (
     HDBitsUploader,
     PassThePopcornUploader,
 )
+from pymkt.utils import Config
 
-TRACKER_MAP = {
-    "AVZ": "AvZ",
-}
-UPLOADER_MAP = {
-    "AvZ": AvistaZUploader,
-    "BTN": BroadcasTheNetUploader,
-    "HDB": HDBitsUploader,
-    "PTP": PassThePopcornUploader,
+UPLOADERS = {
+    AvistaZUploader,
+    BroadcasTheNetUploader,
+    HDBitsUploader,
+    PassThePopcornUploader,
 }
 
 
@@ -42,7 +39,7 @@ def main():
 
     dirs = PlatformDirs(appname="pymkt", appauthor=False)
 
-    config = YAML().load(dirs.user_config_path / "config.yml")
+    config = Config(dirs.user_config_path / "config.toml")
 
     session = requests.Session()
     for scheme in ("http://", "https://"):
@@ -58,6 +55,8 @@ def main():
                 ),
             ),
         )
+
+    trackers = {}
 
     for file in args.file:
         d = dirs.user_cache_path / f"{file.name}_files"
@@ -81,8 +80,17 @@ def main():
                 ],
                 check=True,
             )
-        for tracker in args.trackers:
-            tracker_str = TRACKER_MAP.get(t := tracker.upper(), t)
+        for tracker_name in args.trackers:
+            try:
+                tracker = trackers[tracker_name] = next(
+                    x
+                    for x in UPLOADERS
+                    if x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold()
+                )
+            except StopIteration:
+                print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
+                continue
+
             subprocess.run(
                 [
                     "torrenttools",
@@ -92,14 +100,14 @@ def main():
                     "--no-created-by",
                     "--no-creation-date",
                     "-a",
-                    tracker,
+                    tracker.name,
                     "-o",
-                    d / f"{file.name}[{tracker_str}].torrent",
+                    d / f"{file.name}[{tracker.abbrev}].torrent",
                     d / f"{file.name}.torrent",
                 ],
                 check=True,
             )
-            subprocess.run(["chtor", "-H", file, d / f"{file.name}[{tracker_str}].torrent"], check=True)
+            subprocess.run(["chtor", "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"], check=True)
 
         print("\n[bold green]\\[2/5] Generating MediaInfo[/bold green]")
         if file.is_file():
@@ -207,23 +215,15 @@ def main():
         print("Done!")
 
         print("\n[bold green]\\[5/5] Uploading[/bold green]")
-        for tracker in args.trackers:
-            tracker_str = TRACKER_MAP.get(t := tracker.upper(), t)
-            if not (uploader_cls := UPLOADER_MAP.get(tracker_str)):
-                print(
-                    f"[yellow][bold]WARNING[/bold]: No uploader available for {tracker_str}, "
-                    f"you must upload manually.[/yellow]"
-                )
-                print("\n".join(snapshots))
-                print(thumbnails.replace("[", r"\["))
-                continue
-            uploader = uploader_cls()
+        for tracker_name in args.trackers:
+            tracker = trackers[tracker_name]
+            uploader = tracker()
             if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
-                torrent_path = Path(d / f"{file.name}[{tracker_str}].torrent")
-                if watch_dir := config.get("watch_dir"):
+                torrent_path = Path(d / f"{file.name}[{tracker.abbrev}].torrent")
+                if watch_dir := config.get(tracker, "watch_dir"):
                     shutil.copyfile(torrent_path, (Path(watch_dir) / torrent_path.name).expanduser())
             else:
-                print(f"[red][bold]ERROR[/bold]: Upload to {tracker_str} failed[/red]")
+                print(f"[red][bold]ERROR[/bold]: Upload to {tracker.name} failed[/red]")
 
 
 if __name__ == "__main__":

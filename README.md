@@ -24,7 +24,7 @@ Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is t
 (all lowercase).
 
 If you need to use a proxy (because you're uploading from a server for example),
-you can define it in `~/.config/pymkt/config.yml` (see `config.yml.example` for the format).
+you can define it in `~/.config/pymkt/config.toml` (see `config.example.toml` for the format).
 
 ```
 $ ./mkt.py -t tracker1,tracker2,tracker3 FILE_OR_FOLDER

@@ -11,6 +11,9 @@ ia = Cinemagoer()
 
 
 class PassThePopcornUploader(Uploader):
+    name = "PassThePopcorn"
+    abbrev = "PTP"
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):

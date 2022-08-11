@@ -13,6 +13,9 @@ ia = Cinemagoer()
 
 
 class HDBitsUploader(Uploader):
+    name = "HDBits"
+    abbrev = "HDB"
+
     CATEGORY_MAP = {
         "Movie": 1,
         "TV": 2,

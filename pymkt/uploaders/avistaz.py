@@ -10,6 +10,9 @@ from pymkt.uploaders import Uploader
 
 
 class AvistaZUploader(Uploader):
+    name = "AvistaZ"
+    abbrev = "AvZ"
+
     COLLECTION_MAP = {
         "movie": None,
         "episode": 1,

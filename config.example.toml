@@ -1,0 +1,6 @@
+[default]
+proxy = ""
+watch_dir = "~/rtorrent/watch/start"
+
+#[broadcasthenet]
+#proxy = "http://user:pass@example.com:6060"
