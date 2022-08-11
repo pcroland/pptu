@@ -100,10 +100,10 @@ def main():
 
         print("\n[bold green]\\[2/5] Generating MediaInfo[/bold green]")
         if file.is_file():
-            file = file
+            f = file
         else:
-            file = list(sorted([*file.glob("*.mkv"), *file.glob("*.mp4")]))[0]
-        p = subprocess.run(["mediainfo", file], cwd=file.parent, check=True, capture_output=True, encoding="utf-8")
+            f = list(sorted([*file.glob("*.mkv"), *file.glob("*.mp4")]))[0]
+        p = subprocess.run(["mediainfo", f], cwd=file.parent, check=True, capture_output=True, encoding="utf-8")
         mediainfo = p.stdout.strip()
         Path(d / "mediainfo.txt").write_text(mediainfo)
         print("Done!")

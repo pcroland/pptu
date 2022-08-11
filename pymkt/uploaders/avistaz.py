@@ -105,7 +105,7 @@ class AvistaZUploader(Uploader):
             print("Press Enter to continue")
             input()
 
-        torrent_path = self.dirs.user_cache_path / f"{path}_files" / f"{path.name}[AvZ].torrent"
+        torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[AvZ].torrent"
         r = self.session.post(
             url=f"https://avistaz.to/upload/{'movie' if collection == 'movie' else 'tv'}",
             data=data,

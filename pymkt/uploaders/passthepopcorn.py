@@ -41,7 +41,7 @@ class PassThePopcornUploader(Uploader):
         print(res)
         groupid = res[0].get("groupid")
 
-        torrent_path = self.dirs.user_cache_path / f"{path}_files" / f"{path.name}[PTP].torrent"
+        torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
         res = self.session.get(
             url="https://passthepopcorn.me/upload.php",

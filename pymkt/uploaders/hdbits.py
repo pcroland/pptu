@@ -116,7 +116,7 @@ class HDBitsUploader(Uploader):
             sys.exit(1)
         print(f"Detected medium as [bold][cyan]{medium}[/cyan][/bold]")
 
-        torrent_path = self.dirs.user_cache_path / f"{path}_files" / f"{path.name}[HDB].torrent"
+        torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
 
         gi = guessit(path.name)
         # Strip episode title
