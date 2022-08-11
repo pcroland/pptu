@@ -180,8 +180,6 @@ class BroadcasTheNetUploader(Uploader):
         print(f"Detected language as {lang.language}")
         print(f"Detected country as {lang.territory}")
 
-        print(soup.prettify())
-
         # Strip episode title if name is too long
         if len(release_name) > 100:
             gi = guessit(release_name)

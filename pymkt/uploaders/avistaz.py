@@ -67,7 +67,6 @@ class AvistaZUploader(Uploader):
                 jar = MozillaCookieJar(self.dirs.user_data_path / "cookies" / "avistaz.txt")
                 jar.load(ignore_expires=True, ignore_discard=True)
                 self.session.cookies = jar
-        print(r, r.url)
         res = r.text
         soup = BeautifulSoup(res, "lxml-html")
         token = soup.select_one('meta[name="_token"]')["content"]
@@ -77,7 +76,7 @@ class AvistaZUploader(Uploader):
             title = title.replace(m.group(0), "")
             year = int(m.group(1))
 
-        r = self.session.get(
+        res = self.session.get(
             url=f"https://avistaz.to/ajax/movies/{'1' if collection == 'movie' else '2'}",
             params={
                 "term": title,
@@ -86,9 +85,7 @@ class AvistaZUploader(Uploader):
                 "x-requested-with": "XMLHttpRequest",
             },
             timeout=60,
-        )
-        print(r)
-        res = r.json()
+        ).json()
         print(res)
         r.raise_for_status()
         res = next(x for x in res["data"] if x.get("release_year") == year or not year)
@@ -120,12 +117,11 @@ class AvistaZUploader(Uploader):
         upload_url = r.url
         res = r.text
         soup = BeautifulSoup(res, "lxml-html")
-        print(soup.prettify())
 
         images = []
         for i in ("01", "02", "03"):
             img = torrent_path.parent / f"{i}.png"
-            r = self.session.post(
+            res = self.session.post(
                 url="https://avistaz.to/ajax/image/upload",
                 data={
                     "_token": token,
@@ -140,9 +136,7 @@ class AvistaZUploader(Uploader):
                     "x-requested-with": "XMLHttpRequest",
                 },
                 timeout=60,
-            )
-            print(r)
-            res = r.json()
+            ).json()
             print(res)
             r.raise_for_status()
             images.append(res["imageId"])
@@ -183,10 +177,8 @@ class AvistaZUploader(Uploader):
             input()
 
         r = self.session.post(url=upload_url, data=data, timeout=60)
-        print(r)
         res = r.text
         soup = BeautifulSoup(res, "lxml-html")
-        print(soup.prettify())
         r.raise_for_status()
         torrent_url = soup.select_one('a[href*="/download/"]')["href"]
         self.session.get(torrent_url, timeout=60)
