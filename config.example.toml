@@ -2,6 +2,18 @@
 proxy = ""
 watch_dir = "~/rtorrent/watch/start"
 
-#[broadcasthenet]
-#passkey = ""
+[avistaz]
+passkey = ""  # required
+
+[broadcasthenet]
+passkey = ""  # required
+imgbin_api_key = ""  # required
+#proxy = "http://user:pass@example.com:6060"
+
+[hdbits]
+username = ""  # required
+passkey = ""  # required
+
+[passthepopcorn]
+ptpimg_api_key = ""  # required
 #proxy = "http://user:pass@example.com:6060"

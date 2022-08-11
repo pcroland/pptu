@@ -16,7 +16,7 @@ class Uploader(ABC):
     def __init__(self):
         self.dirs = PlatformDirs(appname="pymkt", appauthor=False)
 
-        config = Config(self.dirs.user_config_path / "config.toml")
+        self.config = Config(self.dirs.user_config_path / "config.toml")
 
         cookies_path = self.dirs.user_data_path / "cookies" / f"{self.name.lower()}.txt"
         if not cookies_path.exists():
@@ -45,7 +45,7 @@ class Uploader(ABC):
             )
         self.session.cookies = jar
         self.session.proxies = {
-            "all": config.get(self, "proxy"),
+            "all": self.config.get(self, "proxy"),
         }
 
     @abstractmethod

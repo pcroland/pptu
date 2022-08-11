@@ -3,6 +3,7 @@ import re
 import subprocess
 import sys
 
+import httpx
 from bs4 import BeautifulSoup
 from guessit import guessit
 from langcodes import Language
@@ -185,6 +186,47 @@ class BroadcasTheNetUploader(Uploader):
             gi = guessit(release_name)
             release_name = release_name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
 
+        snapshot_urls = []
+        for snap in snapshots:
+            with open(snap, "rb") as fd:
+                # requests gets blocked by Cloudflare here, have to use httpx
+                res = httpx.post(
+                    url="https://imgbin.broadcasthe.net/upload",
+                    files={
+                        "file": fd,
+                    },
+                    headers={
+                        "Authorization": f"Bearer {self.config.get(self, 'imgbin_api_key')}",
+                    },
+                    timeout=60,
+                ).json()
+                snapshot_urls.append(next(iter(res.values()))["hotlink"])
+
+        thumbnail_urls = []
+        for thumb in thumbnails:
+            with open(thumb, "rb") as fd:
+                res = httpx.post(
+                    url="https://imgbin.broadcasthe.net/upload",
+                    files={
+                        "file": fd,
+                    },
+                    headers={
+                        "Authorization": f"Bearer {self.config.get(self, 'imgbin_api_key')}",
+                    },
+                    timeout=60,
+                ).json()
+                thumbnail_urls.append(next(iter(res.values()))["hotlink"])
+
+        thumbnails_str = ""
+        for i in range(len(snapshots)):
+            snap = snapshot_urls[i]
+            thumb = thumbnail_urls[i]
+            thumbnails_str += rf"[url={snap}][img]{thumb}[/img][/url]"
+            if i % 2 == 0:
+                thumbnails_str += " "
+            else:
+                thumbnails_str += "\n"
+
         data = {
             "submit": "true",
             "type": type_,
@@ -205,7 +247,7 @@ class BroadcasTheNetUploader(Uploader):
             "bitrate": soup.select_one('[name="bitrate"] [selected]').get("value"),
             "media": soup.select_one('[name="media"] [selected]').get("value"),
             "resolution": (soup.select_one('[name="resolution"] [selected]') or {"value": "SD"}).get("value"),
-            "release_desc": f"{mediainfo}\n\n{thumbnails}",
+            "release_desc": f"{mediainfo}\n\n{thumbnails_str}",
             "tvdb": "autofilled",
         }
         print(data)

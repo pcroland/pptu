@@ -2,7 +2,6 @@
 
 import argparse
 import importlib.resources
-import os
 import shutil
 import subprocess
 import tempfile
@@ -173,27 +172,11 @@ def main():
                 )
                 subprocess.run(["convert", snap, "-depth", "8", snap], capture_output=True)
                 subprocess.run(["oxipng", snap], capture_output=True)
-            with open(snap, "rb") as fd:
-                r = session.post(
-                    url="https://ptpimg.me/upload.php",
-                    files={
-                        "file-upload[]": fd,
-                    },
-                    data={
-                        "api_key": os.environ["PTPIMG_API_KEY"],
-                    },
-                    headers={
-                        "Referer": "https://ptpimg.me/index.php",
-                    },
-                    timeout=60,
-                )
-                r.raise_for_status()
-                res = r.json()
-                snapshots.append(f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}')
+            snapshots.append(snap)
         print("Done!")
 
         print("\n[bold green]\\[4/5] Generating thumbnails[/bold green]")
-        thumbnails = ""
+        thumbnails = []
         for i in range(args.snapshots):
             thumb = d / f"{(i + 1):02}_thumb.png"
             if not thumb.exists():
@@ -214,28 +197,7 @@ def main():
                 )
                 subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
                 subprocess.run(["oxipng", thumb], capture_output=True)
-            with open(thumb, "rb") as fd:
-                r = session.post(
-                    url="https://ptpimg.me/upload.php",
-                    files={
-                        "file-upload[]": fd,
-                    },
-                    data={
-                        "api_key": os.environ["PTPIMG_API_KEY"],
-                    },
-                    headers={
-                        "Referer": "https://ptpimg.me/index.php",
-                    },
-                    timeout=60,
-                )
-                r.raise_for_status()
-                res = r.json()
-                img = snapshots[i]
-                thumbnails += rf'[url={img}][img]https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}[/img][/url]'
-                if i % 2 == 0:
-                    thumbnails += " "
-                else:
-                    thumbnails += "\n"
+            thumbnails.append(thumb)
         print("Done!")
 
         print("\n[bold green]\\[5/5] Uploading[/bold green]")

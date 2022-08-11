@@ -128,13 +128,32 @@ class HDBitsUploader(Uploader):
         # Strip streaming service
         name = re.sub(r"(\d+p)\.[a-z0-9]+\.(web)", r"\1.\2", name, flags=re.IGNORECASE)
 
+        thumbnails_str = ""
+        r = self.session.post(
+            url="https://img.hdbits.org/upload_api.php",
+            files={
+                "username": self.config.get(self, "username"),
+                "passkey": self.config.get(self, "passkey"),
+                **{f"images_files[{i}]": open(snap, "rb") for i, snap in enumerate(snapshots)},
+            },
+            timeout=60,
+        )
+        r.raise_for_status()
+        res = r.text
+        for i, url in enumerate(res.split()):
+            thumbnails_str += url
+            if i % 2 == 0:
+                thumbnails_str += " "
+            else:
+                thumbnails_str += "\n"
+
         data = {
             "name": name,
             "category": self.CATEGORY_MAP[category],
             "codec": self.CODEC_MAP[codec],
             "medium": self.MEDIUM_MAP[medium],
             "origin": 0,  # TODO: Support internal
-            "descr": thumbnails,
+            "descr": thumbnails_str,
             "techinfo": mediainfo,
             "imdb": imdb,
             "tvdb": tvdb,

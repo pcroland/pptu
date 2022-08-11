@@ -1,3 +1,4 @@
+import os
 import re
 
 from bs4 import BeautifulSoup
@@ -63,6 +64,26 @@ class PassThePopcornUploader(Uploader):
             not x.language.startswith("en") for x in mediainfo_obj.text_tracks
         )
 
+        snapshot_urls = []
+        for snap in snapshots:
+            with open(snap, "rb") as fd:
+                r = self.session.post(
+                    url="https://ptpimg.me/upload.php",
+                    files={
+                        "file-upload[]": fd,
+                    },
+                    data={
+                        "api_key": self.config.get(self, "ptpimg_api_key") or os.environ.get("PTPIMG_API_KEY"),
+                    },
+                    headers={
+                        "Referer": "https://ptpimg.me/index.php",
+                    },
+                    timeout=60,
+                )
+                r.raise_for_status()
+                res = r.json()
+                snapshot_urls.append(f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}')
+
         data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
             "type": "Feature Film",
@@ -77,7 +98,7 @@ class PassThePopcornUploader(Uploader):
             "other_resolution_width": "",
             "other_resolution_height": "",
             "release_desc": "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
-                mediainfo=mediainfo, snapshots="\n".join(snapshots)
+                mediainfo=mediainfo, snapshots="\n".join(snapshot_urls)
             ),
             "nfo_text": "",
             "trumpable[]": [14] if no_eng_subs else [],
