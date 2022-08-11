@@ -7,7 +7,7 @@ Python torrent creator and auto-uploader
 * Python package dependencies (`poetry install` or `pip install .`)
 * torrenttools (for creating torrents)
 * MediaInfo CLI (for generating tech info)
-* FFmpeg (for creating snapshots)
+* FFmpeg (for generating snapshots)
 * ImageMagick + oxipng (for optimizing snapshots) [optional but recommended]
 * `PTPIMG_API_KEY` environment variable (for uploading snapshots)
 
@@ -20,14 +20,17 @@ HDBits         | `hdb`        | :white_check_mark: Yes, if IP whitelisted in pro
 PassThePopcorn | `ptp`        | :warning: Dedicated servers only, requires staff approval
 
 ## Usage
-Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the name of the tracker above
-(all lowercase).
+Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
+In the global section you can specify a proxy and/or a watch directory. These can be overridden per tracker if needed.
+Make sure to set a passkey for each tracker, and you can optionally specify a proxy as well.
 
-If you need to use a proxy (because you're uploading from a server for example),
-you can define it in `~/.config/pymkt/config.toml` (see `config.example.toml` for the format).
+Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the name or the abbreviation of the
+tracker above (all lowercase).
+
+Install dependencies and the script with `poetry install`.
 
 ```
-$ ./mkt.py -t tracker1,tracker2,tracker3 FILE_OR_FOLDER
+$ mkt -t tracker1,tracker2,tracker3 FILE_OR_FOLDER
 ```
 Options:
 * `--auto`: Skip prompts to confirm autofilled data is correct and upload fully automatically
@@ -38,4 +41,4 @@ Options:
 * `--snapshots`: Override number of snapshots to take (default: 4).
 
 ## Notes
-Movie support is not fully implemented yet. Only tested with TV shows.
+Movie support for BTN and miniseries support for PTP is not yet implemented.
