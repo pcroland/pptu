@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import importlib.resources
 import os
 import shutil
 import subprocess
@@ -85,6 +86,8 @@ def main():
             subprocess.run(
                 [
                     "torrenttools",
+                    "--trackers-config",
+                    importlib.resources.path("pymkt", "trackers.json"),
                     "edit",
                     "--no-created-by",
                     "--no-creation-date",
