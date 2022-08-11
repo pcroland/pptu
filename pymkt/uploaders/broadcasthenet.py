@@ -203,7 +203,7 @@ class BroadcasTheNetUploader(Uploader):
             "format": soup.select_one('[name="format"] [selected]').get("value"),
             "bitrate": soup.select_one('[name="bitrate"] [selected]').get("value"),
             "media": soup.select_one('[name="media"] [selected]').get("value"),
-            "resolution": soup.select_one('[name="resolution"] [selected]').get("value"),
+            "resolution": (soup.select_one('[name="resolution"] [selected]') or {"value": "SD"}).get("value"),
             "release_desc": f"{mediainfo}\n\n{thumbnails}",
             "tvdb": "autofilled",
         }
