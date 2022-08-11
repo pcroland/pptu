@@ -3,4 +3,5 @@ proxy = ""
 watch_dir = "~/rtorrent/watch/start"
 
 #[broadcasthenet]
+#passkey = ""
 #proxy = "http://user:pass@example.com:6060"

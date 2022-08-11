@@ -5,12 +5,15 @@ import importlib.resources
 import os
 import shutil
 import subprocess
+import tempfile
+from copy import copy
 from pathlib import Path
 
 import requests
 from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
+from ruamel.yaml import YAML
 
 from pymkt.uploaders import (
     AvistaZUploader,
@@ -80,7 +83,7 @@ def main():
                 ],
                 check=True,
             )
-        for tracker_name in args.trackers:
+        for tracker_name in copy(args.trackers):
             try:
                 tracker = trackers[tracker_name] = next(
                     x
@@ -89,24 +92,45 @@ def main():
                 )
             except StopIteration:
                 print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
+                args.trackers.remove(tracker_name)
                 continue
 
-            subprocess.run(
-                [
-                    "torrenttools",
-                    "--trackers-config",
-                    importlib.resources.path("pymkt", "trackers.json"),
-                    "edit",
-                    "--no-created-by",
-                    "--no-creation-date",
-                    "-a",
-                    tracker.name,
-                    "-o",
-                    d / f"{file.name}[{tracker.abbrev}].torrent",
-                    d / f"{file.name}.torrent",
-                ],
-                check=True,
-            )
+            passkey = config.get(tracker, "passkey")
+            if not passkey and tracker.require_passkey:
+                print(f"[red][bold]ERROR[/bold]: Passkey not defined in config for tracker {tracker.name}[/red]")
+                args.trackers.remove(tracker_name)
+                continue
+
+            with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
+                YAML().dump(
+                    {
+                        "tracker-parameters": {
+                            tracker.name: {
+                                "pid": passkey,
+                            },
+                        },
+                    },
+                    tmp,
+                )
+                subprocess.run(
+                    [
+                        "torrenttools",
+                        "--trackers-config",
+                        importlib.resources.path("pymkt", "trackers.json"),
+                        "--config",
+                        tmp.name,
+                        "edit",
+                        "--no-created-by",
+                        "--no-creation-date",
+                        "-a",
+                        tracker.name,
+                        "-o",
+                        d / f"{file.name}[{tracker.abbrev}].torrent",
+                        d / f"{file.name}.torrent",
+                    ],
+                    check=True,
+                )
+
             subprocess.run(["chtor", "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"], check=True)
 
         print("\n[bold green]\\[2/5] Generating MediaInfo[/bold green]")

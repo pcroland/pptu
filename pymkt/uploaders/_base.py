@@ -11,6 +11,7 @@ from pymkt.utils import Config
 class Uploader(ABC):
     name = None
     abbrev = None
+    require_passkey = True
 
     def __init__(self):
         self.dirs = PlatformDirs(appname="pymkt", appauthor=False)

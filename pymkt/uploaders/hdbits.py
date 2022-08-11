@@ -15,6 +15,7 @@ ia = Cinemagoer()
 class HDBitsUploader(Uploader):
     name = "HDBits"
     abbrev = "HDB"
+    require_passkey = False
 
     CATEGORY_MAP = {
         "Movie": 1,
