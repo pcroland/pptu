@@ -131,7 +131,7 @@ def main():
                         "-a",
                         tracker.name,
                         "-s",
-                        next(x for x in json.loads(trackers_json) if x["name"] == tracker.name)["source"],
+                        next(x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name)["source"],
                         "-o",
                         d / f"{file.name}[{tracker.abbrev}].torrent",
                         d / f"{file.name}.torrent",
