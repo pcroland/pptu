@@ -8,7 +8,6 @@ Python torrent creator and auto-uploader
 * torrenttools (for creating torrents)
 * MediaInfo CLI (for generating tech info)
 * FFmpeg (for generating snapshots)
-* ImageMagick (for optimizing snapshots) [optional but recommended]
 
 ## Supported trackers
 Name           | Abbreviation | Server upload allowed

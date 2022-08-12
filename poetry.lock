@@ -800,6 +800,18 @@ docs = ["proselint (>=0.13)", "sphinx (>=5.1.1)", "sphinx-argparse (>=0.3.1)", "
 testing = ["coverage (>=6.2)", "coverage-enable-subprocess (>=1)", "flaky (>=3.7)", "packaging (>=21.3)", "pytest (>=7.0.1)", "pytest-env (>=0.6.2)", "pytest-freezegun (>=0.4.2)", "pytest-mock (>=3.6.1)", "pytest-randomly (>=3.10.3)", "pytest-timeout (>=2.1)"]
 
 [[package]]
+name = "wand"
+version = "0.6.9"
+description = "Ctypes-based simple MagickWand API binding for Python"
+category = "main"
+optional = false
+python-versions = "*"
+
+[package.extras]
+doc = ["Sphinx (>=2.4.1)"]
+test = ["pytest (>=5.3.5)"]
+
+[[package]]
 name = "wcwidth"
 version = "0.2.5"
 description = "Measures the displayed width of unicode strings in a terminal"
@@ -822,7 +834,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "32d15d3b177dc770e51bc7dee4542feee9b3fb7ebf0767c78db29e4c9bae88a8"
+content-hash = "07a42a2c286b9e2bd3db036a9766f6557734185ad5afe3045089b2d25f6205b3"
 
 [metadata.files]
 anyio = [
@@ -1442,6 +1454,10 @@ urllib3 = [
 virtualenv = [
     {file = "virtualenv-20.16.3-py2.py3-none-any.whl", hash = "sha256:4193b7bc8a6cd23e4eb251ac64f29b4398ab2c233531e66e40b19a6b7b0d30c1"},
     {file = "virtualenv-20.16.3.tar.gz", hash = "sha256:d86ea0bb50e06252d79e6c241507cb904fcd66090c3271381372d6221a3970f9"},
+]
+wand = [
+    {file = "Wand-0.6.9-py2.py3-none-any.whl", hash = "sha256:4deb6dfebc6fd8d29a3f20d8664910081622aa02913777ca08a23bf5d25bbc0f"},
+    {file = "Wand-0.6.9.tar.gz", hash = "sha256:40274e8829a8db53fdbe328f58057a5ab7e2ebae07c77b89f15e3807698bb5bc"},
 ]
 wcwidth = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},

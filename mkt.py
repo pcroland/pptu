@@ -16,6 +16,7 @@ from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
 from ruamel.yaml import YAML
+from wand.image import Image
 
 from pymkt.uploaders import (
     AvistaZUploader,
@@ -183,8 +184,9 @@ def main():
                     ],
                     check=True,
                 )
-                with contextlib.suppress(FileNotFoundError):
-                    subprocess.run(["convert", snap, "-depth", "8", snap], capture_output=True)
+                with Image(filename=snap) as img:
+                    img.depth = 8
+                    img.save(filename=snap)
                 oxipng.optimize(snap)
             snapshots.append(snap)
         print("Done!")

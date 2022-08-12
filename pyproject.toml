@@ -24,6 +24,7 @@ requests = "^2.28.0"
 rich = "^12.4.4"
 "ruamel.yaml" = "^0.17.21"
 toml = "^0.10.2"
+Wand = "^0.6.9"
 
 [tool.poetry.dev-dependencies]
 black = "^22.6.0"
