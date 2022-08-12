@@ -5,6 +5,7 @@ from bs4 import BeautifulSoup
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
 from rich import print
+from rich.markup import escape
 
 from pymkt.uploaders import Uploader
 
@@ -128,7 +129,7 @@ class PassThePopcornUploader(Uploader):
             print("Press Enter to upload")
             input()
 
-        self.session.post(
+        res = self.session.post(
             url="https://passthepopcorn.me/upload.php",
             params={
                 "groupid": groupid,
@@ -137,6 +138,10 @@ class PassThePopcornUploader(Uploader):
             files={
                 "file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
             },
-        )
+        ).text
+        soup = BeautifulSoup(res, "lxml-html")
+        if error := soup.select_one(".alert--error"):
+            print(f"[red][bold]ERROR[/bold]: {escape(error.get_text())}[/red]")
+            return False
 
         return True
