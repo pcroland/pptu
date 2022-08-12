@@ -35,16 +35,16 @@ class PassThePopcornUploader(Uploader):
         print(f"IMDb: [cyan][bold]{title}[/bold] [not bold]({year})[/not bold][/cyan]")
 
         groupid = None
-        res = self.session.get(
+        torrent_info = self.session.get(
             url="https://passthepopcorn.me/ajax.php",
             params={
                 "action": "torrent_info",
                 "imdb": imdb,
                 "fast": "1",
             },
-        ).json()
-        print(res)
-        groupid = res[0].get("groupid")
+        ).json()[0]
+        print(torrent_info)
+        groupid = torrent_info.get("groupid")
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
@@ -88,6 +88,10 @@ class PassThePopcornUploader(Uploader):
         data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
             "type": "Feature Film",
+            "imdb": imdb,
+            "title": torrent_info.get("title"),
+            "year": torrent_info.get("year"),
+            "image": imdb_movie.data["cover url"],
             "remaster_title": "",
             "remaster_year": "",
             "internalrip": "on",  # TODO: Allow customizing this
@@ -96,6 +100,7 @@ class PassThePopcornUploader(Uploader):
             "codec": "* Auto-detect",
             "container": "* Auto-detect",
             "resolution": "* Auto-detect",
+            "tags": imdb_movie.data["genres"],
             "other_resolution_width": "",
             "other_resolution_height": "",
             "release_desc": "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
@@ -136,7 +141,7 @@ class PassThePopcornUploader(Uploader):
             },
             data=data,
             files={
-                "file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
+                "file_input": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
             },
         ).text
         soup = BeautifulSoup(res, "lxml-html")
