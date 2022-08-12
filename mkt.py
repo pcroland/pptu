@@ -131,8 +131,11 @@ def main():
                     check=True,
                 )
 
+            resume_dir = d / "resume"
+            resume_dir.mkdir(exist_ok=True)
+
             subprocess.run(
-                ["chtor", "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"],
+                ["chtor", "-o", resume_dir, "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"],
                 env={
                     **os.environ,
                     "PYRO_RTORRENT_RC": os.devnull,
@@ -215,7 +218,7 @@ def main():
             if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
                 torrent_path = Path(d / f"{file.name}[{tracker.abbrev}].torrent")
                 if watch_dir := config.get(tracker, "watch_dir"):
-                    shutil.copyfile(torrent_path, (Path(watch_dir) / torrent_path.name).expanduser())
+                    shutil.copyfile(resume_dir / torrent_path.name, (Path(watch_dir) / torrent_path.name).expanduser())
             else:
                 print(f"[red][bold]ERROR[/bold]: Upload to {tracker.name} failed[/red]")
 
