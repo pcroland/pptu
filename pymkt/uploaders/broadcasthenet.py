@@ -242,7 +242,7 @@ class BroadcasTheNetUploader(Uploader):
             "tags": soup.select_one('[name="tags"]').get("value"),
             "image": soup.select_one('[name="image"]').get("value"),
             "album_desc": soup.select_one('[name="album_desc"]').text,
-            "fasttorrent": "on",
+            "fasttorrent": bool(self.config.get(self, "fasttorrent")),
             "format": soup.select_one('[name="format"] [selected]').get("value"),
             "bitrate": soup.select_one('[name="bitrate"] [selected]').get("value"),
             "media": soup.select_one('[name="media"] [selected]').get("value"),
