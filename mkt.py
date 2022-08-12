@@ -2,6 +2,7 @@
 
 import argparse
 import importlib.resources
+import os
 import shutil
 import subprocess
 import tempfile
@@ -130,7 +131,11 @@ def main():
                     check=True,
                 )
 
-            subprocess.run(["chtor", "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"], check=True)
+            subprocess.run(
+                ["chtor", "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"],
+                env={"PYRO_RTORRENT_RC": os.devnull},
+                check=True,
+            )
 
         print("\n[bold green]\\[2/5] Generating MediaInfo[/bold green]")
         if file.is_file():
