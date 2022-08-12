@@ -2,24 +2,28 @@
   {
     "name": "AvistaZ",
     "abbreviation": "AvZ",
+    "source": "AvistaZ",
     "announce_url": "https://tracker.avistaz.to/{pid}/announce",
     "private": true
   },
   {
     "name": "BroadcasTheNet",
     "abbreviation": "BTN",
+    "source": "BTN",
     "announce_url": "http://landof.tv/{pid}/announce",
     "private": true
   },
   {
     "name": "HDBits",
     "abbreviation": "HDB",
+    "source": "HDBits",
     "announce_url": "http://tracker.hdbits.org/announce.php",
     "private": true
   },
   {
-    "name": "PTP",
+    "name": "PassThePopcorn",
     "abbreviation": "PTP",
+    "source": "PTP",
     "announce_url": "http://please.passthepopcorn.me:2710/{pid}/announce",
     "private": true
   }

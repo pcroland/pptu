@@ -3,6 +3,7 @@
 import argparse
 import contextlib
 import importlib.resources
+import json
 import os
 import shutil
 import subprocess
@@ -64,6 +65,8 @@ def main():
 
     trackers = {}
 
+    trackers_json = importlib.resources.path("pymkt", "trackers.json")
+
     for file in args.file:
         d = dirs.user_cache_path / f"{file.name}_files"
         d.mkdir(parents=True, exist_ok=True)
@@ -119,7 +122,7 @@ def main():
                     [
                         "torrenttools",
                         "--trackers-config",
-                        importlib.resources.path("pymkt", "trackers.json"),
+                        trackers_json,
                         "--config",
                         tmp.name,
                         "edit",
@@ -127,6 +130,8 @@ def main():
                         "--no-creation-date",
                         "-a",
                         tracker.name,
+                        "-s",
+                        next(x for x in json.loads(trackers_json) if x["name"] == tracker.name)["source"],
                         "-o",
                         d / f"{file.name}[{tracker.abbrev}].torrent",
                         d / f"{file.name}.torrent",
