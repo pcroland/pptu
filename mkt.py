@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import argparse
+import contextlib
 import importlib.resources
 import os
 import shutil
@@ -181,8 +182,10 @@ def main():
                     ],
                     check=True,
                 )
-                subprocess.run(["convert", snap, "-depth", "8", snap], capture_output=True)
-                subprocess.run(["oxipng", snap], capture_output=True)
+                with contextlib.suppress(FileNotFoundError):
+                    subprocess.run(["convert", snap, "-depth", "8", snap], capture_output=True)
+                with contextlib.suppress(FileNotFoundError):
+                    subprocess.run(["oxipng", snap], capture_output=True)
             snapshots.append(snap)
         print("Done!")
 
@@ -206,8 +209,10 @@ def main():
                     ],
                     check=True,
                 )
-                subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
-                subprocess.run(["oxipng", thumb], capture_output=True)
+                with contextlib.suppress(FileNotFoundError):
+                    subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
+                with contextlib.suppress(FileNotFoundError):
+                    subprocess.run(["oxipng", thumb], capture_output=True)
             thumbnails.append(thumb)
         print("Done!")
 
