@@ -515,6 +515,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pyoxipng"
+version = "0.1.0"
+description = ""
+category = "main"
+optional = false
+python-versions = ">=3.7"
+
+[[package]]
 name = "pyrosimple"
 version = "2.0.0rc4"
 description = ""
@@ -814,7 +822,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "ff68c6204b3d4a9c703fa2f6800fd63a4f49dafd816f85ae06f4627bdc8856e8"
+content-hash = "32d15d3b177dc770e51bc7dee4542feee9b3fb7ebf0767c78db29e4c9bae88a8"
 
 [metadata.files]
 anyio = [
@@ -1170,6 +1178,22 @@ pymediainfo = [
     {file = "pymediainfo-5.1.0-py3-none-win32.whl", hash = "sha256:5df10ff7d65631a68f80846f91b06d8844cc307588788443f1716c7543d4ff8e"},
     {file = "pymediainfo-5.1.0-py3-none-win_amd64.whl", hash = "sha256:ffba87bbac9b020526d34b7aef3094b6e9afb23b208051ffef0fbd4833007455"},
     {file = "pymediainfo-5.1.0.tar.gz", hash = "sha256:d996c69d50081a24d6dca9679abf43ffd2be368b065f953c2c9082e5d649c734"},
+]
+pyoxipng = [
+    {file = "pyoxipng-0.1.0-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:4e84566800ce0b35257c6e004b34f3e9a3f1a8c06c636022bdeff0bfc5aa27b7"},
+    {file = "pyoxipng-0.1.0-cp310-cp310-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:db2b80931cd2503ffd6be0b29aa0bb121e7210dfed7db740e06ff4e6e3e172e4"},
+    {file = "pyoxipng-0.1.0-cp310-none-win_amd64.whl", hash = "sha256:a2ac53b9afcecbd53c68bb80db0acc1910cf74b742cc41b81b517f44d50a9c62"},
+    {file = "pyoxipng-0.1.0-cp37-cp37m-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:9aa53111b6a5aac154a848bccb5e9a996ee8adb095a13d2da4e0561f283b5761"},
+    {file = "pyoxipng-0.1.0-cp37-cp37m-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:39c3287a7a94ebb91322b41d844fc41ae8710005b7aae095ce334a080adbed7d"},
+    {file = "pyoxipng-0.1.0-cp37-none-win_amd64.whl", hash = "sha256:eb91b6cd635d87e57ca4a5428d6b81af314b4c4f7e83f4d8ae7c8e391acd1270"},
+    {file = "pyoxipng-0.1.0-cp38-cp38-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:abe7f96604e3dc4bc370195235cfb7a2c3e46192cec808a195c2235d4ce9718d"},
+    {file = "pyoxipng-0.1.0-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:6b4fa3e7d520540019409fdf39950434f15244fa34c354ae0eabad4d0f1987ec"},
+    {file = "pyoxipng-0.1.0-cp38-none-win_amd64.whl", hash = "sha256:a5e631474d4a619e8b383731bca66724cbc511915fcb3dfb82dfb6c70cdb143b"},
+    {file = "pyoxipng-0.1.0-cp39-cp39-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:1f9b63230a2ff4018786c39d6f2c2c010d6833e6ee0e49feeeec3f4d8ef14a17"},
+    {file = "pyoxipng-0.1.0-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:64fe2d6bf5de409d425d4b1a88ce636776cb852977c2b1a7347e350ce7db88de"},
+    {file = "pyoxipng-0.1.0-cp39-none-win_amd64.whl", hash = "sha256:67be239372487890118df9fda3dbc42ae765a610077e30c2eede70a8fe636663"},
+    {file = "pyoxipng-0.1.0-pp37-pypy37_pp73-manylinux_2_5_x86_64.manylinux1_x86_64.whl", hash = "sha256:81bc5791b73f35646097518801983378c1566705e76715fb5bca43a5d4047a97"},
+    {file = "pyoxipng-0.1.0.tar.gz", hash = "sha256:c3acc556e2a43d62b9ff1cc5245c556e26226cef256203dd8d61cb7004d367ca"},
 ]
 pyrosimple = [
     {file = "pyrosimple-2.0.0rc4-py3-none-any.whl", hash = "sha256:9a472f4c86dd3dd035d010b80c57e88af4d3af67f6124c179e34ff08d7973fdf"},

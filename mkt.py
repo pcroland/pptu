@@ -10,6 +10,7 @@ import tempfile
 from copy import copy
 from pathlib import Path
 
+import oxipng
 import requests
 from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
@@ -184,8 +185,7 @@ def main():
                 )
                 with contextlib.suppress(FileNotFoundError):
                     subprocess.run(["convert", snap, "-depth", "8", snap], capture_output=True)
-                with contextlib.suppress(FileNotFoundError):
-                    subprocess.run(["oxipng", snap], capture_output=True)
+                oxipng.optimize(snap)
             snapshots.append(snap)
         print("Done!")
 
@@ -211,8 +211,7 @@ def main():
                 )
                 with contextlib.suppress(FileNotFoundError):
                     subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
-                with contextlib.suppress(FileNotFoundError):
-                    subprocess.run(["oxipng", thumb], capture_output=True)
+                oxipng.optimize(snap)
             thumbnails.append(thumb)
         print("Done!")
 
