@@ -133,7 +133,10 @@ def main():
 
             subprocess.run(
                 ["chtor", "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"],
-                env={"PYRO_RTORRENT_RC": os.devnull},
+                env={
+                    **os.environ,
+                    "PYRO_RTORRENT_RC": os.devnull,
+                },
                 check=True,
             )
 
