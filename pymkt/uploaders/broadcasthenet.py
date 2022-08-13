@@ -239,7 +239,7 @@ class BroadcasTheNetUploader(Uploader):
             "seriesid": (soup.select_one('[name="seriesid"]') or {}).get("value"),
             "artist": artist,
             "title": title,
-            "actors": soup.select_one('[name="actors"]').get("value"),
+            "actors": (soup.select_one('[name="actors"]') or {}).get("value"),
             "origin": "P2P",
             "foreign": None if lang.language == "en" else "on",
             "country": self.COUNTRY_MAP.get(lang.territory),
