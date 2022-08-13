@@ -244,7 +244,7 @@ class BroadcasTheNetUploader(Uploader):
             "foreign": None if lang.language == "en" else "on",
             "country": self.COUNTRY_MAP.get(lang.territory),
             "year": soup.select_one('[name="year"]').get("value"),
-            "tags": soup.select_one('[name="tags"]').get("value"),
+            "tags": soup.select_one('[name="tags"]').get("value") or ",",
             "image": soup.select_one('[name="image"]').get("value"),
             "album_desc": soup.select_one('[name="album_desc"]').text,
             "fasttorrent": "on" if self.config.get(self, "fasttorrent") else None,
