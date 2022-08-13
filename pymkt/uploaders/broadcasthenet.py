@@ -123,7 +123,7 @@ class BroadcasTheNetUploader(Uploader):
     }
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
-        if re.search(r"\.S\d+(E\d+)+\.", str(path)):
+        if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
             type_ = "Episode"
         elif re.search(r"\.S\d+\.", str(path)):
@@ -154,8 +154,14 @@ class BroadcasTheNetUploader(Uploader):
             print(soup.prettify())
             sys.exit(1)
 
-        artist = soup.select_one('[name="artist"]').get("value")
-        title = soup.select_one('[name="title"]').get("value")
+        gi = guessit(release_name)
+
+        if gi.get("episode_details") == "Special":
+            artist = gi["title"]
+            title = f"Season {gi['season']} - {re.sub(r'^Special ', '', gi['episode_title'])}"
+        else:
+            artist = soup.select_one('[name="artist"]').get("value")
+            title = soup.select_one('[name="title"]').get("value")
 
         if artist == "AutoFill Fail" or title == "AutoFill Fail":
             print("[red][bold]ERROR[/bold]: AutoFill Fail[/red]")
@@ -183,7 +189,6 @@ class BroadcasTheNetUploader(Uploader):
 
         # Strip episode title if name is too long
         if len(release_name) > 100:
-            gi = guessit(release_name)
             release_name = release_name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
 
         snapshot_urls = []
