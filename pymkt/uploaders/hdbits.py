@@ -123,8 +123,10 @@ class HDBitsUploader(Uploader):
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
 
         gi = guessit(path.name)
-        # Strip episode title
-        name = path.name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
+        name = path.name
+        if gi.get("episode_details") != "Special":
+            # Strip episode title
+            name = name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
         # Strip streaming service
         name = re.sub(r"(\d+p)\.[a-z0-9]+\.(web)", r"\1.\2", name, flags=re.IGNORECASE)
 
@@ -157,8 +159,8 @@ class HDBitsUploader(Uploader):
             "techinfo": mediainfo,
             "imdb": imdb,
             "tvdb": tvdb,
-            "tvdb_season": season,
-            "tvdb_episode": episode,
+            "tvdb_season": 0 if gi.get("episode_details") == "Special" else season,
+            "tvdb_episode": episode,  # TODO: Get special episode number from TVDB
             "anidb_id": None,  # TODO
         }
         print(data)
