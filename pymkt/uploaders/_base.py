@@ -12,6 +12,7 @@ from pymkt.utils import Config
 class Uploader(ABC):
     name = None
     abbrev = None
+    require_cookies = True
     require_passkey = True
 
     def __init__(self):
@@ -22,11 +23,8 @@ class Uploader(ABC):
         self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.name.lower()}.txt"
         if not self.cookies_path.exists():
             self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.abbrev.lower()}.txt"
-        if not self.cookies_path.exists():
-            print(
-                f"[yellow][bold]WARNING[/bold]: No cookies found for tracker {self.name}, "
-                f"upload will most likely fail[/yellow]"
-            )
+        if not self.cookies_path.exists() and self.require_cookies:
+            print(f"[red][bold]ERROR[/bold]: No cookies found for tracker {self.name}[/red]")
 
         self.cookie_jar = MozillaCookieJar(self.cookies_path)
         if self.cookies_path.exists():

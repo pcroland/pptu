@@ -13,6 +13,7 @@ from pymkt.uploaders import Uploader
 class AvistaZUploader(Uploader):
     name = "AvistaZ"
     abbrev = "AvZ"
+    require_cookies = False
 
     COLLECTION_MAP = {
         "movie": None,
