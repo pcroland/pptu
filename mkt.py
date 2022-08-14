@@ -227,9 +227,9 @@ def main():
             tracker = trackers[tracker_name]
             uploader = tracker()
             if ret := uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
-                torrent_path = ret if isinstance(ret, Path) else Path(d / f"{file.name}[{tracker.abbrev}].torrent")
+                torrent_path = ret if isinstance(ret, Path) else resume_dir / f"{file.name}[{tracker.abbrev}].torrent"
                 if watch_dir := config.get(tracker, "watch_dir"):
-                    shutil.copyfile(resume_dir / torrent_path.name, (Path(watch_dir) / torrent_path.name).expanduser())
+                    shutil.copyfile(torrent_path, (Path(watch_dir) / torrent_path.name).expanduser())
             else:
                 print(f"[red][bold]ERROR[/bold]: Upload to {tracker.name} failed[/red]")
 
