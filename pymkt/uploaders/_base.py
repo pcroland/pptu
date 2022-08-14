@@ -4,6 +4,7 @@ from http.cookiejar import MozillaCookieJar
 import requests
 from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
+from rich import print
 
 from pymkt.utils import Config
 
@@ -18,16 +19,18 @@ class Uploader(ABC):
 
         self.config = Config(self.dirs.user_config_path / "config.toml")
 
-        cookies_path = self.dirs.user_data_path / "cookies" / f"{self.name.lower()}.txt"
-        if not cookies_path.exists():
-            cookies_path = self.dirs.user_data_path / "cookies" / f"{self.abbrev.lower()}.txt"
-        if not cookies_path.exists():
+        self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.name.lower()}.txt"
+        if not self.cookies_path.exists():
+            self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.abbrev.lower()}.txt"
+        if not self.cookies_path.exists():
             print(
-                f"[yellow][bold]WARNING[/bold]: No cookies found for tracker {self.name}, upload will most likely fail"
+                f"[yellow][bold]WARNING[/bold]: No cookies found for tracker {self.name}, "
+                f"upload will most likely fail[/yellow]"
             )
 
-        jar = MozillaCookieJar(self.dirs.user_data_path / "cookies" / f"{self.name.lower()}.txt")
-        jar.load(ignore_expires=True, ignore_discard=True)
+        self.cookie_jar = MozillaCookieJar(self.cookies_path)
+        if self.cookies_path.exists():
+            self.cookie_jar.load(ignore_expires=True, ignore_discard=True)
 
         self.session = requests.Session()
         for scheme in ("http://", "https://"):
@@ -43,7 +46,7 @@ class Uploader(ABC):
                     ),
                 ),
             )
-        self.session.cookies = jar
+        self.session.cookies = self.cookie_jar
         self.session.proxies = {
             "all": self.config.get(self, "proxy"),
         }
