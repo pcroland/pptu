@@ -226,8 +226,8 @@ def main():
         for tracker_name in args.trackers:
             tracker = trackers[tracker_name]
             uploader = tracker()
-            if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
-                torrent_path = Path(d / f"{file.name}[{tracker.abbrev}].torrent")
+            if ret := uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
+                torrent_path = ret if isinstance(ret, Path) else Path(d / f"{file.name}[{tracker.abbrev}].torrent")
                 if watch_dir := config.get(tracker, "watch_dir"):
                     shutil.copyfile(resume_dir / torrent_path.name, (Path(watch_dir) / torrent_path.name).expanduser())
             else:
