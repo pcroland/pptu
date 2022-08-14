@@ -1,9 +1,10 @@
 import re
 import sys
+import time
 import uuid
-from http.cookiejar import MozillaCookieJar
 
 from bs4 import BeautifulSoup
+from pyotp import TOTP
 from rich import print
 
 from pymkt.uploaders import Uploader
@@ -19,6 +20,154 @@ class AvistaZUploader(Uploader):
         "season": 2,
         "series": 3,
     }
+
+    def login(self):
+        if not (username := self.config.get(self, "username")):
+            print("[red][bold]ERROR[/bold]: No username specified in config, cannot log in.[/red]")
+            return False
+
+        if not (password := self.config.get(self, "password")):
+            print("[red][bold]ERROR[/bold]: No password specified in config, cannot log in.[/red]")
+            return False
+
+        totp_secret = self.config.get(self, "totp_secret")
+
+        if not (twocaptcha_api_key := self.config.get(self, "2captcha_api_key")):
+            print("[red][bold]ERROR[/bold]: No 2captcha_api_key specified in config, cannot log in.[/red]")
+            return False
+
+        attempt = 1
+        while True:
+            res = self.session.get("https://avistaz.to/auth/login").text
+            soup = BeautifulSoup(res, "lxml-html")
+            token = soup.select_one("input[name='_token']")["value"]
+            captcha_url = soup.select_one(".img-captcha")["src"]
+
+            print("Submitting captcha to 2captcha")
+            res = self.session.post(
+                url="http://2captcha.com/in.php",
+                data={
+                    "key": twocaptcha_api_key,
+                    "json": "1",
+                },
+                files={
+                    "file": ("captcha.jpg", self.session.get(captcha_url).content, "image/jpeg"),
+                },
+                headers={
+                    "User-Agent": "pymkt/0.1.0",  # TODO: Get version dynamically
+                },
+            ).json()
+            if res["status"] != 1:
+                print(f"[red][bold]ERROR[/bold]: 2Captcha API error: {res['request']}")
+                return False
+            req_id = res["request"]
+
+            print("Waiting for solution.", end="", flush=True)
+            while True:
+                time.sleep(5)
+                res = self.session.get(
+                    url="http://2captcha.com/res.php",
+                    params={
+                        "key": twocaptcha_api_key,
+                        "action": "get",
+                        "id": req_id,
+                        "json": "1",
+                    },
+                ).json()
+                if res["request"] == "CAPCHA_NOT_READY":
+                    print(".", end="", flush=True)
+                elif res["status"] != 1:
+                    print(f"[red][bold]ERROR[/bold]: 2Captcha API error: {res['request']}")
+                    return False
+                else:
+                    captcha_answer = res["request"]
+                    print(" Received")
+                    break
+
+                r = self.session.post(
+                    url="https://avistaz.to/auth/login",
+                    data={
+                        "_token": token,
+                        "email_username": username,
+                        "password": password,
+                        "captcha": captcha_answer,
+                    },
+                )
+                res = r.text
+
+                if (
+                    r.url.startswith("https://avistaz.to/captcha")
+                    or "Verification failed. You might be a robot!" in res
+                ):
+                    self.session.post(
+                        url="http://2captcha.com/res.php",
+                        params={
+                            "key": twocaptcha_api_key,
+                            "action": "reportbad",
+                            "id": req_id,
+                        },
+                    )
+
+                    if attempt >= 5:
+                        print("[red][bold]ERROR[/bold]: Captcha answer rejected too many times, giving up[/red]")
+                        return False
+
+                    print("[yellow][bold]WARNING[/bold]: Captcha answer rejected, retrying[/yellow]")
+                    attempt += 1
+
+                self.session.post(
+                    url="http://2captcha.com/res.php",
+                    params={
+                        "key": twocaptcha_api_key,
+                        "action": "reportgood",
+                        "id": req_id,
+                    },
+                )
+                break
+
+        for cookie in self.session.cookies:
+            self.cookie_jar.set_cookie(cookie)
+        self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
+        self.cookie_jar.save(ignore_discard=True)
+
+        if r.url == "https://avistaz.to/auth/twofa":
+            print("2FA detected")
+
+            if not totp_secret:
+                print("[red][bold]ERROR[/bold]: Account has 2FA but no secret provided in config[/red]")
+                return False
+
+            soup = BeautifulSoup(res, "lxml-html")
+            token = soup.select_one("input[name='_token']")["value"]
+
+            totp = TOTP(totp_secret).now()
+            print(totp)
+
+            r = self.session.post(
+                url="https://avistaz.to/auth/twofa",
+                data={
+                    "_token": token,
+                    "twofa_code": totp,
+                },
+            )
+            print(r)
+            print(r.headers)
+            if r.url == "https://avistaz.to/auth/twofa":
+                print("[red][bold]ERROR[/bold]: TOTP code rejected[/red]")
+                print(r.text)
+                return False
+
+        print(r.url)
+        if r.url != "https://avistaz.to":
+            print("[red][bold]ERROR[/bold]: Login failed - Unknown error[/red]")
+            return False
+
+        for cookie in self.session.cookies:
+            self.cookie_jar.set_cookie(cookie)
+        self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
+        self.cookie_jar.save(ignore_discard=True)
+
+        return True
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
@@ -55,18 +204,11 @@ class AvistaZUploader(Uploader):
             if r.status_code == 200:
                 break
 
-            if auto:
-                print("[red][bold]ERROR[/bold]: Cookies expired, skipping upload.[/red]")
+            print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+            if not self.login():
                 return False
-            else:
-                print(
-                    "[yellow][bold]WARNING[/bold]: "
-                    "Cookies expired, please replace them and press Enter to continue.[/yellow]"
-                )
-                input()
-                jar = MozillaCookieJar(self.dirs.user_data_path / "cookies" / "avistaz.txt")
-                jar.load(ignore_expires=True, ignore_discard=True)
-                self.session.cookies = jar
+            return self.upload(path, mediainfo, snapshots, thumbnails, auto=auto)
+
         res = r.text
         soup = BeautifulSoup(res, "lxml-html")
         token = soup.select_one('meta[name="_token"]')["content"]

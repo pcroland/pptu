@@ -515,6 +515,14 @@ optional = false
 python-versions = ">=3.6"
 
 [[package]]
+name = "pyotp"
+version = "2.6.0"
+description = "Python One Time Password Library"
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "pyoxipng"
 version = "0.1.0"
 description = ""
@@ -834,7 +842,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "07a42a2c286b9e2bd3db036a9766f6557734185ad5afe3045089b2d25f6205b3"
+content-hash = "a23135de823b7d6a8922506b97edd2824d42584b9be9d4d5002c670034fb2584"
 
 [metadata.files]
 anyio = [
@@ -1190,6 +1198,10 @@ pymediainfo = [
     {file = "pymediainfo-5.1.0-py3-none-win32.whl", hash = "sha256:5df10ff7d65631a68f80846f91b06d8844cc307588788443f1716c7543d4ff8e"},
     {file = "pymediainfo-5.1.0-py3-none-win_amd64.whl", hash = "sha256:ffba87bbac9b020526d34b7aef3094b6e9afb23b208051ffef0fbd4833007455"},
     {file = "pymediainfo-5.1.0.tar.gz", hash = "sha256:d996c69d50081a24d6dca9679abf43ffd2be368b065f953c2c9082e5d649c734"},
+]
+pyotp = [
+    {file = "pyotp-2.6.0-py2.py3-none-any.whl", hash = "sha256:9d144de0f8a601d6869abe1409f4a3f75f097c37b50a36a3bf165810a6e23f28"},
+    {file = "pyotp-2.6.0.tar.gz", hash = "sha256:d28ddfd40e0c1b6a6b9da961c7d47a10261fb58f378cb00f05ce88b26df9c432"},
 ]
 pyoxipng = [
     {file = "pyoxipng-0.1.0-cp310-cp310-macosx_10_9_x86_64.macosx_11_0_arm64.macosx_10_9_universal2.whl", hash = "sha256:4e84566800ce0b35257c6e004b34f3e9a3f1a8c06c636022bdeff0bfc5aa27b7"},
