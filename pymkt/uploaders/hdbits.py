@@ -129,6 +129,9 @@ class HDBitsUploader(Uploader):
             name = name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
         # Strip streaming service
         name = re.sub(r"(\d+p)\.[a-z0-9]+\.(web)", r"\1.\2", name, flags=re.IGNORECASE)
+        # DV/HDR normalization
+        name = re.sub(r"HDR10(?:\+|P|Plus)", "HDR", name, flags=re.IGNORECASE)
+        name = re.sub(r"(?:DV|DoVi)\.HDR", "DoVi", name)
 
         thumbnails_str = ""
         r = self.session.post(
