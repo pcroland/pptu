@@ -33,9 +33,6 @@ $ mkt -t tracker1,tracker2,tracker3 FILE_OR_FOLDER
 Options:
 * `--auto`: Skip prompts to confirm autofilled data is correct and upload fully automatically
   (unless we're unable to infer some info without user input)
-* `--short`: Temporary hack for files shorter than 20 minutes (5 minutes for full seasons),
-  takes screenshots at 1/2/3/4 minutes rather than 5/10/15/20. Eventually duration will be
-  auto-detected.
 * `--snapshots`: Override number of snapshots to take (default: 4).
 
 ## Notes

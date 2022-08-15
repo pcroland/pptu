@@ -14,6 +14,7 @@ from pathlib import Path
 import oxipng
 import requests
 from platformdirs import PlatformDirs
+from pymediainfo import MediaInfo
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
 from ruamel.yaml import YAML
@@ -40,7 +41,6 @@ def main():
     parser.add_argument("-t", "--trackers", type=lambda x: x.split(","), required=True)
     parser.add_argument("file", nargs="+", type=Path)
     parser.add_argument("--snapshots", type=int, default=4)
-    parser.add_argument("--short", action="store_true")
     parser.add_argument("--auto", action="store_true")
     args = parser.parse_args()
 
@@ -168,6 +168,10 @@ def main():
             files = list(sorted([*file.glob("*.mkv"), *file.glob("*.mp4")]))[: args.snapshots]
         snapshots = []
         for i in range(args.snapshots):
+            mediainfo_obj = MediaInfo.parse(files[i])
+            duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
+            interval = duration / (args.snapshots + 1)
+
             snap = d / f"{(i + 1):02}.png"
             if not snap.exists():
                 subprocess.run(
@@ -178,7 +182,7 @@ def main():
                         "error",
                         "-stats",
                         "-ss",
-                        str((60 if args.short else 300) * (i + 1)),
+                        str(interval * (i + 1) if len(set(files)) > 1 else interval),
                         "-i",
                         files[i],
                         "-vf",
