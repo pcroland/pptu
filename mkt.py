@@ -221,16 +221,16 @@ def main():
             if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
                 torrent_path = d / f"{file.name}[{tracker.abbrev}].torrent"
                 if watch_dir := config.get(tracker, "watch_dir"):
-                    (resume_dir := d / "resume").mkdir(exist_ok=True)
+                    watch_dir = Path(watch_dir).expanduser()
                     subprocess.run(
-                        ["chtor", "-o", resume_dir, "-H", file, torrent_path],
+                        ["chtor", "-H", file, torrent_path],
                         env={
                             **os.environ,
                             "PYRO_RTORRENT_RC": os.devnull,
                         },
                         check=True,
                     )
-                    shutil.copyfile(resume_dir / torrent_path.name, (Path(watch_dir) / torrent_path.name).expanduser())
+                    shutil.copyfile(torrent_path, watch_dir / torrent_path.name)
             else:
                 print(f"[red][bold]ERROR[/bold]: Upload to {tracker.name} failed[/red]")
 
