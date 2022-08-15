@@ -183,5 +183,4 @@ class HDBitsUploader(Uploader):
         torrent_url = f'https://hdbits.org{soup.select_one(".js-download")["href"]}'
         torrent_path.write_bytes(self.session.get(torrent_url).content)
 
-        # HDB requires redownloading the torrent as it includes a random unpredictable hash in each upload
-        return torrent_path
+        return True

@@ -218,12 +218,12 @@ def main():
         for tracker_name in args.trackers:
             tracker = trackers[tracker_name]
             uploader = tracker()
-            if ret := uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
-                torrent_path = ret if isinstance(ret, Path) else file.parent / f"{file.name}[{tracker.abbrev}].torrent"
+            if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
+                torrent_path = d / f"{file.name}[{tracker.abbrev}].torrent"
                 if watch_dir := config.get(tracker, "watch_dir"):
                     (resume_dir := d / "resume").mkdir(exist_ok=True)
                     subprocess.run(
-                        ["chtor", "-o", resume_dir, "-H", file, d / f"{file.name}[{tracker.abbrev}].torrent"],
+                        ["chtor", "-o", resume_dir, "-H", file, torrent_path],
                         env={
                             **os.environ,
                             "PYRO_RTORRENT_RC": os.devnull,
