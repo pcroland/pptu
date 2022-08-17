@@ -180,7 +180,10 @@ class BroadcasTheNetUploader(Uploader):
             if not lang:
                 print("[red][bold]ERROR[/bold]: Unable to determine audio language[/red]")
                 sys.exit(1)
-            lang = Language.get(lang).fill_likely_values()
+            lang = Language.get(lang)
+            if not lang.language:
+                print("[red][bold]ERROR[/bold]: Primary audio track has no language set[/red]")
+            lang = lang.fill_likely_values()
         else:
             print("[red][bold]ERROR[/bold]: MP4 is not yet supported[/red]")  # TODO
 
