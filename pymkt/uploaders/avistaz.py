@@ -38,7 +38,8 @@ class AvistaZUploader(Uploader):
             return False
 
         attempt = 1
-        while True:
+        done = False
+        while not done:
             res = self.session.get("https://avistaz.to/auth/login").text
             soup = BeautifulSoup(res, "lxml-html")
             token = soup.select_one("input[name='_token']")["value"]
@@ -85,6 +86,7 @@ class AvistaZUploader(Uploader):
                     print(" Received")
                     break
 
+            while True:
                 r = self.session.post(
                     url="https://avistaz.to/auth/login",
                     data={
@@ -124,6 +126,7 @@ class AvistaZUploader(Uploader):
                         "id": req_id,
                     },
                 )
+                done = True
                 break
 
         for cookie in self.session.cookies:
