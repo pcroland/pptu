@@ -7,6 +7,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 from copy import copy
 from pathlib import Path
@@ -223,7 +224,13 @@ def main():
                 if watch_dir := config.get(tracker, "watch_dir"):
                     watch_dir = Path(watch_dir).expanduser()
                     subprocess.run(
-                        ["chtor", "-H", file, torrent_path],
+                        [
+                            sys.executable,
+                            importlib.resources.path("pyrosimple.scripts", "chtor.py"),
+                            "-H",
+                            file,
+                            torrent_path,
+                        ],
                         env={
                             **os.environ,
                             "PYRO_RTORRENT_RC": os.devnull,

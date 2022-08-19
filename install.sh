@@ -9,4 +9,3 @@ poetry config virtualenvs.in-project true
 poetry install
 mkdir -p ~/.local/bin
 ln -sf "$(realpath .venv/bin/mkt)" ~/.local/bin/
-ln -sf "$(realpath .venv/bin/chtor)" ~/.local/bin/
