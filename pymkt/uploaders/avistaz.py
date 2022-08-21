@@ -6,6 +6,7 @@ import uuid
 from bs4 import BeautifulSoup
 from pyotp import TOTP
 from rich import print
+from rich.markup import escape
 
 from pymkt.uploaders import Uploader
 
@@ -284,6 +285,11 @@ class AvistaZUploader(Uploader):
             print(res)
             r.raise_for_status()
             images.append(res["imageId"])
+
+        if errors := soup.select(".form-error"):
+            for error in errors:
+                print(f"[red][bold]ERROR[/bold]: {escape(error.text)}")
+            return False
 
         data = {
             "_token": token,
