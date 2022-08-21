@@ -142,28 +142,22 @@ class AvistaZUploader(Uploader):
                 return False
 
             soup = BeautifulSoup(res, "lxml-html")
-            token = soup.select_one("input[name='_token']")["value"]
-
-            totp = TOTP(totp_secret).now()
-            print(totp)
 
             r = self.session.post(
                 url="https://avistaz.to/auth/twofa",
                 data={
-                    "_token": token,
-                    "twofa_code": totp,
+                    "_token": soup.select_one("input[name='_token']")["value"],
+                    "twofa_code": TOTP(totp_secret).now(),
                 },
             )
-            print(r)
-            print(r.headers)
             if r.url == "https://avistaz.to/auth/twofa":
                 print("[red][bold]ERROR[/bold]: TOTP code rejected[/red]")
                 print(r.text)
                 return False
 
-        print(r.url)
         if r.url != "https://avistaz.to":
             print("[red][bold]ERROR[/bold]: Login failed - Unknown error[/red]")
+            print(r.url)
             return False
 
         for cookie in self.session.cookies:
