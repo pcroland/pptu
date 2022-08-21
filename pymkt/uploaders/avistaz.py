@@ -246,11 +246,15 @@ class AvistaZUploader(Uploader):
             input()
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[AvZ].torrent"
+        url = f"https://avistaz.to/upload/{'movie' if collection == 'movie' else 'tv'}"
         r = self.session.post(
-            url=f"https://avistaz.to/upload/{'movie' if collection == 'movie' else 'tv'}",
+            url=url,
             data=data,
             files={
                 "torrent_file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
+            },
+            headers={
+                "Referer": url,
             },
             timeout=60,
         )
