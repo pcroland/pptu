@@ -171,7 +171,7 @@ def main():
                         "error",
                         "-stats",
                         "-ss",
-                        str(interval * (i + 1) if len(set(files)) > 1 else interval),
+                        str(interval * (i + 1) if len(set(files)) == 1 else interval),
                         "-i",
                         files[i],
                         "-vf",
