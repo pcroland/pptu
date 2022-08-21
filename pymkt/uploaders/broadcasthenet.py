@@ -194,46 +194,49 @@ class BroadcasTheNetUploader(Uploader):
         if len(release_name) > 100:
             release_name = release_name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
 
-        snapshot_urls = []
-        for snap in snapshots:
-            with open(snap, "rb") as fd:
-                # requests gets blocked by Cloudflare here, have to use httpx
-                res = httpx.post(
-                    url="https://imgbin.broadcasthe.net/upload",
-                    files={
-                        "file": fd,
-                    },
-                    headers={
-                        "Authorization": f"Bearer {self.config.get(self, 'imgbin_api_key')}",
-                    },
-                    timeout=60,
-                ).json()
-                snapshot_urls.append(next(iter(res.values()))["hotlink"])
-
-        thumbnail_urls = []
-        for thumb in thumbnails:
-            with open(thumb, "rb") as fd:
-                res = httpx.post(
-                    url="https://imgbin.broadcasthe.net/upload",
-                    files={
-                        "file": fd,
-                    },
-                    headers={
-                        "Authorization": f"Bearer {self.config.get(self, 'imgbin_api_key')}",
-                    },
-                    timeout=60,
-                ).json()
-                thumbnail_urls.append(next(iter(res.values()))["hotlink"])
-
         thumbnails_str = ""
-        for i in range(len(snapshots)):
-            snap = snapshot_urls[i]
-            thumb = thumbnail_urls[i]
-            thumbnails_str += rf"[url={snap}][img]{thumb}[/img][/url]"
-            if i % 2 == 0:
-                thumbnails_str += " "
-            else:
-                thumbnails_str += "\n"
+        if imgbin_api_key := self.config.get(self, "imgbin_api_key"):
+            snapshot_urls = []
+            for snap in snapshots:
+                with open(snap, "rb") as fd:
+                    # requests gets blocked by Cloudflare here, have to use httpx
+                    res = httpx.post(
+                        url="https://imgbin.broadcasthe.net/upload",
+                        files={
+                            "file": fd,
+                        },
+                        headers={
+                            "Authorization": f"Bearer {imgbin_api_key}",
+                        },
+                        timeout=60,
+                    ).json()
+                    snapshot_urls.append(next(iter(res.values()))["hotlink"])
+
+            thumbnail_urls = []
+            for thumb in thumbnails:
+                with open(thumb, "rb") as fd:
+                    res = httpx.post(
+                        url="https://imgbin.broadcasthe.net/upload",
+                        files={
+                            "file": fd,
+                        },
+                        headers={
+                            "Authorization": f"Bearer {imgbin_api_key}",
+                        },
+                        timeout=60,
+                    ).json()
+                    thumbnail_urls.append(next(iter(res.values()))["hotlink"])
+
+            for i in range(len(snapshots)):
+                snap = snapshot_urls[i]
+                thumb = thumbnail_urls[i]
+                thumbnails_str += rf"[url={snap}][img]{thumb}[/img][/url]"
+                if i % 2 == 0:
+                    thumbnails_str += " "
+                else:
+                    thumbnails_str += "\n"
+        else:
+            print("[yellow][bold]WARNING[/bold]: No imgbin API key specified, skipping snapshots[/yellow]")
 
         data = {
             "submit": "true",
@@ -255,7 +258,7 @@ class BroadcasTheNetUploader(Uploader):
             "bitrate": soup.select_one('[name="bitrate"] [selected]').get("value"),
             "media": soup.select_one('[name="media"] [selected]').get("value"),
             "resolution": (soup.select_one('[name="resolution"] [selected]') or {"value": "SD"}).get("value"),
-            "release_desc": f"{mediainfo}\n\n\n{thumbnails_str}",
+            "release_desc": f"{mediainfo}\n\n\n{thumbnails_str}".strip(),
             "tvdb": "autofilled",
         }
         print(data)
