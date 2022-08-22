@@ -1,5 +1,14 @@
 repos:
-  # Auto-fixers
+  - repo: 'https://github.com/psf/black'
+    rev: '22.3.0'
+    hooks:
+      - id: 'black'
+
+  - repo: 'https://github.com/pycqa/flake8'
+    rev: '4.0.1'
+    hooks:
+      - id: 'flake8'
+
   - repo: 'https://github.com/pycqa/isort'
     rev: '12cc5fbd67eebf92eb2213b03c07b138ae1fb448'
     hooks:
@@ -8,21 +17,10 @@ repos:
   - repo: 'https://github.com/asottile/pyupgrade'
     rev: 'v2.37.3'
     hooks:
-    - id: 'pyupgrade'
-      args: ['--py38-plus']
-
-  - repo: 'https://github.com/psf/black'
-    rev: '22.3.0'
-    hooks:
-      - id: 'black'
-
-  # Linters
-  - repo: 'https://github.com/pycqa/flake8'
-    rev: '4.0.1'
-    hooks:
-      - id: 'flake8'
+      - id: 'pyupgrade'
+        args: ['--py38-plus']
 
   - repo: 'https://github.com/jendrikseipp/vulture'
     rev: 'v2.4'
     hooks:
-    - id: 'vulture'
+      - id: 'vulture'
