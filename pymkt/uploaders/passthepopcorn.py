@@ -85,6 +85,23 @@ class PassThePopcornUploader(Uploader):
                 res = r.json()
                 snapshot_urls.append(f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}')
 
+        if re.search(r"\b(?:b[dr]-?rip|blu-?ray)\b", str(path), flags=re.I):
+            source = "Blu-ray"
+        elif re.search(r"\bhd-?dvd\b", str(path), flags=re.I):
+            source = "HD-DVD"
+        elif re.search(r"\bdvd(?:rip)?\b", str(path), flags=re.I):
+            source = "DVD"
+        elif re.search(r"\bweb-?(?:dl|rip)?\b", str(path), flags=re.I):
+            source = "WEB"
+        elif re.search(r"\bhdtv\b", str(path), flags=re.I):
+            source = "HDTV"
+        elif re.search(r"\bpdtv\b|\.ts$", str(path), flags=re.I):
+            source = "TV"
+        elif re.search(r"\bvhs(?:rip)?\b", str(path), flags=re.I):
+            source = "VHS"
+        else:
+            source = "Other"
+
         data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
             "type": "Feature Film",
@@ -95,7 +112,7 @@ class PassThePopcornUploader(Uploader):
             "remaster_title": "",
             "remaster_year": "",
             "internalrip": "on",  # TODO: Allow customizing this
-            "source": "WEB",  # TODO: Auto-detect this instead of hardcoding
+            "source": source,
             "other_source": "",
             "codec": "* Auto-detect",
             "container": "* Auto-detect",
