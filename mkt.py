@@ -216,8 +216,9 @@ def main():
         print("Done!")
 
         print("\n[bold green]\\[5/5] Uploading[/bold green]")
-        for tracker_name in args.trackers:
+        for i, tracker_name in enumerate(args.trackers):
             tracker = trackers[tracker_name]
+            print(f"[bold cyan]\\[{i + 1}/{len(args.trackers)}] Uploading to {tracker.abbrev}[/bold cyan]")
             uploader = tracker()
             if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
                 torrent_path = d / f"{file.name}[{tracker.abbrev}].torrent"
@@ -240,6 +241,7 @@ def main():
                     shutil.copyfile(torrent_path, watch_dir / torrent_path.name)
             else:
                 print(f"[red][bold]ERROR[/bold]: Upload to {tracker.name} failed[/red]")
+            print()
 
 
 if __name__ == "__main__":
