@@ -140,6 +140,8 @@ class HDBitsUploader(Uploader):
                 "username": self.config.get(self, "username"),
                 "passkey": self.config.get(self, "passkey"),
                 **{f"images_files[{i}]": open(snap, "rb") for i, snap in enumerate(snapshots)},
+                "galleryoption": "1",
+                "galleryname": name,
             },
             timeout=60,
         )
