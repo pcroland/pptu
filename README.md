@@ -14,8 +14,10 @@ Name           | Abbreviation | Server upload allowed
 -------------- | ------------ | -------------------------------------------------------------------
 AvistaZ        | `avz`        | :white_check_mark: Yes, if added as seedbox in profile
 BroadcasTheNet | `btn`        | :warning: Dedicated servers only, requires staff approval
+CinemaZ        | `cmz`         | :white_check_mark: Yes, if added as seedbox in profile
 HDBits         | `hdb`        | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
 PassThePopcorn | `ptp`        | :warning: Dedicated servers only, requires staff approval
+PrivateHD      | `phd`         | :white_check_mark: Yes, if added as seedbox in profile
 
 ## Usage
 Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
