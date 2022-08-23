@@ -14,6 +14,13 @@
     "private": true
   },
   {
+    "name": "CinemaZ",
+    "abbreviation": "CmZ",
+    "source": "CinemaZ",
+    "announce_url": "https://tracker.cinemaz.to/{pid}/announce",
+    "private": true
+  },
+  {
     "name": "HDBits",
     "abbreviation": "HDB",
     "source": "HDBits",
@@ -25,6 +32,13 @@
     "abbreviation": "PTP",
     "source": "PTP",
     "announce_url": "http://please.passthepopcorn.me:2710/{pid}/announce",
+    "private": true
+  },
+  {
+    "name": "PrivateHD",
+    "abbreviation": "PHD",
+    "source": "PHD",
+    "announce_url": "https://tracker.privatehd.to/{pid}/announce",
     "private": true
   }
 ]
