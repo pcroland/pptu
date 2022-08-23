@@ -21,20 +21,8 @@ from rich import print
 from ruamel.yaml import YAML
 from wand.image import Image
 
-from pymkt.uploaders import (
-    AvistaZUploader,
-    BroadcasTheNetUploader,
-    HDBitsUploader,
-    PassThePopcornUploader,
-)
+from pymkt import uploaders
 from pymkt.utils import Config
-
-UPLOADERS = {
-    AvistaZUploader,
-    BroadcasTheNetUploader,
-    HDBitsUploader,
-    PassThePopcornUploader,
-}
 
 
 def main():
@@ -94,8 +82,11 @@ def main():
             try:
                 tracker = trackers[tracker_name] = next(
                     x
-                    for x in UPLOADERS
-                    if x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold()
+                    for x in vars(uploaders).values()
+                    if isinstance(x, type)
+                    and x != uploaders.Uploader
+                    and issubclass(x, uploaders.Uploader)
+                    and (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
                 )
             except StopIteration:
                 print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
