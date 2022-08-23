@@ -120,6 +120,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
 
                     print("[yellow][bold]WARNING[/bold]: Captcha answer rejected, retrying[/yellow]")
                     attempt += 1
+                    continue
 
                 self.session.post(
                     url="http://2captcha.com/res.php",
