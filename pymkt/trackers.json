@@ -15,7 +15,7 @@
   },
   {
     "name": "CinemaZ",
-    "abbreviation": "CmZ",
+    "abbreviation": "CZ",
     "source": "CinemaZ",
     "announce_url": "https://tracker.cinemaz.to/{pid}/announce",
     "private": true
