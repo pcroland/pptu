@@ -50,7 +50,7 @@ class HDBitsUploader(Uploader):
         "Hallmark Channel": r"\bHLMK\b",
         "HBO Max": r"\bHMAX\b",
         "HDR10": r"\bHDR",
-        "HDR10+": r"(?i)\bHDR10(?:\+P(?:lus)?\b",
+        "HDR10+": r"(?i)\bHDR10(?:\+|P(?:lus)?)\b",
         "HFR": r"\bHFR\b",
         "HLG": r"\bHLG\b",
         "Hotstar": r"\bHS\b",
