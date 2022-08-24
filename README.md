@@ -12,12 +12,12 @@ Python torrent creator and auto-uploader
 ## Supported trackers
 Name           | Abbreviation | Server upload allowed
 -------------- | ------------ | -------------------------------------------------------------------
-AvistaZ        | `avz`        | :white_check_mark: Yes, if added as seedbox in profile
-BroadcasTheNet | `btn`        | :warning: Dedicated servers only, requires staff approval
-CinemaZ        | `cz`         | :white_check_mark: Yes, if added as seedbox in profile
-HDBits         | `hdb`        | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
-PassThePopcorn | `ptp`        | :warning: Dedicated servers only, requires staff approval
-PrivateHD      | `phd`        | :white_check_mark: Yes, if added as seedbox in profile
+AvistaZ        | `AvZ`        | :white_check_mark: Yes, if added as seedbox in profile
+BroadcasTheNet | `BTN`        | :warning: Dedicated servers only, requires staff approval
+CinemaZ        | `CZ`         | :white_check_mark: Yes, if added as seedbox in profile
+HDBits         | `HDB`        | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
+PassThePopcorn | `PTP`        | :warning: Dedicated servers only, requires staff approval
+PrivateHD      | `PHD`        | :white_check_mark: Yes, if added as seedbox in profile
 
 ## Usage
 Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
