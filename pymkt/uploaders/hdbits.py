@@ -36,6 +36,35 @@ class HDBitsUploader(Uploader):
         "Remux": 5,
         "WEB-DL": 6,
     }
+    TAG_MAP = {
+        "Amazon": r"\bAMZN\b",
+        "Apple TV+": r"\bATVP\b",
+        "BBC iPlayer": r"\biP\b",
+        "Bravia Core": r"\bB?CORE\b",
+        "Crackle": r"\bCRKL\b",
+        "Crunchyroll": r"\bCR\b",
+        "Disney+": r"\bDSNP\b",
+        "Dolby Atmos": r"\b(?:Atmos|DDPA|TrueHDA)\b",
+        "Dolby Vision": r"\b(?:DV|DoVi)\b",
+        "Funimation": r"\bFUNI\b",
+        "Hallmark Channel": r"\bHLMK\b",
+        "HBO Max": r"\bHMAX\b",
+        "HDR10": r"\bHDR",
+        "HDR10+": r"(?i)\bHDR10(?:\+P(?:lus)?\b",
+        "HFR": r"\bHFR\b",
+        "HLG": r"\bHLG\b",
+        "Hotstar": r"\bHS\b",
+        "Hulu": r"\bHULU\b",
+        "IMAX": r"\bIMAX\b",
+        "iTunes": r"\biT\b",
+        "Movies Anywhere": r"\bMA\b",
+        "Netflix": r"\bNF\b",
+        "Open Matte": r"\bOM\b",
+        "Paramount+": r"\bPMTP\b",
+        "Peacock": r"\bPCOK\b",
+        "Showtime": r"\bSHO\b",
+        "Stan": r"\bSTAN\b",
+    }
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
@@ -122,8 +151,14 @@ class HDBitsUploader(Uploader):
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
 
-        gi = guessit(path.name)
         name = path.name
+
+        tags = []
+        for tag, pattern in self.TAG_MAP.items():
+            if re.search(pattern, name):
+                tags.append(tag)
+
+        gi = guessit(path.name)
         if gi.get("episode_details") != "Special":
             # Strip episode title
             name = name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
@@ -162,6 +197,7 @@ class HDBitsUploader(Uploader):
             "origin": 0,  # TODO: Support internal
             "descr": thumbnails_str,
             "techinfo": mediainfo,
+            "tags[]": tags,
             "imdb": imdb,
             "tvdb": tvdb,
             "tvdb_season": 0 if gi.get("episode_details") == "Special" else season,
