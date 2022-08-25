@@ -12,6 +12,7 @@ from pymkt.utils import Config
 class Uploader(ABC):
     name = None
     abbrev = None
+    all_files = False  # Whether to generate MediaInfo and snapshots for all files
     require_cookies = True
     require_passkey = True
 

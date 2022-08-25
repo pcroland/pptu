@@ -5,6 +5,7 @@ import contextlib
 import importlib.resources
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -131,26 +132,36 @@ def main():
                     check=True,
                 )
 
+        cur_uploaders = []
+        for i, tracker_name in enumerate(args.trackers):
+            tracker = trackers[tracker_name]
+            cur_uploaders.append(tracker)
+
         print("\n[bold green]\\[2/5] Generating MediaInfo[/bold green]")
-        if file.is_file():
+        if file.is_file() or any(x.all_files for x in cur_uploaders):
             f = file
         else:
             f = list(sorted([*file.glob("*.mkv"), *file.glob("*.mp4")]))[0]
         p = subprocess.run(["mediainfo", f], cwd=file.parent, check=True, capture_output=True, encoding="utf-8")
-        mediainfo = p.stdout.strip()
-        Path(d / "mediainfo.txt").write_text(mediainfo)
+        mediainfo = [x.strip() for x in re.split(r"\n\n(?=General)", p.stdout)]
+
         print("Done!")
 
         print("\n[bold green]\\[3/5] Generating snapshots[/bold green]")
-        if file.is_file():
-            files = [file] * args.snapshots
-        else:
-            files = list(sorted([*file.glob("*.mkv"), *file.glob("*.mp4")]))[: args.snapshots]
+        num_snapshots = args.snapshots
+        has_all_files = any(x.all_files for x in cur_uploaders)
+        if file.is_dir() or has_all_files:
+            # TODO: Handle case when number of files < args.snapshots
+            files = list(sorted([*file.glob("*.mkv"), *file.glob("*.mp4")]))
+        elif file.is_file():
+            files = [file] * num_snapshots
+        if has_all_files:
+            num_snapshots = len(files)
         snapshots = []
-        for i in range(args.snapshots):
+        for i in range(num_snapshots):
             mediainfo_obj = MediaInfo.parse(files[i])
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
-            interval = duration / (args.snapshots + 1)
+            interval = duration / (num_snapshots + 1)
 
             snap = d / f"{(i + 1):02}.png"
             if not snap.exists():
@@ -182,7 +193,7 @@ def main():
 
         print("\n[bold green]\\[4/5] Generating thumbnails[/bold green]")
         thumbnails = []
-        for i in range(args.snapshots):
+        for i in range(num_snapshots):
             thumb = d / f"{(i + 1):02}_thumb.png"
             if not thumb.exists():
                 subprocess.run(
@@ -211,7 +222,11 @@ def main():
             tracker = trackers[tracker_name]
             print(f"[bold cyan]\\[{i + 1}/{len(args.trackers)}] Uploading to {tracker.abbrev}[/bold cyan]")
             uploader = tracker()
-            if uploader.upload(file, mediainfo, snapshots, thumbnails, auto=args.auto):
+            snapshots_tmp = snapshots
+            if not tracker.all_files:
+                mediainfo = mediainfo[0]
+                snapshots_tmp = snapshots[: args.snapshots]
+            if uploader.upload(file, mediainfo, snapshots_tmp, thumbnails, auto=args.auto):
                 torrent_path = d / f"{file.name}[{tracker.abbrev}].torrent"
                 if watch_dir := config.get(tracker, "watch_dir"):
                     watch_dir = Path(watch_dir).expanduser()

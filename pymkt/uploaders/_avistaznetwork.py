@@ -294,6 +294,8 @@ class AvistaZNetworkUploader(Uploader, ABC):
                 print(f"[red][bold]ERROR[/bold]: {escape(error.text)}")
             return False
 
+        print(soup)
+
         data = {
             "_token": token,
             "info_hash": soup.select_one('input[name="info_hash"]')["value"],

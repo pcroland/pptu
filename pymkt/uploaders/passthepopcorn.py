@@ -15,6 +15,7 @@ ia = Cinemagoer()
 class PassThePopcornUploader(Uploader):
     name = "PassThePopcorn"
     abbrev = "PTP"
+    all_files = True
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         imdb = None
@@ -85,6 +86,25 @@ class PassThePopcornUploader(Uploader):
                 res = r.json()
                 snapshot_urls.append(f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}')
 
+        if re.search(r"\.S\d+\.", str(path)):
+            print("Detected series")
+            type_ = "Miniseries"
+            desc = ""
+            for i in range(len(mediainfo)):
+                desc += "[mi]\n{mediainfo}\n[/mi]\n{snapshots}\n\n".format(
+                    mediainfo=mediainfo[i],
+                    snapshots=snapshot_urls[i],
+                )
+        else:
+            # TODO: Detect other types
+            print("Detected movie")
+            type_ = "Feature Film"
+            desc = "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
+                mediainfo=mediainfo[0],
+                snapshots="\n".join(snapshot_urls),
+            )
+        desc = desc.strip()
+
         if re.search(r"\b(?:b[dr]-?rip|blu-?ray)\b", str(path), flags=re.I):
             source = "Blu-ray"
         elif re.search(r"\bhd-?dvd\b", str(path), flags=re.I):
@@ -101,10 +121,11 @@ class PassThePopcornUploader(Uploader):
             source = "VHS"
         else:
             source = "Other"
+        print(f"Detected source: [bold cyan]{source}[/bold cyan]")
 
         data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
-            "type": "Feature Film",
+            "type": type_,
             "imdb": imdb,
             "title": torrent_info.get("title"),
             "year": torrent_info.get("year"),
@@ -120,9 +141,7 @@ class PassThePopcornUploader(Uploader):
             "tags": imdb_movie.data["genres"],
             "other_resolution_width": "",
             "other_resolution_height": "",
-            "release_desc": "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
-                mediainfo=mediainfo, snapshots="\n".join(snapshot_urls)
-            ),
+            "release_desc": desc,
             "nfo_text": "",
             "trumpable[]": [14] if no_eng_subs else [],
             "uploadtoken": "",
