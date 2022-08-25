@@ -195,7 +195,7 @@ class HDBitsUploader(Uploader):
             "codec": self.CODEC_MAP[codec],
             "medium": self.MEDIUM_MAP[medium],
             "origin": 0,  # TODO: Support internal
-            "descr": thumbnails_str,
+            "descr": f"[center]{thumbnails_str}[/center]",
             "techinfo": mediainfo,
             "tags[]": tags,
             "imdb": imdb,
