@@ -35,7 +35,7 @@ pre-commit = "^2.20.0"
 pyupgrade = "^2.37.3"
 
 [tool.poetry.scripts]
-mkt = "mkt:main"
+mkt = "pymkt.cli:main"
 
 [tool.black]
 line-length = 120
