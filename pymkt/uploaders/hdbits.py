@@ -1,3 +1,4 @@
+import hashlib
 import re
 import sys
 import time
@@ -5,6 +6,7 @@ import time
 from bs4 import BeautifulSoup
 from guessit import guessit
 from imdb import Cinemagoer
+from pyotp import TOTP
 from rich import print
 
 from pymkt.uploaders import Uploader
@@ -15,8 +17,21 @@ ia = Cinemagoer()
 class HDBitsUploader(Uploader):
     name = "HDBits"
     abbrev = "HDB"
+    require_cookies = False
     require_passkey = False
 
+    CAPTCHA_MAP = {
+        "efe8518424149278ddfaaf609b6a0b1a4749f61b61ef28824da67d68fb333af3": "bug",
+        "efa72724b28ccc386cc5c1384ea68ecd51ff9c7f7351dae908853aba40230ed1": "clock",
+        "d462f4dde17c39168868373f8a2733f7e373ca89a471eb4ea247c55f096f0d7e": "flag",
+        "4cee2b7c0807bf5301bb1c5ac89b160eac7b2b36d3ec88cfc4fb592146731654": "heart",
+        "33a0bcf45bf94fa6e157310f4d99193a011b4287629c9a95cde49910741b164b": "house",
+        "4e1a3fd65b3e7434429b9a207ecb7f1e357c2e0b46c081cf85533f7a419f5710": "key",
+        "755c605d2d5b87dcc9d77e7640cdcbf10662f375e9294694e046dddb99a19474": "light bulb",
+        "d38add46e8860bbb7e3ff577d0dfcad301dd68e23429e26e1447c31dc50d6ca2": "musical note",
+        "8ef0ee9ba6b93a1dd5b1dbda7e24510d130cafb9a3453c2be710d09474274a5e": "pen",
+        "518eb4eb8aaea5916d14531b479f046a0f1323fd0dbb2a9325b45a65715b9084": "world",
+    }
     CATEGORY_MAP = {
         "Movie": 1,
         "TV": 2,
@@ -66,7 +81,50 @@ class HDBitsUploader(Uploader):
         "Stan": r"\bSTAN\b",
     }
 
+    def login(self):
+        captcha = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"numImages": "5"}).json()
+        correct_hash = None
+        for image in captcha["images"]:
+            res = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"hash": image}).content
+            if self.CAPTCHA_MAP.get(hashlib.sha256(res).hexdigest()) == captcha["text"]:
+                correct_hash = image
+                print(f"Found captcha solution: [bold cyan]{captcha['text']}[/bold cyan] ([cyan]{correct_hash}[/cyan])")
+                break
+        if not correct_hash:
+            print("[bold][red]ERROR[/red]: Unable to solve captcha, perhaps it has new images?")
+            return False
+
+        res = self.session.get("https://hdbits.org/login", params={"returnto": "/"}).text
+        soup = BeautifulSoup(res, "lxml-html")
+
+        totp_secret = self.config.get(self, "totp_secret")
+
+        r = self.session.post(
+            url="https://hdbits.org/login/doLogin",
+            data={
+                "csrf": soup.select_one("[name='csrf']")["value"],
+                "uname": self.config.get(self, "username"),
+                "password": self.config.get(self, "password"),
+                "twostep_code": TOTP(totp_secret).now() if totp_secret else None,
+                "captchaSelection": correct_hash,
+            },
+        )
+        r.raise_for_status()
+
+        for cookie in self.session.cookies:
+            self.cookie_jar.set_cookie(cookie)
+        self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
+        self.cookie_jar.save(ignore_discard=True)
+
+        return True
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
+        r = self.session.get("https://hdbits.org")
+        if r.url.startswith("https://hdbits.org/login"):
+            print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+            if not self.login():
+                return False
+
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
             category = "TV"
