@@ -222,11 +222,12 @@ def main():
             tracker = trackers[tracker_name]
             print(f"[bold cyan]\\[{i + 1}/{len(args.trackers)}] Uploading to {tracker.abbrev}[/bold cyan]")
             uploader = tracker()
+            mediainfo_tmp = mediainfo
             snapshots_tmp = snapshots
             if not tracker.all_files:
-                mediainfo = mediainfo[0]
+                mediainfo_tmp = mediainfo[0]
                 snapshots_tmp = snapshots[: args.snapshots]
-            if uploader.upload(file, mediainfo, snapshots_tmp, thumbnails, auto=args.auto):
+            if uploader.upload(file, mediainfo_tmp, snapshots_tmp, thumbnails, auto=args.auto):
                 torrent_path = d / f"{file.name}[{tracker.abbrev}].torrent"
                 if watch_dir := config.get(tracker, "watch_dir"):
                     watch_dir = Path(watch_dir).expanduser()
