@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from pyotp import TOTP
 from rich import print
 from rich.markup import escape
+from rich.prompt import Confirm
 
 from pymkt.uploaders import Uploader
 
@@ -246,8 +247,8 @@ class AvistaZNetworkUploader(Uploader, ABC):
         print({**data, "_token": "[hidden]", "media_info": "[hidden]"})
 
         if not auto:
-            print("Press Enter to continue")
-            input()
+            if not Confirm.ask("Continue with upload?"):
+                return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[{self.abbrev}].torrent"
         url = f"{self.base_url}/upload/{'movie' if collection == 'movie' else 'tv'}"
@@ -326,8 +327,8 @@ class AvistaZNetworkUploader(Uploader, ABC):
         print(data)
 
         if not auto:
-            print("Press Enter to upload")
-            input()
+            if not Confirm.ask("Upload torrent?"):
+                return False
 
         r = self.session.post(url=upload_url, data=data, timeout=60)
         res = r.text

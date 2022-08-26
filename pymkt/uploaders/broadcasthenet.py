@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from guessit import guessit
 from langcodes import Language
 from rich import print
+from rich.prompt import Confirm
 
 from pymkt.uploaders import Uploader
 
@@ -274,8 +275,8 @@ class BroadcasTheNetUploader(Uploader):
         print(data)
 
         if not auto:
-            print("Press Enter to upload")
-            input()
+            if not Confirm.ask("Upload torrent?"):
+                return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
         r = self.session.post(

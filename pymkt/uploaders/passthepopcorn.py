@@ -6,6 +6,7 @@ from imdb import Cinemagoer
 from pymediainfo import MediaInfo
 from rich import print
 from rich.markup import escape
+from rich.prompt import Confirm
 
 from pymkt.uploaders import Uploader
 
@@ -167,8 +168,8 @@ class PassThePopcornUploader(Uploader):
         print(data)
 
         if not auto:
-            print("Press Enter to upload")
-            input()
+            if not Confirm.ask("Upload torrent?"):
+                return False
 
         res = self.session.post(
             url="https://passthepopcorn.me/upload.php",

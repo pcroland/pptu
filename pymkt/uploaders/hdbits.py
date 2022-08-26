@@ -8,6 +8,7 @@ from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
 from rich import print
+from rich.prompt import Confirm
 
 from pymkt.uploaders import Uploader
 
@@ -265,8 +266,8 @@ class HDBitsUploader(Uploader):
         print(data)
 
         if not auto:
-            print("Press Enter to upload")
-            input()
+            if not Confirm.ask("Upload torrent?"):
+                return False
 
         res = self.session.post(
             url="https://hdbits.org/upload/upload",
