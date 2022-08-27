@@ -61,7 +61,7 @@ def main():
 
     trackers_json = importlib.resources.path("pymkt", "trackers.json")
 
-    for file in args.file:
+    for i, file in enumerate(args.file):
         if not file.exists():
             print(f"[red][bold]ERROR[/bold]: File {file.name!r} does not exist[/red]")
             continue
@@ -69,36 +69,40 @@ def main():
         d = dirs.user_cache_path / f"{file.name}_files"
         d.mkdir(parents=True, exist_ok=True)
 
-        print(r"[bold green]\[1/6] Logging in to trackers[/bold green]")
-        for tracker_name in copy(args.trackers):
-            try:
-                tracker = trackers[tracker_name] = next(
-                    x for x in vars(uploaders).values()
-                    if isinstance(x, type)
-                    and x != uploaders.Uploader
-                    and issubclass(x, uploaders.Uploader)
-                    and (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
-                )
-            except StopIteration:
-                print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
-                args.trackers.remove(tracker_name)
-                continue
+        if i == 0:
+            print(r"[bold green]\[1/6] Logging in to trackers[/bold green]")
+            for tracker_name in copy(args.trackers):
+                try:
+                    tracker = trackers[tracker_name] = next(
+                        x for x in vars(uploaders).values()
+                        if isinstance(x, type)
+                        and x != uploaders.Uploader
+                        and issubclass(x, uploaders.Uploader)
+                        and (
+                            x.name.casefold() == tracker_name.casefold()
+                            or x.abbrev.casefold() == tracker_name.casefold()
+                        )
+                    )
+                except StopIteration:
+                    print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
+                    args.trackers.remove(tracker_name)
+                    continue
 
-            uploader = tracker()
+                uploader = tracker()
 
-            if not uploader.login():
-                print(f"[red][bold]ERROR[/bold]: Failed to log in to tracker {tracker.name}[/red]")
-                continue
-            for cookie in uploader.session.cookies:
-                uploader.cookie_jar.set_cookie(cookie)
-            uploader.cookies_path.parent.mkdir(parents=True, exist_ok=True)
-            uploader.cookie_jar.save(ignore_discard=True)
+                if not uploader.login():
+                    print(f"[red][bold]ERROR[/bold]: Failed to log in to tracker {tracker.name}[/red]")
+                    continue
+                for cookie in uploader.session.cookies:
+                    uploader.cookie_jar.set_cookie(cookie)
+                uploader.cookies_path.parent.mkdir(parents=True, exist_ok=True)
+                uploader.cookie_jar.save(ignore_discard=True)
 
-            passkey = config.get(tracker, "passkey") or uploader.passkey
-            if not passkey and tracker.require_passkey:
-                print(f"[red][bold]ERROR[/bold]: Passkey not defined in config for tracker {tracker.name}[/red]")
-                args.trackers.remove(tracker_name)
-                continue
+                passkey = config.get(tracker, "passkey") or uploader.passkey
+                if not passkey and tracker.require_passkey:
+                    print(f"[red][bold]ERROR[/bold]: Passkey not defined in config for tracker {tracker.name}[/red]")
+                    args.trackers.remove(tracker_name)
+                    continue
 
         print("\n[bold green]\\[2/6] Creating torrent files[/bold green]")
         base_torrent_path = d / f"{file.name}.torrent"
