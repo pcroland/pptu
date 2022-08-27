@@ -116,36 +116,36 @@ def main():
                 file,
             ], check=True)
 
-            for tracker_name in args.trackers:
-                tracker = trackers[tracker_name]
+        for tracker_name in args.trackers:
+            tracker = trackers[tracker_name]
 
-                with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
-                    YAML().dump({
-                        "tracker-parameters": {
-                            tracker.name: {
-                                "pid": passkey,
-                            },
+            with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
+                YAML().dump({
+                    "tracker-parameters": {
+                        tracker.name: {
+                            "pid": passkey,
                         },
-                    }, tmp)
-                    subprocess.run([
-                        "torrenttools",
-                        "--trackers-config",
-                        trackers_json,
-                        "--config",
-                        tmp.name,
-                        "edit",
-                        "--no-created-by",
-                        "--no-creation-date",
-                        "-a",
-                        tracker.name,
-                        "-s",
-                        next(
-                            x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name
-                        )["source"],
-                        "-o",
-                        d / f"{file.name}[{tracker.abbrev}].torrent",
-                        d / f"{file.name}.torrent",
-                    ], check=True)
+                    },
+                }, tmp)
+                subprocess.run([
+                    "torrenttools",
+                    "--trackers-config",
+                    trackers_json,
+                    "--config",
+                    tmp.name,
+                    "edit",
+                    "--no-created-by",
+                    "--no-creation-date",
+                    "-a",
+                    tracker.name,
+                    "-s",
+                    next(
+                        x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name
+                    )["source"],
+                    "-o",
+                    d / f"{file.name}[{tracker.abbrev}].torrent",
+                    d / f"{file.name}.torrent",
+                ], check=True)
 
         cur_uploaders = []
         for i, tracker_name in enumerate(args.trackers):
