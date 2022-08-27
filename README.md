@@ -22,7 +22,11 @@ PrivateHD      | `PHD`        | Credentials/Cookies   | Yes     | :white_check_m
 "Captcha: Yes" means 2captcha API key is required to solve the captcha.
 "Simple" means there is a captcha but it can be solved automatically without 2captcha.
 
-Cookies are not recommended for AvistaZ network sites (AvistaZ, CinemaZ, PrivateHD) as they expire within a few days.
+### AvistaZ Network (AvistaZ, CinemaZ, PrivateHD)
+Using cookies is not recommended as they expire within a few days.
+
+### HDBits
+For the image host, if you have 2FA enabled, you also need to provide your passkey in the config.
 
 ## Usage
 Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.

@@ -232,6 +232,7 @@ class HDBitsUploader(Uploader):
             url="https://img.hdbits.org/upload_api.php",
             files={
                 "username": self.config.get(self, "username"),
+                "password": self.config.get(self, "password"),
                 "passkey": self.config.get(self, "passkey"),
                 **{f"images_files[{i}]": open(snap, "rb") for i, snap in enumerate(snapshots)},
                 "galleryoption": "1",
