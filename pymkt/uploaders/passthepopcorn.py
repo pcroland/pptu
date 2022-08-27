@@ -18,6 +18,12 @@ class PassThePopcornUploader(Uploader):
     abbrev = "PTP"
     all_files = True
 
+    @property
+    def passkey(self):
+        res = self.session.get("https://passthepopcorn.me/upload.php").text
+        soup = BeautifulSoup(res, "lxml-html")
+        return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
