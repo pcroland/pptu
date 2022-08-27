@@ -94,7 +94,7 @@ def main():
                 args.trackers.remove(tracker_name)
                 continue
 
-            passkey = config.get(tracker, "passkey")
+            passkey = config.get(tracker, "passkey") or tracker().passkey
             if not passkey and tracker.require_passkey:
                 print(f"[red][bold]ERROR[/bold]: Passkey not defined in config for tracker {tracker.name}[/red]")
                 args.trackers.remove(tracker_name)

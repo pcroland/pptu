@@ -50,6 +50,10 @@ class Uploader(ABC):
             "all": self.config.get(self, "proxy"),
         }
 
+    @property
+    def passkey(self):
+        return None
+
     @abstractmethod
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         ...

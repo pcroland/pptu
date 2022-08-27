@@ -123,6 +123,12 @@ class BroadcasTheNetUploader(Uploader):
         "ZA": 26,
     }
 
+    @property
+    def passkey(self):
+        res = self.session.get("https://broadcasthe.net/upload.php").text
+        soup = BeautifulSoup(res, "lxml-html")
+        return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
