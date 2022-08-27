@@ -29,16 +29,25 @@ Using cookies is not recommended as they expire within a few days.
 If you don't specify a TOTP secret in the config, 2FA code will be prompted for when cookies are missing or expired.
 You can disable the prompt with `totp_secret = false` if your account doesn't have 2FA.
 
-## Usage
-Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
-In the global section you can specify a proxy and/or a watch directory. These can be overridden per tracker if needed.
-Make sure to set a passkey for each tracker, and you can optionally specify a proxy as well.
-
-Place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt` where `TRACKER` is the name or the abbreviation of the
-tracker above (all lowercase).
-
+## Installation
 Install dependencies and the script with `./install.sh`. You can re-run the script to update after a git pull.
 
+## Setup
+Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
+
+For credential-based auth, add your credentials in `~/.config/pymkt/config.toml`:
+```
+[TRACKER]
+username = "yourusername"
+password = "yourpassword"
+```
+Optionally, you may specify `totp_secret` for automating 2FA logins.
+
+For cookie-based auth, place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt`.
+
+`TRACKER` is the name or the abbreviation of the tracker above (all lowercase).
+
+## Usage
 ```
 $ mkt -t tracker1,tracker2,tracker3 FILE_OR_FOLDER
 ```
@@ -48,4 +57,4 @@ Options:
 * `--snapshots`: Override number of snapshots to take (default: 4).
 
 ## Notes
-Movie support for BTN and miniseries support for PTP is not yet implemented.
+Movie support for BTN is not yet implemented.
