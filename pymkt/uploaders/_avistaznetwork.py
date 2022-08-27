@@ -30,6 +30,12 @@ class AvistaZNetworkUploader(Uploader, ABC):
         return f"https://{self.name.lower()}.to"
 
     def login(self):
+        r = self.session.get(f"{self.base_url}/account", allow_redirects=False, timeout=60)
+        if r.status_code == 200:
+            return True
+
+        print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+
         if not (username := self.config.get(self, "username")):
             print("[red][bold]ERROR[/bold]: No username specified in config, cannot log in.[/red]")
             return False
@@ -165,11 +171,6 @@ class AvistaZNetworkUploader(Uploader, ABC):
             print(r.url)
             return False
 
-        for cookie in self.session.cookies:
-            self.cookie_jar.set_cookie(cookie)
-        self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
-        self.cookie_jar.save(ignore_discard=True)
-
         return True
 
     @property
@@ -208,16 +209,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
         if m := re.search(r"\.S\d+E(\d+)\.", path.name):
             episode = int(m.group(1))
 
-        while True:
-            r = self.session.get(url=f"{self.base_url}/account", allow_redirects=False, timeout=60)
-            if r.status_code == 200:
-                break
-
-            print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
-            if not self.login():
-                return False
-            return self.upload(path, mediainfo, snapshots, thumbnails, auto=auto)
-
+        r = self.session.get(self.base_url)
         res = r.text
         soup = BeautifulSoup(res, "lxml-html")
         token = soup.select_one('meta[name="_token"]')["content"]

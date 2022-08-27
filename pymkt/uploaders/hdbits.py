@@ -83,6 +83,12 @@ class HDBitsUploader(Uploader):
     }
 
     def login(self):
+        r = self.session.get("https://hdbits.org")
+        if not r.url.startswith("https://hdbits.org/login"):
+            return True
+
+        print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+
         captcha = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"numImages": "5"}).json()
         correct_hash = None
         for image in captcha["images"]:
@@ -112,11 +118,6 @@ class HDBitsUploader(Uploader):
         )
         r.raise_for_status()
 
-        for cookie in self.session.cookies:
-            self.cookie_jar.set_cookie(cookie)
-        self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
-        self.cookie_jar.save(ignore_discard=True)
-
         return True
 
     @property
@@ -125,12 +126,6 @@ class HDBitsUploader(Uploader):
         return re.search(r"passkey=([a-f0-9]+)", res).group(1)
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
-        r = self.session.get("https://hdbits.org")
-        if r.url.startswith("https://hdbits.org/login"):
-            print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
-            if not self.login():
-                return False
-
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
             category = "TV"

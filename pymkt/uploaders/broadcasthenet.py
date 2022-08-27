@@ -129,6 +129,13 @@ class BroadcasTheNetUploader(Uploader):
         soup = BeautifulSoup(res, "lxml-html")
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
+    def login(self):
+        r = self.session.get("https://broadcasthe.net/user.php")
+        if r.status_code == 302:
+            print("[red][bold]ERROR[/bold]: Cookies expired[/red]")
+            return False
+        return True
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")

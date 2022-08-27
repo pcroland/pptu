@@ -24,6 +24,13 @@ class PassThePopcornUploader(Uploader):
         soup = BeautifulSoup(res, "lxml-html")
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
+    def login(self):
+        r = self.session.get("https://passthepopcorn.me/user.php?action=edit")
+        if r.status_code == 302:
+            print("[red][bold]ERROR[/bold]: Cookies expired[/red]")
+            return False
+        return True
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):

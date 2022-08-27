@@ -65,7 +65,39 @@ def main():
         d = dirs.user_cache_path / f"{file.name}_files"
         d.mkdir(parents=True, exist_ok=True)
 
-        print(r"[bold green]\[1/5] Creating torrent files[/bold green]")
+        print(r"[bold green]\[1/6] Logging in to trackers[/bold green]")
+        for tracker_name in copy(args.trackers):
+            try:
+                tracker = trackers[tracker_name] = next(
+                    x
+                    for x in vars(uploaders).values()
+                    if isinstance(x, type)
+                    and x != uploaders.Uploader
+                    and issubclass(x, uploaders.Uploader)
+                    and (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
+                )
+            except StopIteration:
+                print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
+                args.trackers.remove(tracker_name)
+                continue
+
+            uploader = tracker()
+
+            if not uploader.login():
+                print(f"[red][bold]ERROR[/bold]: Failed to log in to tracker {tracker.name}[/red]")
+                continue
+            for cookie in uploader.session.cookies:
+                uploader.cookie_jar.set_cookie(cookie)
+            uploader.cookies_path.parent.mkdir(parents=True, exist_ok=True)
+            uploader.cookie_jar.save(ignore_discard=True)
+
+            passkey = config.get(tracker, "passkey") or uploader.passkey
+            if not passkey and tracker.require_passkey:
+                print(f"[red][bold]ERROR[/bold]: Passkey not defined in config for tracker {tracker.name}[/red]")
+                args.trackers.remove(tracker_name)
+                continue
+
+        print("\n[bold green]\\[2/6] Creating torrent files[/bold green]")
         base_torrent_path = d / f"{file.name}.torrent"
         if not base_torrent_path.exists():
             subprocess.run(
@@ -83,65 +115,50 @@ def main():
                 ],
                 check=True,
             )
-        for tracker_name in copy(args.trackers):
-            try:
-                tracker = trackers[tracker_name] = next(
-                    x
-                    for x in vars(uploaders).values()
-                    if isinstance(x, type)
-                    and x != uploaders.Uploader
-                    and issubclass(x, uploaders.Uploader)
-                    and (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
-                )
-            except StopIteration:
-                print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
-                args.trackers.remove(tracker_name)
-                continue
 
-            passkey = config.get(tracker, "passkey") or tracker().passkey
-            if not passkey and tracker.require_passkey:
-                print(f"[red][bold]ERROR[/bold]: Passkey not defined in config for tracker {tracker.name}[/red]")
-                args.trackers.remove(tracker_name)
-                continue
-
-            with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
-                YAML().dump(
-                    {
-                        "tracker-parameters": {
-                            tracker.name: {
-                                "pid": passkey,
+            for tracker in args.trackers:
+                with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
+                    YAML().dump(
+                        {
+                            "tracker-parameters": {
+                                tracker.name: {
+                                    "pid": passkey,
+                                },
                             },
                         },
-                    },
-                    tmp,
-                )
-                subprocess.run(
-                    [
-                        "torrenttools",
-                        "--trackers-config",
-                        trackers_json,
-                        "--config",
-                        tmp.name,
-                        "edit",
-                        "--no-created-by",
-                        "--no-creation-date",
-                        "-a",
-                        tracker.name,
-                        "-s",
-                        next(x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name)["source"],
-                        "-o",
-                        d / f"{file.name}[{tracker.abbrev}].torrent",
-                        d / f"{file.name}.torrent",
-                    ],
-                    check=True,
-                )
+                        tmp,
+                    )
+                    subprocess.run(
+                        [
+                            "torrenttools",
+                            "--trackers-config",
+                            trackers_json,
+                            "--config",
+                            tmp.name,
+                            "edit",
+                            "--no-created-by",
+                            "--no-creation-date",
+                            "-a",
+                            tracker.name,
+                            "-s",
+                            # fmt: off
+                            next(
+                                x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name
+                            )["source"],
+                            # fmt: on
+                            "-o",
+                            d / f"{file.name}[{tracker.abbrev}].torrent",
+                            d / f"{file.name}.torrent",
+                        ],
+                        check=True,
+                    )
 
         cur_uploaders = []
         for i, tracker_name in enumerate(args.trackers):
             tracker = trackers[tracker_name]
             cur_uploaders.append(tracker)
 
-        print("\n[bold green]\\[2/5] Generating MediaInfo[/bold green]")
+        print("\n[bold green]\\[3/6] Generating MediaInfo[/bold green]")
         if file.is_file() or any(x.all_files for x in cur_uploaders):
             f = file
         else:
@@ -151,7 +168,7 @@ def main():
 
         print("Done!")
 
-        print("\n[bold green]\\[3/5] Generating snapshots[/bold green]")
+        print("\n[bold green]\\[4/6] Generating snapshots[/bold green]")
         num_snapshots = args.snapshots
         has_all_files = any(x.all_files for x in cur_uploaders)
         if file.is_dir() or has_all_files:
@@ -195,7 +212,7 @@ def main():
             snapshots.append(snap)
         print("Done!")
 
-        print("\n[bold green]\\[4/5] Generating thumbnails[/bold green]")
+        print("\n[bold green]\\[5/6] Generating thumbnails[/bold green]")
         thumbnails = []
         for i in range(num_snapshots):
             thumb = d / f"{(i + 1):02}_thumb.png"
@@ -221,7 +238,7 @@ def main():
             thumbnails.append(thumb)
         print("Done!")
 
-        print("\n[bold green]\\[5/5] Uploading[/bold green]")
+        print("\n[bold green]\\[6/6] Uploading[/bold green]")
         for i, tracker_name in enumerate(args.trackers):
             tracker = trackers[tracker_name]
             print(f"[bold cyan]\\[{i + 1}/{len(args.trackers)}] Uploading to {tracker.abbrev}[/bold cyan]")
