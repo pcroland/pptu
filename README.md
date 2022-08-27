@@ -10,14 +10,19 @@ Python torrent creator and auto-uploader
 * FFmpeg (for generating snapshots)
 
 ## Supported trackers
-Name           | Abbreviation | Server upload allowed
--------------- | ------------ | -------------------------------------------------------------------
-AvistaZ        | `AvZ`        | :white_check_mark: Yes, if added as seedbox in profile
-BroadcasTheNet | `BTN`        | :warning: Dedicated servers only, requires staff approval
-CinemaZ        | `CZ`         | :white_check_mark: Yes, if added as seedbox in profile
-HDBits         | `HDB`        | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
-PassThePopcorn | `PTP`        | :warning: Dedicated servers only, requires staff approval
-PrivateHD      | `PHD`        | :white_check_mark: Yes, if added as seedbox in profile
+Name           | Abbreviation | Authentication method | Captcha | Server upload allowed
+-------------- | ------------ | --------------------- | ------- |  -------------------------------------------------------------------
+AvistaZ        | `AvZ`        | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
+BroadcasTheNet | `BTN`        | Cookies               | N/A     | :warning: Dedicated servers only, requires staff approval
+CinemaZ        | `CZ`         | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
+HDBits         | `HDB`        | Credentials/Cookies   | Simple  | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
+PassThePopcorn | `PTP`        | Cookies               | N/A     | :warning: Dedicated servers only, requires staff approval
+PrivateHD      | `PHD`        | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
+
+"Captcha: Yes" means 2captcha API key is required to solve the captcha.
+"Simple" means there is a captcha but it can be solved automatically without 2captcha.
+
+Cookies are not recommended for AvistaZ network sites (AvistaZ, CinemaZ, PrivateHD) as they expire within a few days.
 
 ## Usage
 Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
