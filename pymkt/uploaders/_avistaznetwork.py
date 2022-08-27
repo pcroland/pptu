@@ -115,7 +115,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
                         },
                     )
 
-                    if attempt >= 5:
+                    if attempt > 5:
                         print("[red][bold]ERROR[/bold]: Captcha answer rejected too many times, giving up[/red]")
                         return False
 
