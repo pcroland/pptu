@@ -148,17 +148,13 @@ class AvistaZNetworkUploader(Uploader, ABC):
         if "/auth/twofa" in r.url:
             print("2FA detected")
 
-            if not totp_secret:
-                print("[red][bold]ERROR[/bold]: Account has 2FA but no secret provided in config[/red]")
-                return False
-
             soup = BeautifulSoup(res, "lxml-html")
 
             r = self.session.post(
                 url=r.url,
                 data={
                     "_token": soup.select_one("input[name='_token']")["value"],
-                    "twofa_code": TOTP(totp_secret).now(),
+                    "twofa_code": TOTP(totp_secret).now() if totp_secret else Confirm.ask("Enter 2FA code: "),
                 },
             )
             if "/auth/twofa" in r.url:

@@ -112,7 +112,10 @@ class HDBitsUploader(Uploader):
                 "csrf": soup.select_one("[name='csrf']")["value"],
                 "uname": self.config.get(self, "username"),
                 "password": self.config.get(self, "password"),
-                "twostep_code": TOTP(totp_secret).now() if totp_secret else None,
+                "twostep_code": (
+                    TOTP(totp_secret).now() if totp_secret
+                    else Confirm.ask("Enter 2FA code (leave blank if none): ")
+                ),
                 "captchaSelection": correct_hash,
             },
         )
