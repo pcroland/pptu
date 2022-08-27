@@ -288,7 +288,7 @@ class BroadcasTheNetUploader(Uploader):
         print(data)
 
         if not auto:
-            if not Confirm.ask("Upload torrent?"):
+            if not Confirm.ask("\nUpload torrent?"):
                 return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"

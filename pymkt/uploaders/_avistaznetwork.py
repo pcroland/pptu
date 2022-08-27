@@ -245,7 +245,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
         print({**data, "_token": "[hidden]", "media_info": "[hidden]"})
 
         if not auto:
-            if not Confirm.ask("Continue with upload?"):
+            if not Confirm.ask("\nContinue with upload?"):
                 return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[{self.abbrev}].torrent"

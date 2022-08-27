@@ -181,7 +181,7 @@ class PassThePopcornUploader(Uploader):
         print(data)
 
         if not auto:
-            if not Confirm.ask("Upload torrent?"):
+            if not Confirm.ask("\nUpload torrent?"):
                 return False
 
         res = self.session.post(
