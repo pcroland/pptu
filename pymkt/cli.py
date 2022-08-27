@@ -113,8 +113,7 @@ def main():
                 "--no-created-by",
                 "--no-creation-date",
                 "--no-cross-seed",
-                "--exclude",
-                r".*\.(txt|nfo|png|jpg|ffindex|srt|torrent)$",
+                "--exclude", r".*\.(txt|nfo|png|jpg|ffindex|srt|torrent)$",
                 "-o",
                 base_torrent_path,
                 file,
@@ -133,21 +132,16 @@ def main():
                 }, tmp)
                 subprocess.run([
                     "torrenttools",
-                    "--trackers-config",
-                    trackers_json,
-                    "--config",
-                    tmp.name,
+                    "--trackers-config", trackers_json,
+                    "--config", tmp.name,
                     "edit",
                     "--no-created-by",
                     "--no-creation-date",
-                    "-a",
-                    tracker.name,
-                    "-s",
-                    next(
+                    "-a", tracker.name,
+                    "-s", next(
                         x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name
                     )["source"],
-                    "-o",
-                    d / f"{file.name}[{tracker.abbrev}].torrent",
+                    "-o", d / f"{file.name}[{tracker.abbrev}].torrent",
                     d / f"{file.name}.torrent",
                 ], check=True)
 
@@ -210,13 +204,10 @@ def main():
                 subprocess.run([
                     "ffmpeg",
                     "-y",
-                    "-v",
-                    "error",
+                    "-v", "error",
                     "-stats",
-                    "-i",
-                    d / f"{(i + 1):02}.png",
-                    "-vf",
-                    "scale=300:-1",
+                    "-i", d / f"{(i + 1):02}.png",
+                    "-vf", "scale=300:-1",
                     thumb,
                 ], check=True)
                 with contextlib.suppress(FileNotFoundError):
