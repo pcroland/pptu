@@ -58,6 +58,10 @@ def main():
     trackers_json = importlib.resources.path("pymkt", "trackers.json")
 
     for file in args.file:
+        if not file.exists():
+            print(f"[red][bold]ERROR[/bold]: File {file.name!r} does not exist[/red]")
+            continue
+
         d = dirs.user_cache_path / f"{file.name}_files"
         d.mkdir(parents=True, exist_ok=True)
 
