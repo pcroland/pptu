@@ -63,12 +63,7 @@ class PassThePopcornUploader(Uploader):
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
-        res = self.session.get(
-            url="https://passthepopcorn.me/upload.php",
-            params={
-                "groupid": groupid,
-            },
-        ).text
+        res = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": groupid}).text
         soup = BeautifulSoup(res, "lxml-html")
 
         if path.is_dir():
@@ -76,8 +71,9 @@ class PassThePopcornUploader(Uploader):
         else:
             file = path
         mediainfo_obj = MediaInfo.parse(file)
-        no_eng_subs = all(not x.language.startswith("en") for x in mediainfo_obj.audio_tracks) and all(
-            not x.language.startswith("en") for x in mediainfo_obj.text_tracks
+        no_eng_subs = (
+            all(not x.language.startswith("en") for x in mediainfo_obj.audio_tracks)
+            and all(not x.language.startswith("en") for x in mediainfo_obj.text_tracks)
         )
 
         snapshot_urls = []
@@ -172,11 +168,9 @@ class PassThePopcornUploader(Uploader):
                 "AntiCsrfToken": data["AntiCsrfToken"],
             },
         ).json()
-        data.update(
-            {
-                "subtitles[]": res["SubtitleIds"],
-            }
-        )
+        data.update({
+            "subtitles[]": res["SubtitleIds"],
+        })
 
         print(data)
 

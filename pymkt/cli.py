@@ -69,8 +69,7 @@ def main():
         for tracker_name in copy(args.trackers):
             try:
                 tracker = trackers[tracker_name] = next(
-                    x
-                    for x in vars(uploaders).values()
+                    x for x in vars(uploaders).values()
                     if isinstance(x, type)
                     and x != uploaders.Uploader
                     and issubclass(x, uploaders.Uploader)
@@ -100,58 +99,47 @@ def main():
         print("\n[bold green]\\[2/6] Creating torrent files[/bold green]")
         base_torrent_path = d / f"{file.name}.torrent"
         if not base_torrent_path.exists():
-            subprocess.run(
-                [
-                    "torrenttools",
-                    "create",
-                    "--no-created-by",
-                    "--no-creation-date",
-                    "--no-cross-seed",
-                    "--exclude",
-                    r".*\.(txt|nfo|png|jpg|ffindex|srt|torrent)$",
-                    "-o",
-                    base_torrent_path,
-                    file,
-                ],
-                check=True,
-            )
+            subprocess.run([
+                "torrenttools",
+                "create",
+                "--no-created-by",
+                "--no-creation-date",
+                "--no-cross-seed",
+                "--exclude",
+                r".*\.(txt|nfo|png|jpg|ffindex|srt|torrent)$",
+                "-o",
+                base_torrent_path,
+                file,
+            ], check=True)
 
             for tracker in args.trackers:
                 with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
-                    YAML().dump(
-                        {
-                            "tracker-parameters": {
-                                tracker.name: {
-                                    "pid": passkey,
-                                },
+                    YAML().dump({
+                        "tracker-parameters": {
+                            tracker.name: {
+                                "pid": passkey,
                             },
                         },
-                        tmp,
-                    )
-                    subprocess.run(
-                        [
-                            "torrenttools",
-                            "--trackers-config",
-                            trackers_json,
-                            "--config",
-                            tmp.name,
-                            "edit",
-                            "--no-created-by",
-                            "--no-creation-date",
-                            "-a",
-                            tracker.name,
-                            "-s",
-                            # fmt: off
-                            next(
-                                x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name
-                            )["source"],
-                            # fmt: on
-                            "-o",
-                            d / f"{file.name}[{tracker.abbrev}].torrent",
-                            d / f"{file.name}.torrent",
-                        ],
-                        check=True,
-                    )
+                    }, tmp)
+                    subprocess.run([
+                        "torrenttools",
+                        "--trackers-config",
+                        trackers_json,
+                        "--config",
+                        tmp.name,
+                        "edit",
+                        "--no-created-by",
+                        "--no-creation-date",
+                        "-a",
+                        tracker.name,
+                        "-s",
+                        next(
+                            x for x in json.loads(trackers_json.read_text()) if x["name"] == tracker.name
+                        )["source"],
+                        "-o",
+                        d / f"{file.name}[{tracker.abbrev}].torrent",
+                        d / f"{file.name}.torrent",
+                    ], check=True)
 
         cur_uploaders = []
         for i, tracker_name in enumerate(args.trackers):
@@ -186,25 +174,17 @@ def main():
 
             snap = d / f"{(i + 1):02}.png"
             if not snap.exists():
-                subprocess.run(
-                    [
-                        "ffmpeg",
-                        "-y",
-                        "-v",
-                        "error",
-                        "-stats",
-                        "-ss",
-                        str(interval * (i + 1) if len(set(files)) == 1 else duration / 2),
-                        "-i",
-                        files[i],
-                        "-vf",
-                        "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
-                        "-frames:v",
-                        "1",
-                        snap,
-                    ],
-                    check=True,
-                )
+                subprocess.run([
+                    "ffmpeg",
+                    "-y",
+                    "-v", "error",
+                    "-stats",
+                    "-ss", str(interval * (i + 1) if len(set(files)) == 1 else duration / 2),
+                    "-i", files[i],
+                    "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
+                    "-frames:v", "1",
+                    snap,
+                ], check=True)
                 with Image(filename=snap) as img:
                     img.depth = 8
                     img.save(filename=snap)
@@ -217,21 +197,18 @@ def main():
         for i in range(num_snapshots):
             thumb = d / f"{(i + 1):02}_thumb.png"
             if not thumb.exists():
-                subprocess.run(
-                    [
-                        "ffmpeg",
-                        "-y",
-                        "-v",
-                        "error",
-                        "-stats",
-                        "-i",
-                        d / f"{(i + 1):02}.png",
-                        "-vf",
-                        "scale=300:-1",
-                        thumb,
-                    ],
-                    check=True,
-                )
+                subprocess.run([
+                    "ffmpeg",
+                    "-y",
+                    "-v",
+                    "error",
+                    "-stats",
+                    "-i",
+                    d / f"{(i + 1):02}.png",
+                    "-vf",
+                    "scale=300:-1",
+                    thumb,
+                ], check=True)
                 with contextlib.suppress(FileNotFoundError):
                     subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
                 oxipng.optimize(snap)
@@ -247,7 +224,7 @@ def main():
             snapshots_tmp = snapshots
             if not tracker.all_files:
                 mediainfo_tmp = mediainfo[0]
-                snapshots_tmp = snapshots[: args.snapshots]
+                snapshots_tmp = snapshots[:args.snapshots]
             if uploader.upload(file, mediainfo_tmp, snapshots_tmp, thumbnails, auto=args.auto):
                 torrent_path = d / f"{file.name}[{tracker.abbrev}].torrent"
                 if watch_dir := config.get(tracker, "watch_dir"):
@@ -256,14 +233,10 @@ def main():
                         [
                             sys.executable,
                             importlib.resources.path("pyrosimple.scripts", "chtor.py"),
-                            "-H",
-                            file,
+                            "-H", file,
                             torrent_path,
                         ],
-                        env={
-                            **os.environ,
-                            "PYRO_RTORRENT_RC": os.devnull,
-                        },
+                        env={**os.environ, "PYRO_RTORRENT_RC": os.devnull},
                         check=True,
                     )
                     shutil.copyfile(torrent_path, watch_dir / torrent_path.name)

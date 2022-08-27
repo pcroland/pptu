@@ -33,22 +33,15 @@ class Uploader(ABC):
 
         self.session = requests.Session()
         for scheme in ("http://", "https://"):
-            self.session.mount(
-                scheme,
-                HTTPAdapter(
-                    max_retries=Retry(
-                        total=5,
-                        backoff_factor=1,
-                        allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
-                        status_forcelist=[429, 500, 502, 503, 504],
-                        raise_on_status=False,
-                    ),
-                ),
-            )
+            self.session.mount(scheme, HTTPAdapter(max_retries=Retry(
+                total=5,
+                backoff_factor=1,
+                allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
+                status_forcelist=[429, 500, 502, 503, 504],
+                raise_on_status=False,
+            )))
         self.session.cookies = self.cookie_jar
-        self.session.proxies = {
-            "all": self.config.get(self, "proxy"),
-        }
+        self.session.proxies = {"all": self.config.get(self, "proxy")}
 
     @property
     def passkey(self):
