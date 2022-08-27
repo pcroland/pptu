@@ -116,7 +116,9 @@ def main():
                 file,
             ], check=True)
 
-            for tracker in args.trackers:
+            for tracker_name in args.trackers:
+                tracker = trackers[tracker_name]
+
                 with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
                     YAML().dump({
                         "tracker-parameters": {
