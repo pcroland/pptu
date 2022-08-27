@@ -172,6 +172,12 @@ class AvistaZNetworkUploader(Uploader, ABC):
 
         return True
 
+    @property
+    def passkey(self):
+        res = self.session.get(f"{self.base_url}/account").text
+        soup = BeautifulSoup(res, "lxml-html")
+        return soup.select_one(".current_pid").text
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
