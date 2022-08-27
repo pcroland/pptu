@@ -114,6 +114,7 @@ class HDBitsUploader(Uploader):
                 "password": self.config.get(self, "password"),
                 "twostep_code": (
                     TOTP(totp_secret).now() if totp_secret
+                    else None if totp_secret is False
                     else Confirm.ask("Enter 2FA code (leave blank if none): ")
                 ),
                 "captchaSelection": correct_hash,

@@ -25,6 +25,10 @@ PrivateHD      | `PHD`        | Credentials/Cookies   | Yes     | :white_check_m
 ### AvistaZ Network (AvistaZ, CinemaZ, PrivateHD)
 Using cookies is not recommended as they expire within a few days.
 
+### HDBits
+If you don't specify a TOTP secret in the config, 2FA code will be prompted for when cookies are missing or expired.
+You can disable the prompt with `totp_secret = false` if your account doesn't have 2FA.
+
 ## Usage
 Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
 In the global section you can specify a proxy and/or a watch directory. These can be overridden per tracker if needed.
