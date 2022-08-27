@@ -127,7 +127,7 @@ def main():
                 YAML().dump({
                     "tracker-parameters": {
                         tracker.name: {
-                            "pid": passkey,
+                            "pid": tracker().passkey,
                         },
                     },
                 }, tmp)
