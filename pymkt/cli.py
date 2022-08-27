@@ -27,11 +27,15 @@ from pymkt.utils import Config
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("-t", "--trackers", type=lambda x: x.split(","), required=True)
-    parser.add_argument("file", nargs="+", type=Path)
-    parser.add_argument("--snapshots", type=int, default=4)
-    parser.add_argument("--auto", action="store_true")
+    parser = argparse.ArgumentParser(formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=80))
+    parser.add_argument("file", type=Path, nargs="+",
+                        help="files/directories to create torrents for")
+    parser.add_argument("-t", "--trackers", type=lambda x: x.split(","), required=True,
+                        help="tracker(s) to upload torrents to (required)")
+    parser.add_argument("--snapshots", type=int, default=4,
+                        help="number of snapshots to generate (default: 4)")
+    parser.add_argument("--auto", action="store_true",
+                        help="upload without confirmation")
     args = parser.parse_args()
 
     dirs = PlatformDirs(appname="pymkt", appauthor=False)
