@@ -119,6 +119,11 @@ class HDBitsUploader(Uploader):
 
         return True
 
+    @property
+    def passkey(self):
+        res = self.session.get("https://hdbits.org/").text
+        return re.search(r"passkey=([a-f0-9]+)", res).group(1)
+
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
         r = self.session.get("https://hdbits.org")
         if r.url.startswith("https://hdbits.org/login"):

@@ -25,9 +25,6 @@ PrivateHD      | `PHD`        | Credentials/Cookies   | Yes     | :white_check_m
 ### AvistaZ Network (AvistaZ, CinemaZ, PrivateHD)
 Using cookies is not recommended as they expire within a few days.
 
-### HDBits
-For the image host, if you have 2FA enabled, you also need to provide your passkey in the config.
-
 ## Usage
 Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
 In the global section you can specify a proxy and/or a watch directory. These can be overridden per tracker if needed.
