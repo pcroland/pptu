@@ -25,23 +25,25 @@ from wand.image import Image
 from pymkt import uploaders
 from pymkt.utils import Config
 
-prog_name = 'mkt'
-prog_version = '2022.08.28.1'
+prog_name = "mkt"
+prog_version = "2022.08.28.1"
+
 
 class RParse(argparse.ArgumentParser):
     def _print_message(self, message, file=None):
         if message:
-            if message.startswith('usage'):
-                message = f'[bold cyan]{prog_name}[/bold cyan] {prog_version}\n\n{message}'
-                message = re.sub(r'(-[a-z]+\s*|\[)([A-Z]+)(?=]|,|\s\s|\s\.)', r'\1[{}]\2[/{}]'.format('bold color(231)', 'bold color(231)'), message)
-                message = re.sub(r'((-|--)[a-z]+)', r'[{}]\1[/{}]'.format('green', 'green'), message)
-                message = message.replace('usage', '[yellow]USAGE[/yellow]')
-                message = message.replace('positional arguments', '[yellow]POSITIONAL ARGUMENTS[/yellow]')
-                message = message.replace('options', '[yellow]FLAGS[/yellow]', 1)
-                message = message.replace(' file ', '[bold magenta] file [/bold magenta]', 2)
-                message = message.replace(self.prog, f'[bold cyan]{self.prog}[/bold cyan]')
-            message = f'[not bold white]{message.strip()}[/not bold white]'
+            if message.startswith("usage"):
+                message = f"[bold cyan]{prog_name}[/bold cyan] {prog_version}\n\n{message}"
+                message = re.sub(r"(-[a-z]+\s*|\[)([A-Z]+)(?=]|,|\s\s|\s\.)", r"\1[bold color(231)]\2[/]", message)
+                message = re.sub(r"((-|--)[a-z]+)", r"[{}]\1[/{}]".format("green", "green"), message)
+                message = message.replace("usage", "[yellow]USAGE[/yellow]")
+                message = message.replace("positional arguments", "[yellow]POSITIONAL ARGUMENTS[/yellow]")
+                message = message.replace("options", "[yellow]FLAGS[/yellow]", 1)
+                message = message.replace(" file ", "[bold magenta] file [/bold magenta]", 2)
+                message = message.replace(self.prog, f"[bold cyan]{self.prog}[/bold cyan]")
+            message = f"[not bold white]{message.strip()}[/not bold white]"
             print(message)
+
 
 class CustomHelpFormatter(argparse.RawTextHelpFormatter):
     def _format_action_invocation(self, action):
@@ -49,7 +51,7 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
             return super()._format_action_invocation(action)
         default = self._get_default_metavar_for_optional(action)
         args_string = self._format_args(action, default)
-        return ', '.join(action.option_strings) + ' ' + args_string
+        return ", ".join(action.option_strings) + " " + args_string
 
 
 def main():
@@ -61,11 +63,11 @@ def main():
                         nargs="+",
                         help="files/directories to create torrents for")
     parser.add_argument("-v", "--version",
-                        action='version',
-                        version=f'[bold cyan]{prog_name}[/bold cyan] [not bold white]{prog_version}[/not bold white]',
-                        help='show version and exit')
+                        action="version",
+                        version=f"[bold cyan]{prog_name}[/bold cyan] [not bold white]{prog_version}[/not bold white]",
+                        help="show version and exit")
     parser.add_argument("-t", "--trackers",
-                        metavar='ABBREV',
+                        metavar="ABBREV",
                         type=lambda x: x.split(","),
                         required=True,
                         help="tracker(s) to upload torrents to (required)")
