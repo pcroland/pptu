@@ -182,7 +182,6 @@ def main():
                     "ffmpeg",
                     "-y",
                     "-v", "error",
-                    "-stats",
                     "-ss", str(interval * (i + 1) if len(set(files)) == 1 else duration / 2),
                     "-i", files[i],
                     "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
