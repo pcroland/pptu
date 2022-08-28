@@ -10,8 +10,8 @@ from pyotp import TOTP
 from rich import print
 from rich.prompt import Confirm
 
+from ..utils import wprint
 from . import Uploader
-from ..utils import wprint, eprint
 
 ia = Cinemagoer()
 
@@ -243,7 +243,7 @@ class HDBitsUploader(Uploader):
             url="https://img.hdbits.org/upload_api.php",
             files={
                 **{f"images_files[{i}]": open(snap, "rb") for i, snap in enumerate(snapshots)},
-                "thumbsize": f'w{thumbnail_width}',
+                "thumbsize": f"w{thumbnail_width}",
                 "galleryoption": "1",
                 "galleryname": name,
             },

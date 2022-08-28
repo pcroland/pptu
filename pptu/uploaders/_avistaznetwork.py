@@ -10,8 +10,9 @@ from rich import print
 from rich.markup import escape
 from rich.prompt import Confirm
 
+from ..utils import eprint, wprint
 from . import Uploader
-from ..utils import wprint, eprint
+
 
 class AvistaZNetworkUploader(Uploader, ABC):
     name = None

@@ -23,7 +23,7 @@ from wand.image import Image
 
 from . import uploaders
 from .constants import PROG_NAME, PROG_VERSION
-from .utils import Config, RParse, wprint, eprint
+from .utils import Config, RParse, eprint
 
 
 def main():

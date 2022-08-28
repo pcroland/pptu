@@ -60,6 +60,8 @@ def wprint(inp):
 
 def eprint(inp, exit_=False, exit_code=1):
     print(f"[bold color(231) on red]WARNING:[/bold color(231) on red] [red]{inp}[/red]")
-    if exit_: sys.exit(exit_code)
+    if exit_:
+        sys.exit(exit_code)
+
 
 __all__ = ["Config", "RParse"]

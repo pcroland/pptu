@@ -19,7 +19,8 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from . import Uploader
-from .utils import wprint, eprint
+from .utils import eprint, wprint
+
 
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"

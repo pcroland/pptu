@@ -4,9 +4,8 @@ from http.cookiejar import MozillaCookieJar
 import requests
 from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
-from rich import print
 
-from ..utils import Config, wprint, eprint
+from ..utils import Config, eprint
 
 
 class Uploader(ABC):
