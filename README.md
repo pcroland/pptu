@@ -11,7 +11,7 @@
 <table>
   <tr>
     <th>Name</th>
-    <th>Abbreviation</th>
+    <th>Abbrev.</th>
     <th>Authentication</th>
     <th>Cloudflare</th>
     <th>Captcha</th>
