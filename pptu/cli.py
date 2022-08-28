@@ -179,7 +179,7 @@ def main():
         )
         has_all_files = any(x.all_files for x in cur_uploaders)
         if file.is_dir() or has_all_files:
-            # TODO: Handle case when number of files < args.snapshots
+            # TODO: Handle case when number of files < num_snapshots
             files = list(sorted([*file.glob("*.mkv"), *file.glob("*.mp4")]))
         elif file.is_file():
             files = [file] * num_snapshots
@@ -232,7 +232,7 @@ def main():
             snapshots_tmp = snapshots
             if not tracker.all_files:
                 mediainfo_tmp = mediainfo[0]
-                snapshots_tmp = snapshots[:args.snapshots]
+                snapshots_tmp = snapshots[:num_snapshots]
             if uploader.upload(file, mediainfo_tmp, snapshots_tmp, thumbnails, auto=args.auto):
                 torrent_path = d / f"{file.name}[{tracker.abbrev}].torrent"
                 if watch_dir := config.get(tracker, "watch_dir"):
