@@ -60,7 +60,7 @@ def wprint(inp):
 
 
 def eprint(inp, fatal=False, exit_code=1):
-    print(f"[bold color(231) on red]WARNING:[/bold color(231) on red] [red]{inp}[/red]")
+    print(f"[bold color(231) on red]ERROR:[/bold color(231) on red] [red]{inp}[/red]")
     if fatal:
         sys.exit(exit_code)
 
