@@ -75,7 +75,7 @@ class HDBitsUploader(Uploader):
         "Hulu": r"\bHULU\b",
         "IMAX": r"\bIMAX\b",
         "iTunes": r"\biT\b",
-        "Movies Anywhere": r"\bMA\b",
+        "Movies Anywhere": r"\bMA\.WEB\b",
         "Netflix": r"\bNF\b",
         "Open Matte": r"\bOM\b",
         "Paramount+": r"\bPMTP\b",
