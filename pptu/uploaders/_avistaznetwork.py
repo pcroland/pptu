@@ -11,7 +11,7 @@ from rich.markup import escape
 from rich.prompt import Confirm
 
 from . import Uploader
-
+from ..utils import wprint, eprint
 
 class AvistaZNetworkUploader(Uploader, ABC):
     name = None
@@ -35,20 +35,20 @@ class AvistaZNetworkUploader(Uploader, ABC):
         if r.status_code == 200:
             return True
 
-        print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+        wprint("Cookies missing or expired, logging in...")
 
         if not (username := self.config.get(self, "username")):
-            print("[red][bold]ERROR[/bold]: No username specified in config, cannot log in.[/red]")
+            eprint("No username specified in config, cannot log in.")
             return False
 
         if not (password := self.config.get(self, "password")):
-            print("[red][bold]ERROR[/bold]: No password specified in config, cannot log in.[/red]")
+            eprint("No password specified in config, cannot log in.")
             return False
 
         totp_secret = self.config.get(self, "totp_secret")
 
         if not (twocaptcha_api_key := self.config.get(self, "2captcha_api_key")):
-            print("[red][bold]ERROR[/bold]: No 2captcha_api_key specified in config, cannot log in.[/red]")
+            eprint("No 2captcha_api_key specified in config, cannot log in.")
             return False
 
         attempt = 1
@@ -74,7 +74,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
                 },
             ).json()
             if res["status"] != 1:
-                print(f"[red][bold]ERROR[/bold]: 2Captcha API error: {res['request']}")
+                eprint(f"2Captcha API error: [cyan]{res['request']}[/cyan].")
                 return False
             req_id = res["request"]
 
@@ -93,7 +93,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
                 if res["request"] == "CAPCHA_NOT_READY":
                     print(".", end="", flush=True)
                 elif res["status"] != 1:
-                    print(f"[red][bold]ERROR[/bold]: 2Captcha API error: {res['request']}")
+                    eprint(f"2Captcha API error: [cyan]{res['request']}[/cyan].")
                     return False
                 else:
                     captcha_answer = res["request"]
@@ -123,10 +123,10 @@ class AvistaZNetworkUploader(Uploader, ABC):
                     )
 
                     if attempt > 5:
-                        print("[red][bold]ERROR[/bold]: Captcha answer rejected too many times, giving up[/red]")
+                        eprint("Captcha answer rejected too many times, giving up.")
                         return False
 
-                    print("[yellow][bold]WARNING[/bold]: Captcha answer rejected, retrying[/yellow]")
+                    wprint("Captcha answer rejected, retrying.")
                     attempt += 1
                     continue
 
@@ -159,12 +159,12 @@ class AvistaZNetworkUploader(Uploader, ABC):
                 },
             )
             if "/auth/twofa" in r.url:
-                print("[red][bold]ERROR[/bold]: TOTP code rejected[/red]")
+                eprint("TOTP code rejected.")
                 print(r.text)
                 return False
 
         if r.url != self.base_url:
-            print("[red][bold]ERROR[/bold]: Login failed - Unknown error[/red]")
+            eprint("Login failed - Unknown error.")
             print(r.url)
             return False
 
@@ -192,7 +192,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
             title = m.group(1).replace(".", " ")
             print(f"Detected title: [bold][cyan]{title}[/cyan][/bold]")
         else:
-            print("[red][bold]ERROR[/bold]: Unable to extract title from filename[/red]")
+            eprint("Unable to extract title from filename.")
             sys.exit(1)
 
         season = None
@@ -200,7 +200,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
             if m := re.search(r"\.S(\d+)[E.]", path.name):
                 season = int(m.group(1))
             else:
-                print("[red][bold]ERROR[/bold]: Unable to extract season from filename[/red]")
+                print("Unable to extract season from filename.")
 
         episode = None
         if m := re.search(r"\.S\d+E(\d+)\.", path.name):
@@ -287,7 +287,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
 
         if errors := soup.select(".form-error"):
             for error in errors:
-                print(f"[red][bold]ERROR[/bold]: {escape(error.text)}")
+                eprint(f"[cyan]{escape(error.text)}[cyan]")
             return False
 
         data = {

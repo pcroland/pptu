@@ -53,4 +53,12 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
         return ", ".join(action.option_strings) + " " + args_string
 
 
+def wprint(inp):
+    print(f"[bold color(231) on yellow]WARNING:[/bold color(231) on yellow] [yellow]{inp}[/yellow]")
+
+
+def eprint(inp, exit=False, exit_code=1):
+    print(f"[bold color(231) on red]WARNING:[/bold color(231) on red] [red]{inp}[/red]")
+
+
 __all__ = ["Config", "RParse"]

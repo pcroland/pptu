@@ -23,7 +23,7 @@ from wand.image import Image
 
 from . import uploaders
 from .constants import PROG_NAME, PROG_VERSION
-from .utils import Config, RParse
+from .utils import Config, RParse, wprint, eprint
 
 
 def main():
@@ -71,7 +71,7 @@ def main():
 
     for i, file in enumerate(args.file):
         if not file.exists():
-            print(f"[red][bold]ERROR[/bold]: File {file.name!r} does not exist[/red]")
+            eprint(f"File [cyan]{file.name!r}[/cyan] does not exist.")
             continue
 
         d = dirs.user_cache_path / f"{file.name}_files"
@@ -92,7 +92,7 @@ def main():
                         )
                     )
                 except StopIteration:
-                    print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
+                    eprint(f"Tracker [cyan]{tracker_name}[/cyan] not found.")
                     args.trackers.remove(tracker_name)
                     continue
 
@@ -101,7 +101,7 @@ def main():
                 uploader = tracker()
 
                 if not uploader.login():
-                    print(f"[red][bold]ERROR[/bold]: Failed to log in to tracker {tracker.name}[/red]")
+                    eprint(f"Failed to log in to tracker [cyan]{tracker.name}[/cyan].")
                     continue
                 for cookie in uploader.session.cookies:
                     uploader.cookie_jar.set_cookie(cookie)
@@ -110,7 +110,7 @@ def main():
 
                 passkey = config.get(tracker, "passkey") or uploader.passkey
                 if not passkey and tracker.require_passkey:
-                    print(f"[red][bold]ERROR[/bold]: Passkey not defined in config for tracker {tracker.name}[/red]")
+                    eprint(f"Passkey not defined in config for tracker [cyan]{tracker.name}[cyan].")
                     args.trackers.remove(tracker_name)
                     continue
 
@@ -247,7 +247,7 @@ def main():
                     )
                     shutil.copyfile(torrent_path, watch_dir / torrent_path.name)
             else:
-                print(f"[red][bold]ERROR[/bold]: Upload to {tracker.name} failed[/red]")
+                eprint(f"Upload to [cyan]{tracker.name}[/cyan] failed.")
             print()
 
 

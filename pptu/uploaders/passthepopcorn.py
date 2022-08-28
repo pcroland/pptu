@@ -9,6 +9,7 @@ from rich.markup import escape
 from rich.prompt import Confirm
 
 from . import Uploader
+from ..utils import wprint, eprint
 
 ia = Cinemagoer()
 
@@ -28,7 +29,7 @@ class PassThePopcornUploader(Uploader):
     def login(self):
         r = self.session.get("https://passthepopcorn.me/user.php?action=edit")
         if r.status_code == 302:
-            print("[red][bold]ERROR[/bold]: Cookies expired[/red]")
+            eprint("Cookies expired.")
             return False
         return True
 
@@ -41,7 +42,7 @@ class PassThePopcornUploader(Uploader):
             if imdb_results := ia.search_movie(title):
                 imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
         else:
-            print("[bold color(231) on yellow]WARNING[/bold color(231) on yellow]: Unable to extract title from filename")
+            wprint("Unable to extract title from filename.")
         imdb = imdb or input("Enter IMDb URL: ")
 
         imdb_movie = ia.get_movie(re.search(r"tt(\d+)", imdb).group(1))
@@ -177,7 +178,7 @@ class PassThePopcornUploader(Uploader):
         ).text
         soup = BeautifulSoup(res, "lxml-html")
         if error := soup.select_one(".alert--error"):
-            print(f"[red][bold]ERROR[/bold]: {escape(error.get_text())}[/red]")
+            eprint(f"[cyan]{escape(error.get_text())}[/cyan]")
             return False
 
         return True

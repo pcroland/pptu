@@ -11,6 +11,7 @@ from rich import print
 from rich.prompt import Confirm
 
 from . import Uploader
+from ..utils import wprint, eprint
 
 ia = Cinemagoer()
 
@@ -88,7 +89,7 @@ class HDBitsUploader(Uploader):
         if not r.url.startswith("https://hdbits.org/login"):
             return True
 
-        print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+        wprint("Cookies missing or expired, logging in...")
 
         captcha = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"numImages": "5"}).json()
         correct_hash = None
@@ -175,7 +176,7 @@ class HDBitsUploader(Uploader):
                 if imdb_results := ia.search_movie(title):
                     imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
             else:
-                print("[bold color(231) on yellow]WARNING[/bold color(231) on yellow]: Unable to extract title from filename")
+                wprint("Unable to extract title from filename.")
             imdb = imdb or input("Enter IMDb URL: ")
             tvdb = None
             season = None

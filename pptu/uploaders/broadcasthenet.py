@@ -19,7 +19,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from . import Uploader
-
+from .utils import wprint, eprint
 
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"
@@ -143,14 +143,14 @@ class BroadcasTheNetUploader(Uploader):
         if "login.php" not in r.url:
             return True
 
-        print("[bold color(231) on yellow]WARNING[/bold color(231) on yellow]: Cookies missing or expired, logging in...")
+        wprint("Cookies missing or expired, logging in...")
 
         if not (username := self.config.get(self, "username")):
-            print("[red][bold]ERROR[/bold]: No username specified in config, cannot log in.[/red]")
+            eprint("No username specified in config, cannot log in.")
             return False
 
         if not (password := self.config.get(self, "password")):
-            print("[red][bold]ERROR[/bold]: No password specified in config, cannot log in.[/red]")
+            eprint("No password specified in config, cannot log in.")
             return False
 
         if platform.system() == "Windows":
@@ -238,7 +238,7 @@ class BroadcasTheNetUploader(Uploader):
             print("Detected season")
             type_ = "Season"
         else:
-            print("[red][bold]ERROR[/bold]: Movies are not yet supported[/red]")
+            eprint("Movies are not yet supported[/red]")
             sys.exit(1)
 
         release_name = path.stem if path.is_file() else path.name
@@ -265,10 +265,10 @@ class BroadcasTheNetUploader(Uploader):
         )
         soup = BeautifulSoup(r.text, "lxml-html")
         if r.status_code == 302:
-            print("[red][bold]ERROR[/bold]: Cookies expired[/red]")
+            eprint("Cookies expired.")
             sys.exit(1)
         if r.status_code != 200:
-            print(f"[red][bold]ERROR[/bold]: HTTP Error {r.status_code}[/red]")
+            eprint(f"HTTP Error [cyan]{r.status_code}[/cyan]")
             print(soup.prettify())
             sys.exit(1)
 
@@ -282,10 +282,10 @@ class BroadcasTheNetUploader(Uploader):
             title = soup.select_one('[name="title"]').get("value")
 
         if artist == "AutoFill Fail" or title == "AutoFill Fail":
-            print("[red][bold]ERROR[/bold]: AutoFill Fail[/red]")
+            eprint("AutoFill Fail.")
             sys.exit(1)
         else:
-            print("AutoFill complete")
+            print("AutoFill complete.")
 
         if path.is_dir():
             file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
@@ -296,14 +296,14 @@ class BroadcasTheNetUploader(Uploader):
             audio = next(x for x in info["tracks"] if x["type"] == "audio")
             lang = audio["properties"].get("language_ietf") or audio["properties"].get("language")
             if not lang:
-                print("[red][bold]ERROR[/bold]: Unable to determine audio language[/red]")
+                eprint("Unable to determine audio language.")
                 sys.exit(1)
             lang = Language.get(lang)
             if not lang.language:
-                print("[red][bold]ERROR[/bold]: Primary audio track has no language set[/red]")
+                eprint("Primary audio track has no language set.")
             lang = lang.fill_likely_values()
         else:
-            print("[red][bold]ERROR[/bold]: MP4 is not yet supported[/red]")  # TODO
+            eprint("MP4 is not yet supported.")  # TODO
 
         print(f"Detected language as {lang.language}")
         print(f"Detected country as {lang.territory}")
@@ -354,7 +354,7 @@ class BroadcasTheNetUploader(Uploader):
                 else:
                     thumbnails_str += "\n"
         else:
-            print("[bold color(231) on yellow]WARNING[/bold color(231) on yellow]: No imgbin API key specified, skipping snapshots")
+            wprint("No imgbin API key specified, skipping snapshots")
 
         data = {
             "submit": "true",

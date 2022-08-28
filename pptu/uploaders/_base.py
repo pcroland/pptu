@@ -6,7 +6,7 @@ from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
 
-from ..utils import Config
+from ..utils import Config, wprint, eprint
 
 
 class Uploader(ABC):
@@ -26,7 +26,7 @@ class Uploader(ABC):
         if not self.cookies_path.exists():
             self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.abbrev.lower()}.txt"
         if not self.cookies_path.exists() and self.require_cookies:
-            print(f"[red][bold]ERROR[/bold]: No cookies found for tracker {self.name}[/red]")
+            eprint(f"No cookies found for tracker [cyan]{self.name}[/cyan].")
             return
 
         self.cookie_jar = MozillaCookieJar(self.cookies_path)
