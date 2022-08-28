@@ -171,7 +171,8 @@ def main():
         if has_all_files:
             num_snapshots = len(files)
         snapshots = []
-        for i in track(range(num_snapshots), description='[4/6] Generating snapshots'):
+        print()
+        for i in track(range(num_snapshots), description="[bold green]\\[4/6] Generating snapshots[/bold green]"):
             mediainfo_obj = MediaInfo.parse(files[i])
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
             interval = duration / (num_snapshots + 1)
