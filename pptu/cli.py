@@ -174,7 +174,7 @@ def main():
 
         # Generating snapshots
         num_snapshots = max(
-            config.get("default", "snapshot_columns") * config.get("default", "snapshot_rows"),
+            config.get("default", "snapshot_columns", 2) * config.get("default", "snapshot_rows", 2),
             max(x.min_snapshots for x in cur_uploaders),
         )
         has_all_files = any(x.all_files for x in cur_uploaders)

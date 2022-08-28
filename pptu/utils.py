@@ -12,12 +12,12 @@ class Config:
     def __init__(self, file):
         self._config = CaseInsensitiveDict(toml.load(file))
 
-    def get(self, tracker, key):
+    def get(self, tracker, key, default=None):
         value = None
         if tracker != "default":
             value = self._config.get(tracker.name, {}).get(key) or self._config.get(tracker.abbrev, {}).get(key)
 
-        return value or self._config.get("default", {}).get(key)
+        return value or self._config.get("default", {}).get(key) or default
 
 
 class RParse(argparse.ArgumentParser):
