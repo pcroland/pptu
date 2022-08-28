@@ -38,6 +38,7 @@ class RParse(argparse.ArgumentParser):
                 message = message.replace('usage', '[yellow]USAGE[/yellow]')
                 message = message.replace('positional arguments', '[yellow]POSITIONAL ARGUMENTS[/yellow]')
                 message = message.replace('options', '[yellow]FLAGS[/yellow]', 1)
+                message = message.replace(' file ', '[bold magenta] file [/bold magenta]', 2)
                 message = message.replace(self.prog, f'[bold cyan]{self.prog}[/bold cyan]')
             message = f'[not bold white]{message.strip()}[/not bold white]'
             print(message)
