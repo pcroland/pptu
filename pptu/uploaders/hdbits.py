@@ -10,7 +10,7 @@ from pyotp import TOTP
 from rich import print
 from rich.prompt import Confirm
 
-from ..utils import wprint
+from ..utils import eprint, wprint
 from . import Uploader
 
 
@@ -115,15 +115,25 @@ class HDBitsUploader(Uploader):
                 "csrf": soup.select_one("[name='csrf']")["value"],
                 "uname": self.config.get(self, "username"),
                 "password": self.config.get(self, "password"),
-                "twostep_code": (
-                    TOTP(totp_secret).now() if totp_secret
-                    else None if totp_secret is False
-                    else Confirm.ask("Enter 2FA code (leave blank if none): ")
-                ),
-                "captchaSelection": correct_hash,
+                "twostep_code": TOTP(totp_secret).now() if totp_secret else None,
             },
         )
-        r.raise_for_status()
+        if "error=7" in r.url:
+            r = self.session.post(
+                url="https://hdbits.org/login/doLogin",
+                data={
+                    "csrf": soup.select_one("[name='csrf']")["value"],
+                    "uname": self.config.get(self, "username"),
+                    "password": self.config.get(self, "password"),
+                    "twostep_code": Confirm.ask("Enter 2FA code: ")
+                },
+            )
+
+        if "error" in r.url:
+            soup = BeautifulSoup(r.text, "lxml-html")
+            error = re.sub(r"\s+", " ", soup.select_one(".embedded").text).strip()
+            eprint(error)
+            return False
 
         return True
 

@@ -71,10 +71,6 @@ You'll also need Xvfb on Linux as ChromeDriver's headless mode is detected by Cl
 
 Movie support is not yet implemented.
 
-### HDBits
-If you don't specify a TOTP secret in the config, 2FA code will be prompted for when cookies are missing or expired.
-You can disable the prompt with `totp_secret = false` if your account doesn't have 2FA.
-
 ## Installation
 Install dependencies and the script with `./install.sh`. You can re-run the script to update after a git pull.
 
