@@ -196,7 +196,6 @@ def main():
                     img.save(filename=snap)
                 oxipng.optimize(snap)
             snapshots.append(snap)
-        print("Done!")
 
         print("\n[bold green]\\[5/6] Generating thumbnails[/bold green]")
         thumbnails = []
