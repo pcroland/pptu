@@ -66,7 +66,8 @@ def main():
                         help='show version and exit')
     parser.add_argument("-t", "--trackers",
                         metavar='ABBREV',
-                        type=lambda x: x.split(","), required=True,
+                        type=lambda x: x.split(","),
+                        required=True,
                         help="tracker(s) to upload torrents to (required)")
     parser.add_argument("-a", "--auto",
                         action="store_true",
