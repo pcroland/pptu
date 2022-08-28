@@ -32,7 +32,7 @@ class RParse(argparse.ArgumentParser):
                 message = message.replace("options", "[yellow]FLAGS[/yellow]", 1)
                 message = message.replace(" file ", "[bold magenta] file [/bold magenta]", 2)
                 message = message.replace(self.prog, f"[bold cyan]{self.prog}[/bold cyan]")
-            message = f"[not bold white]{message.strip()}[/not bold white]"
+            message = f"[not bold default]{message.strip()}[/not bold default]"
             print(message)
 
 
