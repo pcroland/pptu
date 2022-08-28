@@ -21,7 +21,7 @@
     <th>HDBits</th>
     <td align="center"><code>HDB</code></td>
     <td align="center" rowspan="5">Credentials/Cookies</td>
-    <td align="center" rowspan="3"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png"> No</td>
+    <td align="center" rowspan="4"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png"> No</td>
     <td align="center"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Simple</td>
     <td rowspan="4"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Yes, if IP whitelisted in profile or 2FA enabled</td>
   </tr>
