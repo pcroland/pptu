@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pymkt"
-version = "0.1.0"
+version = "2022.08.28.1"
 description = "Python torrent creator and auto-uploader"
 authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
 
