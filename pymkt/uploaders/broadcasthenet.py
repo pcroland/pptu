@@ -1,4 +1,6 @@
+import contextlib
 import json
+import platform
 import re
 import subprocess
 import sys
@@ -9,6 +11,7 @@ from bs4 import BeautifulSoup
 from guessit import guessit
 from langcodes import Language
 from pyotp import TOTP
+from pyvirtualdisplay import Display
 from rich import print
 from rich.prompt import Confirm
 from selenium.webdriver.common.by import By
@@ -150,45 +153,49 @@ class BroadcasTheNetUploader(Uploader):
             print("[red][bold]ERROR[/bold]: No password specified in config, cannot log in.[/red]")
             return False
 
-        print("Starting ChromeDriver")
-        options = uc.ChromeOptions()
-        proxy_url = self.session.proxies.get("all")
-        driver = uc.Chrome(
-            options=options,
-            seleniumwire_options={
-                "proxy": {
-                    "http": proxy_url,
-                    "https": proxy_url,
-                    "no_proxy": "localhost,127.0.0.1",
-                },
-                "request_storage": "memory",
-            }
-        )
-        driver.get("https://broadcasthe.net/login.php")
+        if platform.system() == "Windows":
+            display = contextlib.nullcontext()
+        else:
+            display = Display(visible=False)
 
-        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//form[@name='loginform']")))
+        with display:
+            print("Starting ChromeDriver")
+            options = uc.ChromeOptions()
+            proxy_url = self.session.proxies.get("all")
+            with uc.Chrome(
+                options=options,
+                seleniumwire_options={
+                    "proxy": {
+                        "http": proxy_url,
+                        "https": proxy_url,
+                        "no_proxy": "localhost,127.0.0.1",
+                    },
+                    "request_storage": "memory",
+                }
+            ) as driver:
+                driver.get("https://broadcasthe.net/login.php")
 
-        self.session.headers.update({
-            "User-Agent": driver.execute_script("return navigator.userAgent;")
-        })
+                WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//form[@name='loginform']")))
 
-        for cookie in driver.get_cookies():
-            cookie.setdefault("rest", {})
+                self.session.headers.update({
+                    "User-Agent": driver.execute_script("return navigator.userAgent;")
+                })
 
-            if "expiry" in cookie:
-                cookie["expires"] = cookie.pop("expiry")
+                for cookie in driver.get_cookies():
+                    cookie.setdefault("rest", {})
 
-            if "httpOnly" in cookie:
-                # cookie["rest"].update({"HttpOnly": cookie["httpOnly"]})
-                cookie.pop("httpOnly")
+                    if "expiry" in cookie:
+                        cookie["expires"] = cookie.pop("expiry")
 
-            if "sameSite" in cookie:
-                # cookie["rest"].update({"SameSite": cookie["sameSite"]})
-                cookie.pop("sameSite")
+                    if "httpOnly" in cookie:
+                        # cookie["rest"].update({"HttpOnly": cookie["httpOnly"]})
+                        cookie.pop("httpOnly")
 
-            self.session.cookies.set(**cookie)
+                    if "sameSite" in cookie:
+                        # cookie["rest"].update({"SameSite": cookie["sameSite"]})
+                        cookie.pop("sameSite")
 
-        driver.quit()
+                    self.session.cookies.set(**cookie)
 
         for cookie in self.session.cookies:
             self.cookie_jar.set_cookie(cookie)

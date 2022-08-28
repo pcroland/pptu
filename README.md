@@ -69,7 +69,7 @@ Using cookies is not recommended as they expire within a few days.
 
 ### BroadcasTheNet
 selenium-wire and undetected-chromedriver are required for credential login to pass the Cloudflare challenge.
-Note that headless mode does not work, so if you're running this on a headless server you'll need to enable X11 forwarding.
+You'll also need Xvfb on Linux as ChromeDriver's headless mode is detected by Cloudflare.
 
 Movie support is not yet implemented.
 
