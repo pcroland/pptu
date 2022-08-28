@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 import argparse
-import contextlib
 import importlib.resources
 import json
 import os
@@ -213,8 +212,9 @@ def main():
                     "-vf", "scale=300:-1",
                     thumb,
                 ], check=True)
-                with contextlib.suppress(FileNotFoundError):
-                    subprocess.run(["convert", thumb, "-depth", "8", thumb], capture_output=True)
+                with Image(filename=snap) as img:
+                    img.depth = 8
+                    img.save(filename=snap)
                 oxipng.optimize(snap)
             thumbnails.append(thumb)
         print("Done!")
