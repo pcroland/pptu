@@ -32,8 +32,6 @@ def main():
                         help="files/directories to create torrents for")
     parser.add_argument("-t", "--trackers", type=lambda x: x.split(","), required=True,
                         help="tracker(s) to upload torrents to (required)")
-    parser.add_argument("--snapshots", type=int, default=4,
-                        help="number of snapshots to generate (default: 4)")
     parser.add_argument("--auto", action="store_true",
                         help="upload without confirmation")
     args = parser.parse_args()
@@ -163,7 +161,7 @@ def main():
         print("Done!")
 
         # Generating snapshots
-        num_snapshots = args.snapshots
+        num_snapshots = config.get(tracker, 'snapshot_columns') * config.get(tracker, 'snapshot_rows')
         has_all_files = any(x.all_files for x in cur_uploaders)
         if file.is_dir() or has_all_files:
             # TODO: Handle case when number of files < args.snapshots

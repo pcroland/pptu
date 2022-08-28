@@ -1,6 +1,9 @@
 [default]
 proxy = ""
 watch_dir = "~/rtorrent/watch/start"
+snapshot_columns = 3
+snapshot_rows = 2
+generate_snapshots_from_last_file = false
 
 # Credentials below are required unless you save cookies instead.
 

@@ -97,9 +97,14 @@ For cookie-based auth, place cookies in `~/.local/share/pymkt/cookies/TRACKER.tx
 
 ## Usage
 ```
-$ mkt -t tracker1,tracker2,tracker3 FILE_OR_FOLDER
+❯ mkt -h
+usage: mkt [-h] -t TRACKERS [--auto] file [file ...]
+
+positional arguments:
+  file                              files/directories to create torrents for
+
+options:
+  -h, --help                        show this help message and exit
+  -t TRACKERS, --trackers TRACKERS  tracker(s) to upload torrents to (required)
+  --auto                            upload without confirmation
 ```
-Options:
-* `--auto`: Skip prompts to confirm autofilled data is correct and upload fully automatically
-  (unless we're unable to infer some info without user input)
-* `--snapshots`: Override number of snapshots to take (default: 4).
