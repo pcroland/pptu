@@ -10,17 +10,59 @@ Python torrent creator and auto-uploader
 * FFmpeg (for generating snapshots)
 
 ## Supported trackers
-Name           | Abbreviation | Authentication method | Cloudflare | Captcha | Server upload allowed
----------------|:------------:|:---------------------:|:----------:|:-------:|  -------------------------------------------------------------------
-AvistaZ        | `AvZ`        | Credentials/Cookies   | No         | Yes     | :white_check_mark: Yes, if added as seedbox in profile
-BroadcasTheNet | `BTN`        | Credentials/Cookies   | Yes        | No      | :warning: Dedicated servers only, requires staff approval
-CinemaZ        | `CZ`         | Credentials/Cookies   | No         | Yes     | :white_check_mark: Yes, if added as seedbox in profile
-HDBits         | `HDB`        | Credentials/Cookies   | No         | Simple  | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
-PassThePopcorn | `PTP`        | Cookies               | N/A        | N/A     | :warning: Dedicated servers only, requires staff approval
-PrivateHD      | `PHD`        | Credentials/Cookies   | No         | Yes     | :white_check_mark: Yes, if added as seedbox in profile
+<table>
+  <tr>
+    <th>Name</th>
+    <th>Abbreviation</th>
+    <th>Authentication</th>
+    <th>Cloudflare</th>
+    <th>Captcha</th>
+    <th>Server upload allowed</th>
+  </tr>
+  <tr>
+    <th>AvistaZ</td>
+    <td align="center"><code>AvZ</code></td>
+    <td align="center" rowspan="3">Credentials/Cookies</td>
+    <td align="center" rowspan="3">:x: No</td>
+    <td align="center" rowspan="3">:heavy_check_mark: Yes</td>
+    <td rowspan="3">:heavy_check_mark: Yes, if added as seedbox in profile</td>
+  </tr>
+  <tr>
+    <th>CinemaZ</th>
+    <td align="center"><code>CZ</code></td>
+  </tr>
+  <tr>
+    <th>PrivateHD</th>
+    <td align="center"><code>PHD</code></td>
+  </tr>
+  <tr>
+    <th>BroadcasTheNet</th>
+    <td align="center"><code>BTN</code></td>
+    <td align="center">Credentials/Cookies</td>
+    <td align="center">:heavy_check_mark: Yes</td>
+    <td align="center">:x: No</td>
+    <td>:warning: Dedicated servers only, requires staff approval</td>
+  </tr>
+  <tr>
+    <th>HDBits</th>
+    <td align="center"><code>HDB</code></td>
+    <td align="center">Credentials/Cookies</td>
+    <td align="center">:x: No</td>
+    <td align="center">Simple</td>
+    <td>:heavy_check_mark: Yes, if IP whitelisted in profile or 2FA enabled</td>
+  </tr>
+  <tr>
+    <th>PassThePopcorn</th>
+    <td align="center"><code>PTP</code></td>
+    <td align="center">Cookies</td>
+    <td align="center">N/A</td>
+    <td align="center">N/A</td>
+    <td>:warning: Dedicated servers only, requires staff approval</td>
+  </tr>
+</table>
 
-"Captcha: Yes" means 2captcha API key is required to solve the captcha.
-"Simple" means there is a captcha but it can be solved automatically without 2captcha.
+For sites with captcha, a 2captcha API key is required to solve the captcha. Manual solving may be added in the future.
+"Simple" captchas can be solved automatically without 2captcha or user interaction.
 
 ### AvistaZ Network (AvistaZ, CinemaZ, PrivateHD)
 Using cookies is not recommended as they expire within a few days.
@@ -28,6 +70,8 @@ Using cookies is not recommended as they expire within a few days.
 ### BroadcasTheNet
 selenium-wire and undetected-chromedriver are required for credential login to pass the Cloudflare challenge.
 Note that headless mode does not work, so if you're running this on a headless server you'll need to enable X11 forwarding.
+
+Movie support is not yet implemented.
 
 ### HDBits
 If you don't specify a TOTP secret in the config, 2FA code will be prompted for when cookies are missing or expired.
@@ -59,6 +103,3 @@ Options:
 * `--auto`: Skip prompts to confirm autofilled data is correct and upload fully automatically
   (unless we're unable to infer some info without user input)
 * `--snapshots`: Override number of snapshots to take (default: 4).
-
-## Notes
-Movie support for BTN is not yet implemented.
