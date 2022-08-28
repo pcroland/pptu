@@ -42,10 +42,6 @@ unify = "^0.5"
 [tool.poetry.scripts]
 pptu = "pptu.cli:main"
 
-[tool.black]
-line-length = 120
-target-version = ["py38", "py39", "py310"]
-
 [tool.isort]
 line_length = 120
 profile = "black"
