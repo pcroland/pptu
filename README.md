@@ -21,9 +21,9 @@
     <th>AvistaZ</td>
     <td align="center"><code>AvZ</code></td>
     <td align="center" rowspan="3">Credentials/Cookies</td>
-    <td align="center" rowspan="3">:x: No</td>
-    <td align="center" rowspan="3">:heavy_check_mark: Yes</td>
-    <td rowspan="3">:heavy_check_mark: Yes, if added as seedbox in profile</td>
+    <td align="center" rowspan="3"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png"> No</td>
+    <td align="center" rowspan="3"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Yes</td>
+    <td rowspan="3"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Yes, if added as seedbox in profile</td>
   </tr>
   <tr>
     <th>CinemaZ</th>
@@ -37,17 +37,17 @@
     <th>BroadcasTheNet</th>
     <td align="center"><code>BTN</code></td>
     <td align="center">Credentials/Cookies</td>
-    <td align="center">:heavy_check_mark: Yes</td>
-    <td align="center">:x: No</td>
+    <td align="center"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Yes</td>
+    <td align="center"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png"> No</td>
     <td>:warning: Dedicated servers only, requires staff approval</td>
   </tr>
   <tr>
     <th>HDBits</th>
     <td align="center"><code>HDB</code></td>
     <td align="center">Credentials/Cookies</td>
-    <td align="center">:x: No</td>
+    <td align="center"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png"> No</td>
     <td align="center">Simple</td>
-    <td>:heavy_check_mark: Yes, if IP whitelisted in profile or 2FA enabled</td>
+    <td><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Yes, if IP whitelisted in profile or 2FA enabled</td>
   </tr>
   <tr>
     <th>PassThePopcorn</th>
