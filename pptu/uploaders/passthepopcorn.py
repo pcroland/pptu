@@ -159,20 +159,6 @@ class PassThePopcornUploader(Uploader):
             **res[0],
         }
 
-        res = self.session.post(
-            url="https://passthepopcorn.me/ajax.php",
-            params={
-                "action": "preview_upload",
-            },
-            data={
-                "ReleaseDescription": data["release_desc"],
-                "AntiCsrfToken": data["AntiCsrfToken"],
-            },
-        ).json()
-        data.update({
-            "subtitles[]": res["SubtitleIds"],
-        })
-
         print(data)
 
         if not auto:
