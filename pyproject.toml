@@ -48,6 +48,7 @@ remove-all-unused-imports = true
 
 [tool.isort]
 line_length = 120
+lines_after_imports = 2
 profile = "black"
 split_on_trailing_comma = true
 

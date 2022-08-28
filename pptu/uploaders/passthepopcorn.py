@@ -11,6 +11,7 @@ from rich.prompt import Confirm
 from ..utils import eprint, wprint
 from . import Uploader
 
+
 ia = Cinemagoer()
 
 
