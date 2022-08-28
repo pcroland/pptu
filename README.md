@@ -39,7 +39,15 @@
     <td align="center">Credentials/Cookies</td>
     <td align="center"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Yes</td>
     <td align="center"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png"> No</td>
-    <td>:warning: Dedicated servers only, requires staff approval</td>
+    <td><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png"> Dedicated servers only, requires staff approval</td>
+  </tr>
+  <tr>
+    <th>PassThePopcorn</th>
+    <td align="center"><code>PTP</code></td>
+    <td align="center">Cookies</td>
+    <td align="center">N/A</td>
+    <td align="center">N/A</td>
+    <td><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png"> Dedicated servers only, requires staff approval</td>
   </tr>
   <tr>
     <th>HDBits</th>
@@ -48,14 +56,6 @@
     <td align="center"><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png"> No</td>
     <td align="center">Simple</td>
     <td><img width="14" src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png"> Yes, if IP whitelisted in profile or 2FA enabled</td>
-  </tr>
-  <tr>
-    <th>PassThePopcorn</th>
-    <td align="center"><code>PTP</code></td>
-    <td align="center">Cookies</td>
-    <td align="center">N/A</td>
-    <td align="center">N/A</td>
-    <td>:warning: Dedicated servers only, requires staff approval</td>
   </tr>
 </table>
 
