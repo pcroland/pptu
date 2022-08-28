@@ -126,12 +126,6 @@ class HDBitsUploader(Uploader):
         return True
 
     @property
-    def username(self):
-        res = self.session.get("https://hdbits.org/").text
-        soup = BeautifulSoup(res, "lxml-html")
-        return soup.select_one(".curuser-stats a").text
-
-    @property
     def passkey(self):
         res = self.session.get("https://hdbits.org/").text
         return re.search(r"passkey=([a-f0-9]+)", res).group(1)
@@ -242,8 +236,6 @@ class HDBitsUploader(Uploader):
         r = self.session.post(
             url="https://img.hdbits.org/upload_api.php",
             files={
-                "username": self.config.get(self, "username") or self.username,
-                "passkey": self.config.get(self, "passkey") or self.passkey,
                 **{f"images_files[{i}]": open(snap, "rb") for i, snap in enumerate(snapshots)},
                 "galleryoption": "1",
                 "galleryname": name,
