@@ -254,7 +254,7 @@ class HDBitsUploader(Uploader):
         res = r.text
         for i, url in enumerate(res.split()):
             thumbnails_str += url
-            if i % 2 == 0:
+            if i % self.config.get(self, "snapshot_columns") == 0:
                 thumbnails_str += " "
             else:
                 thumbnails_str += "\n"

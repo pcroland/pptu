@@ -349,7 +349,7 @@ class BroadcasTheNetUploader(Uploader):
                 snap = snapshot_urls[i]
                 thumb = thumbnail_urls[i]
                 thumbnails_str += rf"[url={snap}][img]{thumb}[/img][/url]"
-                if i % 2 == 0:
+                if i % self.config.get(self, "snapshot_columns") == 0:
                     thumbnails_str += " "
                 else:
                     thumbnails_str += "\n"
