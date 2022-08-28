@@ -42,6 +42,10 @@ unify = "^0.5"
 [tool.poetry.scripts]
 pptu = "pptu.cli:main"
 
+[tool.autoflake]
+exclude = ["pptu/uploaders/__init__.py"]
+remove-all-unused-imports = true
+
 [tool.isort]
 line_length = 120
 profile = "black"
