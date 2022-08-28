@@ -10,7 +10,7 @@ from pyotp import TOTP
 from rich import print
 from rich.prompt import Confirm
 
-from pptu.uploaders import Uploader
+from . import Uploader
 
 ia = Cinemagoer()
 

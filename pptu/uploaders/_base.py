@@ -6,7 +6,7 @@ from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
 
-from pptu.utils import Config
+from ..utils import Config
 
 
 class Uploader(ABC):

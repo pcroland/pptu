@@ -1,4 +1,4 @@
-from pptu.uploaders._avistaznetwork import AvistaZNetworkUploader
+from ._avistaznetwork import AvistaZNetworkUploader
 
 
 class CinemaZUploader(AvistaZNetworkUploader):

@@ -5,7 +5,7 @@ import toml
 from requests.utils import CaseInsensitiveDict
 from rich import print
 
-from pptu.constants import PROG_NAME, PROG_VERSION
+from .constants import PROG_NAME, PROG_VERSION
 
 
 class Config:

@@ -10,7 +10,7 @@ from rich import print
 from rich.markup import escape
 from rich.prompt import Confirm
 
-from pptu.uploaders import Uploader
+from . import Uploader
 
 
 class AvistaZNetworkUploader(Uploader, ABC):

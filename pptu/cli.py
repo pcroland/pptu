@@ -21,9 +21,9 @@ from rich.progress import track
 from ruamel.yaml import YAML
 from wand.image import Image
 
-from pptu import uploaders
-from pptu.constants import PROG_NAME, PROG_VERSION
-from pptu.utils import Config, RParse
+from . import uploaders
+from .constants import PROG_NAME, PROG_VERSION
+from .utils import Config, RParse
 
 
 def main():
