@@ -200,16 +200,8 @@ def main():
         for i in range(num_snapshots):
             thumb = d / f"{(i + 1):02}_thumb.png"
             if not thumb.exists():
-                subprocess.run([
-                    "ffmpeg",
-                    "-y",
-                    "-v", "error",
-                    "-stats",
-                    "-i", d / f"{(i + 1):02}.png",
-                    "-vf", "scale=300:-1",
-                    thumb,
-                ], check=True)
-                with Image(filename=thumb) as img:
+                with Image(filename=snapshots[i]) as img:
+                    img.resize(300, round(img.height / (img.width / 300)))
                     img.depth = 8
                     img.save(filename=thumb)
                 oxipng.optimize(thumb)
