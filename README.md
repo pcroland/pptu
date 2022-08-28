@@ -10,14 +10,14 @@ Python torrent creator and auto-uploader
 * FFmpeg (for generating snapshots)
 
 ## Supported trackers
-Name           | Abbreviation | Authentication method | Captcha | Server upload allowed
--------------- | ------------ | --------------------- | ------- |  -------------------------------------------------------------------
-AvistaZ        | `AvZ`        | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
-BroadcasTheNet | `BTN`        | Credentials/Cookies   | No      | :warning: Dedicated servers only, requires staff approval
-CinemaZ        | `CZ`         | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
-HDBits         | `HDB`        | Credentials/Cookies   | Simple  | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
-PassThePopcorn | `PTP`        | Cookies               | N/A     | :warning: Dedicated servers only, requires staff approval
-PrivateHD      | `PHD`        | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
+Name           | Abbreviation | Authentication method | Cloudflare | Captcha | Server upload allowed
+---------------|:------------:|:---------------------:|:----------:|:-------:|  -------------------------------------------------------------------
+AvistaZ        | `AvZ`        | Credentials/Cookies   | No         | Yes     | :white_check_mark: Yes, if added as seedbox in profile
+BroadcasTheNet | `BTN`        | Credentials/Cookies   | Yes        | No      | :warning: Dedicated servers only, requires staff approval
+CinemaZ        | `CZ`         | Credentials/Cookies   | No         | Yes     | :white_check_mark: Yes, if added as seedbox in profile
+HDBits         | `HDB`        | Credentials/Cookies   | No         | Simple  | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
+PassThePopcorn | `PTP`        | Cookies               | N/A        | N/A     | :warning: Dedicated servers only, requires staff approval
+PrivateHD      | `PHD`        | Credentials/Cookies   | No         | Yes     | :white_check_mark: Yes, if added as seedbox in profile
 
 "Captcha: Yes" means 2captcha API key is required to solve the captcha.
 "Simple" means there is a captcha but it can be solved automatically without 2captcha.
