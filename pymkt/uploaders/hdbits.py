@@ -20,6 +20,7 @@ class HDBitsUploader(Uploader):
     abbrev = "HDB"
     require_cookies = False
     require_passkey = False
+    min_snapshots = 4  # 2 for movies and single episodes
 
     CAPTCHA_MAP = {
         "efe8518424149278ddfaaf609b6a0b1a4749f61b61ef28824da67d68fb333af3": "bug",

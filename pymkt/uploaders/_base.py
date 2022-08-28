@@ -15,6 +15,7 @@ class Uploader(ABC):
     all_files = False  # Whether to generate MediaInfo and snapshots for all files
     require_cookies = True
     require_passkey = True
+    min_snapshots = 0
 
     def __init__(self):
         self.dirs = PlatformDirs(appname="pymkt", appauthor=False)

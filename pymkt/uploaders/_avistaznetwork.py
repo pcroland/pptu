@@ -17,6 +17,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
     name = None
     abbrev = None
     require_cookies = False
+    min_snapshots = 3
 
     COLLECTION_MAP = {
         "movie": None,

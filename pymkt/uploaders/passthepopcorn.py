@@ -17,6 +17,7 @@ class PassThePopcornUploader(Uploader):
     name = "PassThePopcorn"
     abbrev = "PTP"
     all_files = True
+    min_snapshots = 3
 
     @property
     def passkey(self):

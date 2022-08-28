@@ -161,7 +161,10 @@ def main():
         print("Done!")
 
         # Generating snapshots
-        num_snapshots = config.get(tracker, 'snapshot_columns') * config.get(tracker, 'snapshot_rows')
+        num_snapshots = max(
+            config.get("default", "snapshot_columns") * config.get("default", "snapshot_rows"),
+            max(x.min_snapshots for x in cur_uploaders),
+        )
         has_all_files = any(x.all_files for x in cur_uploaders)
         if file.is_dir() or has_all_files:
             # TODO: Handle case when number of files < args.snapshots
