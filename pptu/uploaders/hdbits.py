@@ -232,11 +232,17 @@ class HDBitsUploader(Uploader):
         name = re.sub(r"HDR10(?:\+|P|Plus)", "HDR", name, flags=re.IGNORECASE)
         name = re.sub(r"(?:DV|DoVi)\.HDR", "DoVi", name)
 
+        thumbnail_row_width = max(900, self.config.get(self, "snapshot_row_width", 900))
+        allowed_widths = [100, 150, 200, 250, 300, 350]
+        thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2) - 5)
+        thumbnail_width = max(x for x in allowed_widths if x <= thumbnail_width)
+
         thumbnails_str = ""
         r = self.session.post(
             url="https://img.hdbits.org/upload_api.php",
             files={
                 **{f"images_files[{i}]": open(snap, "rb") for i, snap in enumerate(snapshots)},
+                "thumbsize": f'w{thumbnail_width}',
                 "galleryoption": "1",
                 "galleryname": name,
             },
