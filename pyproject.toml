@@ -24,7 +24,10 @@ pyrosimple = "^2.0.0rc1"
 requests = "^2.28.0"
 rich = "^12.4.4"
 "ruamel.yaml" = "^0.17.21"
+selenium = "^4.4.3"
+selenium-wire = "^4.6.5"
 toml = "^0.10.2"
+undetected-chromedriver = "^3.1.5"
 Wand = "^0.6.9"
 
 [tool.poetry.dev-dependencies]

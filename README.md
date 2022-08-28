@@ -13,7 +13,7 @@ Python torrent creator and auto-uploader
 Name           | Abbreviation | Authentication method | Captcha | Server upload allowed
 -------------- | ------------ | --------------------- | ------- |  -------------------------------------------------------------------
 AvistaZ        | `AvZ`        | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
-BroadcasTheNet | `BTN`        | Cookies               | N/A     | :warning: Dedicated servers only, requires staff approval
+BroadcasTheNet | `BTN`        | Credentials/Cookies   | No      | :warning: Dedicated servers only, requires staff approval
 CinemaZ        | `CZ`         | Credentials/Cookies   | Yes     | :white_check_mark: Yes, if added as seedbox in profile
 HDBits         | `HDB`        | Credentials/Cookies   | Simple  | :white_check_mark: Yes, if IP whitelisted in profile or 2FA enabled
 PassThePopcorn | `PTP`        | Cookies               | N/A     | :warning: Dedicated servers only, requires staff approval
@@ -24,6 +24,10 @@ PrivateHD      | `PHD`        | Credentials/Cookies   | Yes     | :white_check_m
 
 ### AvistaZ Network (AvistaZ, CinemaZ, PrivateHD)
 Using cookies is not recommended as they expire within a few days.
+
+### BroadcasTheNet
+selenium-wire and undetected-chromedriver are required for credential login to pass the Cloudflare challenge.
+Note that headless mode does not work, so if you're running this on a headless server you'll need to enable X11 forwarding.
 
 ### HDBits
 If you don't specify a TOTP secret in the config, 2FA code will be prompted for when cookies are missing or expired.

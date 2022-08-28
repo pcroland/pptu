@@ -4,11 +4,16 @@ import subprocess
 import sys
 
 import httpx
+import seleniumwire.undetected_chromedriver as uc
 from bs4 import BeautifulSoup
 from guessit import guessit
 from langcodes import Language
+from pyotp import TOTP
 from rich import print
 from rich.prompt import Confirm
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support.ui import WebDriverWait
 
 from pymkt.uploaders import Uploader
 
@@ -16,6 +21,7 @@ from pymkt.uploaders import Uploader
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"
     abbrev = "BTN"
+    require_cookies = False
 
     COUNTRY_MAP = {
         "AD": 65,
@@ -131,9 +137,90 @@ class BroadcasTheNetUploader(Uploader):
 
     def login(self):
         r = self.session.get("https://broadcasthe.net/user.php")
-        if r.status_code == 302:
-            print("[red][bold]ERROR[/bold]: Cookies expired[/red]")
+        if "login.php" not in r.url:
+            return True
+
+        print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+
+        if not (username := self.config.get(self, "username")):
+            print("[red][bold]ERROR[/bold]: No username specified in config, cannot log in.[/red]")
             return False
+
+        if not (password := self.config.get(self, "password")):
+            print("[red][bold]ERROR[/bold]: No password specified in config, cannot log in.[/red]")
+            return False
+
+        print("Starting ChromeDriver")
+        options = uc.ChromeOptions()
+        proxy_url = self.session.proxies.get("all")
+        driver = uc.Chrome(
+            options=options,
+            seleniumwire_options={
+                "proxy": {
+                    "http": proxy_url,
+                    "https": proxy_url,
+                    "no_proxy": "localhost,127.0.0.1",
+                },
+                "request_storage": "memory",
+            }
+        )
+        driver.get("https://broadcasthe.net/login.php")
+
+        WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//form[@name='loginform']")))
+
+        self.session.headers.update({
+            "User-Agent": driver.execute_script("return navigator.userAgent;")
+        })
+
+        for cookie in driver.get_cookies():
+            cookie.setdefault("rest", {})
+
+            if "expiry" in cookie:
+                cookie["expires"] = cookie.pop("expiry")
+
+            if "httpOnly" in cookie:
+                # cookie["rest"].update({"HttpOnly": cookie["httpOnly"]})
+                cookie.pop("httpOnly")
+
+            if "sameSite" in cookie:
+                # cookie["rest"].update({"SameSite": cookie["sameSite"]})
+                cookie.pop("sameSite")
+
+            self.session.cookies.set(**cookie)
+
+        driver.quit()
+
+        for cookie in self.session.cookies:
+            self.cookie_jar.set_cookie(cookie)
+        self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
+        self.cookie_jar.save(ignore_discard=True)
+
+        print("Logging in")
+        r = self.session.post(
+            url="https://broadcasthe.net/login.php",
+            data={
+                "username": username,
+                "password": password,
+                "keeplogged": "1",
+                "login": "Log In!",
+            },
+        )
+        r.raise_for_status()
+
+        if "login.php" in r.url:
+            totp_secret = self.config.get(self, "totp_secret")
+            r = self.session.post(
+                url="https://broadcasthe.net/login.php",
+                data={
+                    "code": TOTP(totp_secret).now() if totp_secret else Confirm.ask("Enter 2FA code: "),
+                    "act": "authenticate",
+                },
+            )
+            r.raise_for_status()
+
+        if "login.php" in r.url:
+            return False
+
         return True
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):

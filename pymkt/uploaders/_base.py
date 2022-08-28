@@ -40,8 +40,9 @@ class Uploader(ABC):
                 status_forcelist=[429, 500, 502, 503, 504],
                 raise_on_status=False,
             )))
-        self.session.cookies = self.cookie_jar
-        self.session.proxies = {"all": self.config.get(self, "proxy")}
+        for cookie in self.cookie_jar:
+            self.session.cookies.set_cookie(cookie)
+        self.session.proxies.update({"all": self.config.get(self, "proxy")})
 
     @property
     def passkey(self):
