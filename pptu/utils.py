@@ -58,9 +58,9 @@ def wprint(inp):
     print(f"[bold color(231) on yellow]WARNING:[/bold color(231) on yellow] [yellow]{inp}[/yellow]")
 
 
-def eprint(inp, exit_=False, exit_code=1):
+def eprint(inp, fatal=False, exit_code=1):
     print(f"[bold color(231) on red]WARNING:[/bold color(231) on red] [red]{inp}[/red]")
-    if exit_:
+    if fatal:
         sys.exit(exit_code)
 
 
