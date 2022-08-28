@@ -18,6 +18,9 @@
     <th>Server upload allowed</th>
   </tr>
   <tr>
+    <th colspan="6">General</th>
+  </tr>
+  <tr>
     <th>BroadcasTheNet</th>
     <td align="center"><code>BTN</code></td>
     <td align="center">Credentials/Cookies</td>
@@ -42,6 +45,9 @@
     <td><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" width="14" /> Dedicated servers only, requires staff approval</td>
   </tr>
   <tr>
+    <th colspan="6">AvistaZ Network</th>
+  </tr>
+  <tr>
     <th>AvistaZ</td>
     <td align="center"><code>AvZ</code></td>
     <td align="center" rowspan="3">Credentials/Cookies</td>
@@ -62,14 +68,13 @@
 For sites with captcha, a 2captcha API key is required to solve the captcha. Manual solving may be added in the future.
 "Simple" captchas can be solved automatically without 2captcha or user interaction.
 
-### AvistaZ Network (AvistaZ, CinemaZ, PrivateHD)
-Using cookies is not recommended as they expire within a few days.
-
 ### BroadcasTheNet
-selenium-wire and undetected-chromedriver are required for credential login to pass the Cloudflare challenge.
-You'll also need Xvfb on Linux as ChromeDriver's headless mode is detected by Cloudflare.
+* selenium-wire and undetected-chromedriver are required for credential login to pass the Cloudflare challenge.
+  You'll also need Xvfb on Linux as ChromeDriver's headless mode is detected by Cloudflare.
+* Movie support is not yet implemented.
 
-Movie support is not yet implemented.
+### AvistaZ Network
+* Using credential auth is strongly recommended as cookies always expire within a few days.
 
 ## Installation
 Install dependencies and the script with `./install.sh`. You can re-run the script to update after a git pull.
