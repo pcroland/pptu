@@ -2,19 +2,32 @@
 proxy = ""
 watch_dir = "~/rtorrent/watch/start"
 
+# Credentials below are required unless you save cookies instead.
+
 [avistaz]
-passkey = ""  # required
+username = ""
+password = ""
+totp_secret = ""
+#passkey = ""  # auto-detected
+#proxy = "http://user:pass@example.com:6060"
 
 [broadcasthenet]
-passkey = ""  # required
-imgbin_api_key = ""
+username = ""
+password = ""
+totp_secret = ""
+#passkey = ""  # auto-detected
+imgbin_api_key = ""  # optional, if you want your uploads to include screenshots
 fasttorrent = true  # set to false if <24 Mbps upload speed
 #proxy = "http://user:pass@example.com:6060"
 
 [hdbits]
-username = ""  # required
-passkey = ""  # required
+username = ""  # required (for image upload)
+password = ""
+#passkey = ""  # auto-detected
+totp_secret = ""  # set to false if your account doesn't have 2FA to avoid prompt
+#proxy = "http://user:pass@example.com:6060"
 
 [passthepopcorn]
+#passkey = ""  # auto-detected
 ptpimg_api_key = ""  # required
 #proxy = "http://user:pass@example.com:6060"
