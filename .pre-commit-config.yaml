@@ -3,6 +3,8 @@ repos:
     rev: '4.0.1'
     hooks:
       - id: 'flake8'
+        additional_dependencies:
+          - 'flake8-quotes==3.3.1'
 
   - repo: 'https://github.com/pycqa/isort'
     rev: '12cc5fbd67eebf92eb2213b03c07b138ae1fb448'

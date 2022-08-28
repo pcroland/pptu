@@ -1,4 +1,5 @@
 [flake8]
 exclude = .venv
+inline-quotes = double
 max-line-length = 120
 per_file_ignores = pymkt/uploaders/__init__.py:F401
