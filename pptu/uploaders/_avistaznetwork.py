@@ -4,13 +4,12 @@ import time
 import uuid
 from abc import ABC
 
-from bs4 import BeautifulSoup
 from pyotp import TOTP
 from rich import print
 from rich.markup import escape
 from rich.prompt import Confirm
 
-from ..utils import eprint, wprint
+from ..utils import eprint, load_html, wprint
 from . import Uploader
 
 
@@ -56,7 +55,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
         done = False
         while not done:
             res = self.session.get(f"{self.base_url}/auth/login").text
-            soup = BeautifulSoup(res, "lxml-html")
+            soup = load_html(res)
             token = soup.select_one("input[name='_token']")["value"]
             captcha_url = soup.select_one(".img-captcha")["src"]
 
@@ -150,7 +149,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
         if "/auth/twofa" in r.url:
             print("2FA detected")
 
-            soup = BeautifulSoup(res, "lxml-html")
+            soup = load_html(res)
 
             r = self.session.post(
                 url=r.url,
@@ -174,7 +173,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
     @property
     def passkey(self):
         res = self.session.get(f"{self.base_url}/account").text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
         return soup.select_one(".current_pid").text
 
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
@@ -209,7 +208,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
 
         r = self.session.get(self.base_url)
         res = r.text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
         token = soup.select_one('meta[name="_token"]')["content"]
 
         year = None
@@ -261,7 +260,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
         )
         upload_url = r.url
         res = r.text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
 
         images = []
         snapshots = snapshots[: len(snapshots) - len(snapshots) % 3]
@@ -328,7 +327,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
 
         r = self.session.post(url=upload_url, data=data, timeout=60)
         res = r.text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
         r.raise_for_status()
         torrent_url = soup.select_one('a[href*="/download/"]')["href"]
         self.session.get(torrent_url, timeout=60)

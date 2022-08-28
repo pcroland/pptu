@@ -3,6 +3,7 @@ import re
 import sys
 
 import toml
+from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
 from rich import print
 
@@ -62,6 +63,10 @@ def eprint(inp, fatal=False, exit_code=1):
     print(f"[bold color(231) on red]WARNING:[/bold color(231) on red] [red]{inp}[/red]")
     if fatal:
         sys.exit(exit_code)
+
+
+def load_html(text):
+    return BeautifulSoup(text, "lxml-html")
 
 
 __all__ = ["Config", "RParse"]

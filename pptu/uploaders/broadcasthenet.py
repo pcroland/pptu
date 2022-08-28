@@ -7,7 +7,6 @@ import sys
 
 import httpx
 import seleniumwire.undetected_chromedriver as uc
-from bs4 import BeautifulSoup
 from guessit import guessit
 from langcodes import Language
 from pyotp import TOTP
@@ -19,7 +18,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
 from . import Uploader
-from .utils import eprint, wprint
+from .utils import eprint, load_html, wprint
 
 
 class BroadcasTheNetUploader(Uploader):
@@ -136,7 +135,7 @@ class BroadcasTheNetUploader(Uploader):
     @property
     def passkey(self):
         res = self.session.get("https://broadcasthe.net/upload.php").text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
     def login(self):
@@ -264,7 +263,7 @@ class BroadcasTheNetUploader(Uploader):
             },
             timeout=60,
         )
-        soup = BeautifulSoup(r.text, "lxml-html")
+        soup = load_html(r.text)
         if r.status_code == 302:
             eprint("Cookies expired.")
             sys.exit(1)

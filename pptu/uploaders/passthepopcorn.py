@@ -1,14 +1,13 @@
 import os
 import re
 
-from bs4 import BeautifulSoup
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
 from rich import print
 from rich.markup import escape
 from rich.prompt import Confirm
 
-from ..utils import eprint, wprint
+from ..utils import eprint, load_html, wprint
 from . import Uploader
 
 
@@ -24,7 +23,7 @@ class PassThePopcornUploader(Uploader):
     @property
     def passkey(self):
         res = self.session.get("https://passthepopcorn.me/upload.php").text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
     def login(self):
@@ -67,7 +66,7 @@ class PassThePopcornUploader(Uploader):
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
         res = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": groupid}).text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
 
         if path.is_dir():
             file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
@@ -177,7 +176,7 @@ class PassThePopcornUploader(Uploader):
                 "file_input": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
             },
         ).text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
         if error := soup.select_one(".alert--error"):
             eprint(f"[cyan]{escape(error.get_text())}[/cyan]")
             return False

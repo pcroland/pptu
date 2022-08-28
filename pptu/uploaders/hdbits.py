@@ -3,14 +3,13 @@ import re
 import sys
 import time
 
-from bs4 import BeautifulSoup
 from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
 from rich import print
 from rich.prompt import Confirm
 
-from ..utils import eprint, wprint
+from ..utils import eprint, load_html, wprint
 from . import Uploader
 
 
@@ -105,7 +104,7 @@ class HDBitsUploader(Uploader):
             return False
 
         res = self.session.get("https://hdbits.org/login", params={"returnto": "/"}).text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
 
         totp_secret = self.config.get(self, "totp_secret")
 
@@ -130,7 +129,7 @@ class HDBitsUploader(Uploader):
             )
 
         if "error" in r.url:
-            soup = BeautifulSoup(r.text, "lxml-html")
+            soup = load_html(r.text)
             error = re.sub(r"\s+", " ", soup.select_one(".embedded").text).strip()
             eprint(error)
             return False
@@ -297,7 +296,7 @@ class HDBitsUploader(Uploader):
             },
             data=data,
         ).text
-        soup = BeautifulSoup(res, "lxml-html")
+        soup = load_html(res)
         torrent_url = f'https://hdbits.org{soup.select_one(".js-download")["href"]}'
         torrent_path.write_bytes(self.session.get(torrent_url).content)
 
