@@ -1,0 +1,4 @@
+# TODO: Figure out a way to reliably pull this from pyproject.toml
+#       while taking care of edge cases like pyinstaller
+PROG_NAME = "mkt"
+PROG_VERSION = "2022.08.28.1"
