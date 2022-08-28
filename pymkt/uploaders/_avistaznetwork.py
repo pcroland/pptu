@@ -262,8 +262,8 @@ class AvistaZNetworkUploader(Uploader, ABC):
         soup = BeautifulSoup(res, "lxml-html")
 
         images = []
-        for i in ("01", "02", "03"):
-            img = torrent_path.parent / f"{i}.png"
+        snapshots = snapshots[: len(snapshots) - len(snapshots) % 3]
+        for img in snapshots:
             res = self.session.post(
                 url=f"{self.base_url}/ajax/image/upload",
                 data={
