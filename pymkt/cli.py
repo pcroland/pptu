@@ -19,6 +19,7 @@ from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
+from rich.progress import track
 from ruamel.yaml import YAML
 from wand.image import Image
 
@@ -162,7 +163,7 @@ def main():
 
         print("Done!")
 
-        print("\n[bold green]\\[4/6] Generating snapshots[/bold green]")
+        # Generating snapshots
         num_snapshots = args.snapshots
         has_all_files = any(x.all_files for x in cur_uploaders)
         if file.is_dir() or has_all_files:
@@ -173,7 +174,7 @@ def main():
         if has_all_files:
             num_snapshots = len(files)
         snapshots = []
-        for i in range(num_snapshots):
+        for i in track(range(num_snapshots), description='[4/6] Generating snapshots'):
             mediainfo_obj = MediaInfo.parse(files[i])
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
             interval = duration / (num_snapshots + 1)
