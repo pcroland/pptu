@@ -212,10 +212,10 @@ def main():
                     "-vf", "scale=300:-1",
                     thumb,
                 ], check=True)
-                with Image(filename=snap) as img:
+                with Image(filename=thumb) as img:
                     img.depth = 8
-                    img.save(filename=snap)
-                oxipng.optimize(snap)
+                    img.save(filename=thumb)
+                oxipng.optimize(thumb)
             thumbnails.append(thumb)
         print("Done!")
 
