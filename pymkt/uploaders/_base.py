@@ -26,6 +26,7 @@ class Uploader(ABC):
             self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.abbrev.lower()}.txt"
         if not self.cookies_path.exists() and self.require_cookies:
             print(f"[red][bold]ERROR[/bold]: No cookies found for tracker {self.name}[/red]")
+            return
 
         self.cookie_jar = MozillaCookieJar(self.cookies_path)
         if self.cookies_path.exists():

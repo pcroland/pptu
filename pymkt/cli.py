@@ -71,7 +71,7 @@ def main():
 
         if i == 0:
             print(r"[bold green]\[1/6] Logging in to trackers[/bold green]")
-            for tracker_name in copy(args.trackers):
+            for i, tracker_name in enumerate(copy(args.trackers)):
                 try:
                     tracker = trackers[tracker_name] = next(
                         x for x in vars(uploaders).values()
@@ -87,6 +87,8 @@ def main():
                     print(f"[red][bold]ERROR[/bold]: Tracker {tracker_name} not found[/red]")
                     args.trackers.remove(tracker_name)
                     continue
+
+                print(f"[bold cyan]\\[{i + 1}/{len(trackers)}] Logging in to {tracker.abbrev}")
 
                 uploader = tracker()
 
