@@ -175,7 +175,7 @@ class HDBitsUploader(Uploader):
                 if imdb_results := ia.search_movie(title):
                     imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
             else:
-                print("[yellow][bold]WARNING[/bold]: Unable to extract title from filename[/yellow]")
+                print("[bold color(231) on yellow]WARNING[/bold color(231) on yellow]: Unable to extract title from filename")
             imdb = imdb or input("Enter IMDb URL: ")
             tvdb = None
             season = None

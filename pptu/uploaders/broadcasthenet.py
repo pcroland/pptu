@@ -143,7 +143,7 @@ class BroadcasTheNetUploader(Uploader):
         if "login.php" not in r.url:
             return True
 
-        print("[yellow][bold]WARNING[/bold]: Cookies missing or expired, logging in...[/yellow]")
+        print("[bold color(231) on yellow]WARNING[/bold color(231) on yellow]: Cookies missing or expired, logging in...")
 
         if not (username := self.config.get(self, "username")):
             print("[red][bold]ERROR[/bold]: No username specified in config, cannot log in.[/red]")
@@ -354,7 +354,7 @@ class BroadcasTheNetUploader(Uploader):
                 else:
                     thumbnails_str += "\n"
         else:
-            print("[yellow][bold]WARNING[/bold]: No imgbin API key specified, skipping snapshots[/yellow]")
+            print("[bold color(231) on yellow]WARNING[/bold color(231) on yellow]: No imgbin API key specified, skipping snapshots")
 
         data = {
             "submit": "true",
