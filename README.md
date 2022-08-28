@@ -1,6 +1,4 @@
-# pptu
-
-Python torrent creator and auto-uploader
+<p align="center"><img width="160" src="logo/logo.png"><br>Python P2P Torrent Uploader</p>
 
 ## Requirements
 * Python 3.8+
