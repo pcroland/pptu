@@ -1,10 +1,13 @@
 repos:
+  - repo: 'https://github.com/PyCQA/autoflake'
+    rev: 'v1.5.1'
+    hooks:
+      - id: 'autoflake'
+
   - repo: 'https://github.com/pycqa/flake8'
     rev: '4.0.1'
     hooks:
       - id: 'flake8'
-        additional_dependencies:
-          - 'flake8-quotes==3.3.1'
 
   - repo: 'https://github.com/pycqa/isort'
     rev: '12cc5fbd67eebf92eb2213b03c07b138ae1fb448'
@@ -16,6 +19,12 @@ repos:
     hooks:
       - id: 'pyupgrade'
         args: ['--py38-plus']
+
+  - repo: 'https://github.com/myint/unify'
+    rev: 'v0.5'
+    hooks:
+      - id: 'unify'
+        args: ['--in-place', '--quote="']
 
   - repo: 'https://github.com/jendrikseipp/vulture'
     rev: 'v2.4'
