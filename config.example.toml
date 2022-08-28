@@ -21,7 +21,7 @@ fasttorrent = true  # set to false if <24 Mbps upload speed
 #proxy = "http://user:pass@example.com:6060"
 
 [hdbits]
-username = ""  # required (for image upload)
+username = ""
 password = ""
 #passkey = ""  # auto-detected
 totp_secret = ""  # set to false if your account doesn't have 2FA to avoid prompt
