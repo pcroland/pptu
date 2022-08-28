@@ -21,6 +21,10 @@ class Config:
 
 
 class RParse(argparse.ArgumentParser):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("formatter_class", lambda prog: CustomHelpFormatter(prog))
+        super().__init__(*args, **kwargs)
+
     def _print_message(self, message, file=None):
         if message:
             if message.startswith("usage"):
@@ -37,9 +41,16 @@ class RParse(argparse.ArgumentParser):
 
 
 class CustomHelpFormatter(argparse.RawTextHelpFormatter):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("max_help_position", 80)
+        super().__init__(*args, **kwargs)
+
     def _format_action_invocation(self, action):
         if not action.option_strings or action.nargs == 0:
             return super()._format_action_invocation(action)
         default = self._get_default_metavar_for_optional(action)
         args_string = self._format_args(action, default)
         return ", ".join(action.option_strings) + " " + args_string
+
+
+__all__ = ["Config", "RParse"]

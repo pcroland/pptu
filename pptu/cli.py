@@ -23,13 +23,11 @@ from wand.image import Image
 
 from pptu import uploaders
 from pptu.constants import PROG_NAME, PROG_VERSION
-from pptu.utils import Config, CustomHelpFormatter, RParse
+from pptu.utils import Config, RParse
 
 
 def main():
-    parser = RParse(
-        prog=PROG_NAME,
-        formatter_class=lambda prog: CustomHelpFormatter(prog, max_help_position=80))
+    parser = RParse(prog=PROG_NAME)
     parser.add_argument("file",
                         type=Path,
                         nargs="+",
