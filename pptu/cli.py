@@ -123,7 +123,7 @@ def main():
                 "--no-created-by",
                 "--no-creation-date",
                 "--no-cross-seed",
-                "--exclude", r".*\.(txt|nfo|png|jpg|ffindex|srt|torrent)$",
+                "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
                 "-o",
                 base_torrent_path,
                 file,
