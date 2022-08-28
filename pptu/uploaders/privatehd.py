@@ -1,4 +1,4 @@
-from pymkt.uploaders._avistaznetwork import AvistaZNetworkUploader
+from pptu.uploaders._avistaznetwork import AvistaZNetworkUploader
 
 
 class PrivateHDUploader(AvistaZNetworkUploader):

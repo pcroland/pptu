@@ -6,7 +6,7 @@ from platformdirs import PlatformDirs
 from requests.adapters import HTTPAdapter, Retry
 from rich import print
 
-from pymkt.utils import Config
+from pptu.utils import Config
 
 
 class Uploader(ABC):
@@ -18,7 +18,7 @@ class Uploader(ABC):
     min_snapshots = 0
 
     def __init__(self):
-        self.dirs = PlatformDirs(appname="pymkt", appauthor=False)
+        self.dirs = PlatformDirs(appname="pptu", appauthor=False)
 
         self.config = Config(self.dirs.user_config_path / "config.toml")
 

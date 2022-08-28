@@ -1,4 +1,4 @@
-# pymkt
+# pptu
 
 Python torrent creator and auto-uploader
 
@@ -81,9 +81,9 @@ You can disable the prompt with `totp_secret = false` if your account doesn't ha
 Install dependencies and the script with `./install.sh`. You can re-run the script to update after a git pull.
 
 ## Setup
-Copy `config.example.toml` to `~/.config/pymkt/config.toml` and edit it as appropriate.
+Copy `config.example.toml` to `~/.config/pptu/config.toml` and edit it as appropriate.
 
-For credential-based auth, add your credentials in `~/.config/pymkt/config.toml`:
+For credential-based auth, add your credentials in `~/.config/pptu/config.toml`:
 ```
 [TRACKER]
 username = "yourusername"
@@ -91,14 +91,14 @@ password = "yourpassword"
 ```
 Optionally, you may specify `totp_secret` for automating 2FA logins.
 
-For cookie-based auth, place cookies in `~/.local/share/pymkt/cookies/TRACKER.txt`.
+For cookie-based auth, place cookies in `~/.local/share/pptu/cookies/TRACKER.txt`.
 
 `TRACKER` is the name or the abbreviation of the tracker above (all lowercase).
 
 ## Usage
 ```
-❯ mkt -h
-usage: mkt [-h] -t TRACKERS [--auto] file [file ...]
+❯ pptu -h
+usage: pptu [-h] -t TRACKERS [--auto] file [file ...]
 
 positional arguments:
   file                              files/directories to create torrents for

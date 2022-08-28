@@ -21,9 +21,9 @@ from rich.progress import track
 from ruamel.yaml import YAML
 from wand.image import Image
 
-from pymkt import uploaders
-from pymkt.constants import PROG_NAME, PROG_VERSION
-from pymkt.utils import Config, CustomHelpFormatter, RParse
+from pptu import uploaders
+from pptu.constants import PROG_NAME, PROG_VERSION
+from pptu.utils import Config, CustomHelpFormatter, RParse
 
 
 def main():
@@ -48,7 +48,7 @@ def main():
                         help="upload without confirmation")
     args = parser.parse_args()
 
-    dirs = PlatformDirs(appname="pymkt", appauthor=False)
+    dirs = PlatformDirs(appname="pptu", appauthor=False)
 
     config = Config(dirs.user_config_path / "config.toml")
 
@@ -69,7 +69,7 @@ def main():
 
     trackers = {}
 
-    trackers_json = importlib.resources.path("pymkt", "trackers.json")
+    trackers_json = importlib.resources.path("pptu", "trackers.json")
 
     for i, file in enumerate(args.file):
         if not file.exists():

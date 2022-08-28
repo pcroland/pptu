@@ -3,7 +3,7 @@ requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
-name = "pymkt"
+name = "pptu"
 version = "2022.08.28.1"
 description = "Python torrent creator and auto-uploader"
 authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
@@ -40,7 +40,7 @@ pyupgrade = "^2.37.3"
 unify = "^0.5"
 
 [tool.poetry.scripts]
-mkt = "pymkt.cli:main"
+pptu = "pptu.cli:main"
 
 [tool.black]
 line-length = 120

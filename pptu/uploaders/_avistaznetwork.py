@@ -10,7 +10,7 @@ from rich import print
 from rich.markup import escape
 from rich.prompt import Confirm
 
-from pymkt.uploaders import Uploader
+from pptu.uploaders import Uploader
 
 
 class AvistaZNetworkUploader(Uploader, ABC):
@@ -70,7 +70,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
                     "file": ("captcha.jpg", self.session.get(captcha_url).content, "image/jpeg"),
                 },
                 headers={
-                    "User-Agent": "pymkt/0.1.0",  # TODO: Get version dynamically
+                    "User-Agent": "pptu/0.1.0",  # TODO: Get version dynamically
                 },
             ).json()
             if res["status"] != 1:

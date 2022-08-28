@@ -4,7 +4,7 @@ import re
 import toml
 from requests.utils import CaseInsensitiveDict
 
-from pymkt.constants import PROG_NAME, PROG_VERSION
+from pptu.constants import PROG_NAME, PROG_VERSION
 
 
 class Config:
