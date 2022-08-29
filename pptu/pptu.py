@@ -89,7 +89,7 @@ class PPTU:
 
         print()
         for i in track(
-            range(num_snapshots), description=f"[bold green]\\[5/7] Generating snapshots ({self.tracker.abbrev})[/]"
+            range(num_snapshots), description=f"[bold green]\\[5/6] Generating snapshots ({self.tracker.abbrev})[/]"
         ):
             mediainfo_obj = MediaInfo.parse(files[i])
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
