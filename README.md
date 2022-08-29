@@ -10,15 +10,15 @@
 ## Supported trackers
 <table>
   <tr>
-    <th colspan="6">General</th>
-  </tr>
-  <tr>
     <th>Name</th>
-    <th>Abbrev.</th>
-    <th>Auth.</th>
+    <th>Acronym</th>
+    <th>Auth</th>
     <th>Cloudflare</th>
     <th>Captcha</th>
     <th>Server upload allowed</th>
+  </tr>
+  <tr>
+    <th colspan="6">General</th>
   </tr>
   <tr>
     <th>BroadcasTheNet</th>
@@ -46,14 +46,6 @@
   </tr>
   <tr>
     <th colspan="6">AvistaZ Network</th>
-  </tr>
-  <tr>
-    <th>Name</th>
-    <th>Abbrev.</th>
-    <th>Auth.</th>
-    <th>Cloudflare</th>
-    <th>Captcha</th>
-    <th>Server upload allowed</th>
   </tr>
   <tr>
     <th>AvistaZ</td>
