@@ -7,11 +7,12 @@ fi
 
 poetry install
 
-if [ -z "$VIRTUAL_ENV" ]; then
+venv=${VIRTUAL_ENV:-$(poetry env info --path)}
+if [ -z "$venv" ]; then
   echo "ERROR: Unable to find virtualenv." >&2
 fi
 
-executable="$VIRTUAL_ENV/bin/pptu"
+executable="$venv/bin/pptu"
 if ! [ -f "$executable" ]; then
   echo "ERROR: $executable doesn't exist." >&2
   exit 1
