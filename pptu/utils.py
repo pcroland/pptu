@@ -1,8 +1,6 @@
 import argparse
 import re
 import sys
-import tempfile
-from pathlib import Path
 
 import oxipng
 import toml
@@ -75,21 +73,13 @@ def load_html(text):
 
 def generate_thumbnails(snapshots, width=300):
     for i, snap in enumerate(snapshots):
-        try:
-            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
-                thumb = Path(tmp.name)
-
-            thumb.write_bytes(snap.read_bytes())
-
-            with Image(filename=thumb) as img:
-                img.resize(width, round(img.height / (img.width / width)))
-                img.depth = 8
-                img.save(filename=thumb)
-
-            oxipng.optimize(thumb)
-            yield thumb.read_bytes()
-        finally:
-            thumb.unlink(missing_ok=True)
+        thumb = snap.with_stem(f"{snap.stem}_thumb_{width}.png")
+        with Image(filename=snap) as img:
+            img.resize(width, round(img.height / (img.width / width)))
+            img.depth = 8
+            img.save(filename=thumb)
+        oxipng.optimize(thumb)
+        yield thumb
 
 
 __all__ = ["Config", "RParse"]

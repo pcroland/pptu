@@ -333,17 +333,18 @@ class BroadcasTheNetUploader(Uploader):
 
             thumbnail_urls = []
             for thumb in generate_thumbnails(snapshots):
-                res = httpx.post(
-                    url="https://imgbin.broadcasthe.net/upload",
-                    files={
-                        "file": thumb,
-                    },
-                    headers={
-                        "Authorization": f"Bearer {imgbin_api_key}",
-                    },
-                    timeout=60,
-                ).json()
-                thumbnail_urls.append(next(iter(res.values()))["hotlink"])
+                with open(thumb, "rb") as fd:
+                    res = httpx.post(
+                        url="https://imgbin.broadcasthe.net/upload",
+                        files={
+                            "file": fd,
+                        },
+                        headers={
+                            "Authorization": f"Bearer {imgbin_api_key}",
+                        },
+                        timeout=60,
+                    ).json()
+                    thumbnail_urls.append(next(iter(res.values()))["hotlink"])
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]
