@@ -74,11 +74,12 @@ def load_html(text):
 def generate_thumbnails(snapshots, width=300):
     for i, snap in enumerate(snapshots):
         thumb = snap.with_stem(f"{snap.stem}_thumb_{width}.png")
-        with Image(filename=snap) as img:
-            img.resize(width, round(img.height / (img.width / width)))
-            img.depth = 8
-            img.save(filename=thumb)
-        oxipng.optimize(thumb)
+        if not thumb.exists():
+            with Image(filename=snap) as img:
+                img.resize(width, round(img.height / (img.width / width)))
+                img.depth = 8
+                img.save(filename=thumb)
+            oxipng.optimize(thumb)
         yield thumb
 
 
