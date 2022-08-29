@@ -37,6 +37,9 @@ def main():
     parser.add_argument("-a", "--auto",
                         action="store_true",
                         help="upload without confirmation")
+    parser.add_argument("-s", "--skip-upload",
+                        action="store_true",
+                        help="skip upload")
     args = parser.parse_args()
 
     session = requests.Session()
@@ -123,8 +126,11 @@ def main():
             snapshots = pptu.generate_snapshots(step=f"{current_step}/{step_count}")
 
             current_step += 1
-            print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
-            pptu.upload(mediainfo, snapshots)
+            if args.skip_upload:
+                print(f"\n[bold green]\\[{current_step}/{step_count}] Skip uploading ({tracker.abbrev})[/]")
+            else:
+                print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
+                pptu.upload(mediainfo, snapshots)
 
             print()
 
