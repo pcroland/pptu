@@ -1,18 +1,15 @@
 import importlib.resources
-import json
 import os
 import re
 import shutil
 import subprocess
 import sys
-import tempfile
 from pathlib import Path
 
 import oxipng
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
 from rich.progress import track
-from ruamel.yaml import YAML
 from wand.image import Image
 
 from .utils import Config, eprint
@@ -50,33 +47,21 @@ class PPTU:
             ], check=True)
 
         passkey = self.config.get(self.tracker, "passkey") or self.tracker.passkey
-        if not passkey and self.tracker.require_passkey:
+        if not passkey and "{passkey}" in self.tracker.announce_url:
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
             return False
 
-        trackers_json = importlib.resources.path("pptu", "trackers.json")
-        with tempfile.NamedTemporaryFile(suffix=".yml") as tmp:
-            YAML().dump({
-                "tracker-parameters": {
-                    self.tracker.name: {
-                        "pid": passkey,
-                    },
-                },
-            }, tmp)
-            subprocess.run([
-                "torrenttools",
-                "--trackers-config", trackers_json,
-                "--config", tmp.name,
-                "edit",
-                "--no-created-by",
-                "--no-creation-date",
-                "-a", self.tracker.name,
-                "-s", next(
-                    x for x in json.loads(trackers_json.read_text()) if x["name"] == self.tracker.name
-                )["source"],
-                "-o", self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent",
-                self.cache_dir / f"{self.file.name}.torrent",
-            ], check=True)
+        subprocess.run([
+            "torrenttools",
+            "edit",
+            "--no-created-by",
+            "--no-creation-date",
+            "-a", self.tracker.announce_url.format(passkey=passkey),
+            "-s", self.tracker.source,
+            "-p", "on",
+            "-o", self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent",
+            self.cache_dir / f"{self.file.name}.torrent",
+        ], check=True)
 
         return True
 

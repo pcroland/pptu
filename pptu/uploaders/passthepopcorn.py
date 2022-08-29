@@ -17,8 +17,10 @@ ia = Cinemagoer()
 class PassThePopcornUploader(Uploader):
     name = "PassThePopcorn"
     abbrev = "PTP"
-    all_files = True
+    source = "PTP"
+    announce_url = "http://please.passthepopcorn.me:2710/{passkey}/announce"
     min_snapshots = 3
+    all_files = True
 
     @property
     def passkey(self):

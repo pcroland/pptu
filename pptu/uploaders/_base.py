@@ -9,10 +9,7 @@ from ..utils import Config, eprint
 
 
 class Uploader(ABC):
-    name = None
-    abbrev = None
     all_files = False  # Whether to generate MediaInfo and snapshots for all files
-    require_passkey = True
     min_snapshots = 0
 
     def __init__(self):
@@ -41,6 +38,30 @@ class Uploader(ABC):
             self.session.cookies.set_cookie(cookie)
         self.session.proxies.update({"all": self.config.get(self, "proxy")})
 
+    @property
+    @abstractmethod
+    def name(self):
+        """Name of the tracker."""
+        ...
+
+    @property
+    @abstractmethod
+    def abbrev(self):
+        """Abbreviation of the tracker."""
+        ...
+
+    @property
+    @abstractmethod
+    def source(self):
+        """Source tag to use in created torrent files."""
+        ...
+
+    @property
+    @abstractmethod
+    def announce_url(self):
+        """Announce URL of the tracker. May include {passkey} variable."""
+        ...
+
     def login(self):
         if not self.session.cookies:
             eprint(f"No cookies found for {self.abbrev}, cannot log in.")
@@ -50,8 +71,13 @@ class Uploader(ABC):
 
     @property
     def passkey(self):
+        """
+        This method can define a way to get the passkey from the tracker
+        if not specified by the user in the config.
+        """
         return None
 
     @abstractmethod
     def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
+        """Perform the actual upload."""
         ...

@@ -14,8 +14,6 @@ from . import Uploader
 
 
 class AvistaZNetworkUploader(Uploader, ABC):
-    name = None
-    abbrev = None
     min_snapshots = 3
 
     COLLECTION_MAP = {
@@ -26,8 +24,16 @@ class AvistaZNetworkUploader(Uploader, ABC):
     }
 
     @property
+    def domain(self):
+        return f"{self.name.lower()}.to"
+
+    @property
     def base_url(self):
-        return f"https://{self.name.lower()}.to"
+        return f"https://{self.domain}"
+
+    @property
+    def announce_url(self):
+        return f"https://tracker.{self.domain}/{{passkey}}/announce"
 
     def login(self):
         r = self.session.get(f"{self.base_url}/account", allow_redirects=False, timeout=60)

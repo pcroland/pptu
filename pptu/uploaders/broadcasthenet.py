@@ -24,6 +24,8 @@ from . import Uploader
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"
     abbrev = "BTN"
+    source = "BTN"
+    announce_url = "http://landof.tv/{passkey}/announce"
 
     COUNTRY_MAP = {
         "AD": 65,

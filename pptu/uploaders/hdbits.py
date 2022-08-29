@@ -19,7 +19,8 @@ ia = Cinemagoer()
 class HDBitsUploader(Uploader):
     name = "HDBits"
     abbrev = "HDB"
-    require_passkey = False
+    source = "HDBits"
+    announce_url = "http://tracker.hdbits.org/announce.php"
     min_snapshots = 4  # 2 for movies and single episodes
 
     CAPTCHA_MAP = {
