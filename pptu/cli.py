@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import subprocess
+import sys
 from copy import copy
 from pathlib import Path
 
@@ -40,6 +41,9 @@ def main():
     parser.add_argument("-s", "--skip-upload",
                         action="store_true",
                         help="skip upload")
+    if len(sys.argv) == 1:
+        parser.print_help(sys.stderr)
+        sys.exit(1)
     args = parser.parse_args()
 
     session = requests.Session()
