@@ -68,7 +68,7 @@ def main():
 
     trackers = {}
 
-    print(r"[bold green]\[1/6] Logging in to trackers[/bold green]")
+    print("[bold green]\\[1/6] Logging in to trackers[/bold green]")
     for i, tracker_name in enumerate(copy(args.trackers)):
         try:
             tracker = trackers[tracker_name] = next(
