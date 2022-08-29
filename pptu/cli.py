@@ -56,7 +56,9 @@ def main():
 
     trackers = []
 
-    print("[bold green]\\[1/6] Logging in to trackers[/bold green]")
+    step_count = 6
+    current_step = 1
+    print(f"[bold green]\\[{current_step}/{step_count}] Logging in to trackers[/bold green]")
     for i, tracker_name in enumerate(copy(args.trackers)):
         try:
             tracker = next(
@@ -86,7 +88,8 @@ def main():
 
         cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
 
-        print("\n[bold green]\\[2/6] Creating initial torrent file[/bold green]")
+        current_step += 1
+        print(f"\n[bold green]\\[{current_step}/{step_count}] Creating initial torrent file[/bold green]")
         base_torrent_path = cache_dir / f"{file.name}.torrent"
         if not base_torrent_path.exists():
             subprocess.run([
@@ -104,17 +107,21 @@ def main():
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            print(f"\n[bold green]\\[3/6] Creating torrent file for tracker ({tracker.abbrev})[/bold green]")
+            current_step += 1
+            print(f"\n[bold green]\\[{current_step}/{step_count}] Creating torrent file for tracker ({tracker.abbrev})[/bold green]")
             pptu.create_torrent()
 
-            print(f"\n[bold green]\\[4/6] Generating MediaInfo ({tracker.abbrev})[/bold green]")
+            current_step += 1
+            print(f"\n[bold green]\\[{current_step}/{step_count}] Generating MediaInfo ({tracker.abbrev})[/bold green]")
             mediainfo = pptu.get_mediainfo()
             print("Done!")
 
             # [5/6] Generating snapshots
-            snapshots = pptu.generate_snapshots()
+            current_step += 1
+            snapshots = pptu.generate_snapshots(step=f'{current_step}/{step_count}')
 
-            print(f"\n[bold green]\\[6/6] Uploading ({tracker.abbrev})[/bold green]")
+            current_step += 1
+            print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/bold green]")
             pptu.upload(mediainfo, snapshots)
 
             print()
