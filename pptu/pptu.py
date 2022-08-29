@@ -52,14 +52,23 @@ class PPTU:
         return True
 
     def get_mediainfo(self):
-        if self.file.is_file() or self.tracker.all_files:
-            f = self.file
-        else:
-            f = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))[0]
+        mediainfo_path = self.cache_dir / "mediainfo.txt"
+        if self.tracker.all_files and self.file.is_dir():
+            mediainfo_path = self.cache_dir / "mediainfo_alt.txt"
 
-        p = subprocess.run(["mediainfo", f], cwd=self.file.parent, check=True, capture_output=True, encoding="utf-8")
+        if not mediainfo_path.exists():
+            if self.file.is_file() or self.tracker.all_files:
+                f = self.file
+            else:
+                f = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))[0]
 
-        mediainfo = [x.strip() for x in re.split(r"\n\n(?=General)", p.stdout)]
+            p = subprocess.run(
+                ["mediainfo", f], cwd=self.file.parent, check=True, capture_output=True, encoding="utf-8"
+            )
+            mediainfo = p.stdout
+            mediainfo_path.write_text(mediainfo)
+
+        mediainfo = [x.strip() for x in re.split(r"\n\n(?=General)", mediainfo)]
         if not self.tracker.all_files:
             mediainfo = mediainfo[0]
         return mediainfo
