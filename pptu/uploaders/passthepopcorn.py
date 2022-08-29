@@ -39,7 +39,7 @@ class PassThePopcornUploader(Uploader):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
-            print(f"Detected title: [bold][cyan]{title}[/cyan][/bold]")
+            print(f"Detected title: [bold cyan]{title}[/]")
 
             if imdb_results := ia.search_movie(title):
                 imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
@@ -51,7 +51,7 @@ class PassThePopcornUploader(Uploader):
         title = imdb_movie.data["original title"]
         year = imdb_movie.data["year"]
 
-        print(f"IMDb: [cyan][bold]{title}[/bold] [not bold]({year})[/not bold][/cyan]")
+        print(f"IMDb: [cyan][bold]{title}[/] [not bold]({year})[/][/]")
 
         groupid = None
         torrent_info = self.session.get(
@@ -135,7 +135,7 @@ class PassThePopcornUploader(Uploader):
             source = "VHS"
         else:
             source = "Other"
-        print(f"Detected source: [bold cyan]{source}[/bold cyan]")
+        print(f"Detected source: [bold cyan]{source}[/]")
 
         data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
@@ -180,7 +180,7 @@ class PassThePopcornUploader(Uploader):
         ).text
         soup = load_html(res)
         if error := soup.select_one(".alert--error"):
-            eprint(f"[cyan]{escape(error.get_text())}[/cyan]")
+            eprint(escape(error.get_text()))
             return False
 
         return True

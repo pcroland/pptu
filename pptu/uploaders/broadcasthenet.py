@@ -239,7 +239,7 @@ class BroadcasTheNetUploader(Uploader):
             print("Detected season")
             type_ = "Season"
         else:
-            eprint("Movies are not yet supported[/red]")
+            eprint("Movies are not yet supported")
             sys.exit(1)
 
         release_name = path.stem if path.is_file() else path.name
@@ -269,7 +269,7 @@ class BroadcasTheNetUploader(Uploader):
             eprint("Cookies expired.")
             sys.exit(1)
         if r.status_code != 200:
-            eprint(f"HTTP Error [cyan]{r.status_code}[/cyan]")
+            eprint(f"HTTP Error [cyan]{r.status_code}[/]")
             print(soup.prettify())
             sys.exit(1)
 

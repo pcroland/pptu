@@ -1,6 +1,5 @@
 import hashlib
 import re
-import sys
 import time
 
 from guessit import guessit
@@ -97,10 +96,10 @@ class HDBitsUploader(Uploader):
             res = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"hash": image}).content
             if self.CAPTCHA_MAP.get(hashlib.sha256(res).hexdigest()) == captcha["text"]:
                 correct_hash = image
-                print(f"Found captcha solution: [bold cyan]{captcha['text']}[/bold cyan] ([cyan]{correct_hash}[/cyan])")
+                print(f"Found captcha solution: [bold cyan]{captcha['text']}[/] ([cyan]{correct_hash}[/])")
                 break
         if not correct_hash:
-            print("[bold][red]ERROR[/red]: Unable to solve captcha, perhaps it has new images?")
+            eprint("Unable to solve captcha, perhaps it has new images?")
             return False
 
         res = self.session.get("https://hdbits.org/login", params={"returnto": "/"}).text
@@ -181,7 +180,7 @@ class HDBitsUploader(Uploader):
             imdb = None
             if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
                 title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
-                print(f"Detected title: [bold][cyan]{title}[/cyan][/bold]")
+                print(f"Detected title: [bold cyan]{title}[/]")
 
                 if imdb_results := ia.search_movie(title):
                     imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
@@ -205,9 +204,9 @@ class HDBitsUploader(Uploader):
         elif re.search(r"\b(?:divx|xvid|[hx]\.?263)\b", str(path), flags=re.I):
             codec = "XviD"
         else:
-            print("[red][bold]ERROR[/bold]: Unable to determine video codec[/red]")
-            sys.exit(1)
-        print(f"Detected codec as [bold][cyan]{codec}[/cyan][/bold]")
+            eprint("Unable to determine video codec")
+            return False
+        print(f"Detected codec as [bold cyan]{codec}[/]")
 
         if re.search(r"\b(?:b[dr]-?rip|blu-?ray|hd-?dvd)\b", str(path), flags=re.I):
             medium = "Blu-ray/HD-DVD"
@@ -220,9 +219,9 @@ class HDBitsUploader(Uploader):
         elif re.search(r"\bweb(?:-?dl)?\b", str(path), flags=re.I):
             medium = "WEB-DL"
         else:
-            print("[red][bold]ERROR[/bold]: Unable to determine medium[/red]")
-            sys.exit(1)
-        print(f"Detected medium as [bold][cyan]{medium}[/cyan][/bold]")
+            eprint("Unable to determine medium")
+            return False
+        print(f"Detected medium as [bold cyan]{medium}[/]")
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
 
