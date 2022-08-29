@@ -35,7 +35,7 @@ class PassThePopcornUploader(Uploader):
             return False
         return True
 
-    def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
+    def upload(self, path, mediainfo, snapshots, *, auto):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))

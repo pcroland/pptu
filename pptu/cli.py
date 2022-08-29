@@ -56,7 +56,7 @@ def main():
 
     trackers = []
 
-    print("[bold green]\\[1/7] Logging in to trackers[/bold green]")
+    print("[bold green]\\[1/6] Logging in to trackers[/bold green]")
     for i, tracker_name in enumerate(copy(args.trackers)):
         try:
             tracker = next(
@@ -104,22 +104,18 @@ def main():
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            print(f"\n[bold green]\\[3/7] Creating torrent file for tracker ({tracker.abbrev})[/bold green]")
+            print(f"\n[bold green]\\[3/6] Creating torrent file for tracker ({tracker.abbrev})[/bold green]")
             pptu.create_torrent()
 
-            print(f"\n[bold green]\\[4/7] Generating MediaInfo ({tracker.abbrev})[/bold green]")
+            print(f"\n[bold green]\\[4/6] Generating MediaInfo ({tracker.abbrev})[/bold green]")
             mediainfo = pptu.get_mediainfo()
             print("Done!")
 
-            # [5/7] Generating snapshots
+            # [5/6] Generating snapshots
             snapshots = pptu.generate_snapshots()
 
-            print(f"\n[bold green]\\[6/7] Generating thumbnails ({tracker.abbrev})[/bold green]")
-            thumbnails = pptu.generate_thumbnails(snapshots)
-            print("Done!")
-
-            print(f"\n[bold green]\\[7/7] Uploading ({tracker.abbrev})[/bold green]")
-            pptu.upload(mediainfo, snapshots, thumbnails)
+            print(f"\n[bold green]\\[6/6] Uploading ({tracker.abbrev})[/bold green]")
+            pptu.upload(mediainfo, snapshots)
 
             print()
 

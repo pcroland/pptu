@@ -115,23 +115,8 @@ class PPTU:
 
         return snapshots
 
-    def generate_thumbnails(self, snapshots):
-        thumbnails = []
-        for i in range(len(snapshots)):
-            thumb = self.cache_dir / "{num:02}{alt}_thumb.png".format(
-                num=i + 1, alt="_alt" if self.tracker.all_files else ""
-            )
-            if not thumb.exists():
-                with Image(filename=snapshots[i]) as img:
-                    img.resize(300, round(img.height / (img.width / 300)))
-                    img.depth = 8
-                    img.save(filename=thumb)
-                oxipng.optimize(thumb)
-            thumbnails.append(thumb)
-        return thumbnails
-
-    def upload(self, mediainfo, snapshots, thumbnails):
-        if not self.tracker.upload(self.file, mediainfo, snapshots, thumbnails, auto=self.auto):
+    def upload(self, mediainfo, snapshots):
+        if not self.tracker.upload(self.file, mediainfo, snapshots, auto=self.auto):
             eprint(f"Upload to [cyan]{self.tracker.name}[/cyan] failed.")
             return
 

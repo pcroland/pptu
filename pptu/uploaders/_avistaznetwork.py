@@ -181,7 +181,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
         soup = load_html(res)
         return soup.select_one(".current_pid").text
 
-    def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
+    def upload(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
             collection = "episode"

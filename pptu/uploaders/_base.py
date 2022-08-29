@@ -78,6 +78,6 @@ class Uploader(ABC):
         return None
 
     @abstractmethod
-    def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
+    def upload(self, path, mediainfo, snapshots, *, auto):
         """Perform the actual upload."""
         ...

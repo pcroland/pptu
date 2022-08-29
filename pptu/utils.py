@@ -1,11 +1,15 @@
 import argparse
 import re
 import sys
+import tempfile
+from pathlib import Path
 
+import oxipng
 import toml
 from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
 from rich import print
+from wand.image import Image
 
 from .constants import PROG_NAME, PROG_VERSION
 
@@ -67,6 +71,25 @@ def eprint(inp, fatal=False, exit_code=1):
 
 def load_html(text):
     return BeautifulSoup(text, "lxml-html")
+
+
+def generate_thumbnails(snapshots, width=300):
+    for i, snap in enumerate(snapshots):
+        try:
+            with tempfile.NamedTemporaryFile(suffix=".png", delete=False) as tmp:
+                thumb = Path(tmp.name)
+
+            thumb.write_bytes(snap.read_bytes())
+
+            with Image(filename=thumb) as img:
+                img.resize(width, round(img.height / (img.width / width)))
+                img.depth = 8
+                img.save(filename=thumb)
+
+            oxipng.optimize(thumb)
+            yield thumb.read_bytes()
+        finally:
+            thumb.unlink(missing_ok=True)
 
 
 __all__ = ["Config", "RParse"]

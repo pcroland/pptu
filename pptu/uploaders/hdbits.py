@@ -141,7 +141,7 @@ class HDBitsUploader(Uploader):
         res = self.session.get("https://hdbits.org/").text
         return re.search(r"passkey=([a-f0-9]+)", res).group(1)
 
-    def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
+    def upload(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
             category = "TV"

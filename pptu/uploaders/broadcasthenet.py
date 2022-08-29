@@ -17,7 +17,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from ..utils import eprint, load_html, wprint
+from ..utils import eprint, generate_thumbnails, load_html, wprint
 from . import Uploader
 
 
@@ -231,7 +231,7 @@ class BroadcasTheNetUploader(Uploader):
 
         return True
 
-    def upload(self, path, mediainfo, snapshots, thumbnails, *, auto):
+    def upload(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
             type_ = "Episode"
@@ -332,19 +332,18 @@ class BroadcasTheNetUploader(Uploader):
                     snapshot_urls.append(next(iter(res.values()))["hotlink"])
 
             thumbnail_urls = []
-            for thumb in thumbnails:
-                with open(thumb, "rb") as fd:
-                    res = httpx.post(
-                        url="https://imgbin.broadcasthe.net/upload",
-                        files={
-                            "file": fd,
-                        },
-                        headers={
-                            "Authorization": f"Bearer {imgbin_api_key}",
-                        },
-                        timeout=60,
-                    ).json()
-                    thumbnail_urls.append(next(iter(res.values()))["hotlink"])
+            for thumb in generate_thumbnails(snapshots):
+                res = httpx.post(
+                    url="https://imgbin.broadcasthe.net/upload",
+                    files={
+                        "file": thumb,
+                    },
+                    headers={
+                        "Authorization": f"Bearer {imgbin_api_key}",
+                    },
+                    timeout=60,
+                ).json()
+                thumbnail_urls.append(next(iter(res.values()))["hotlink"])
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]
