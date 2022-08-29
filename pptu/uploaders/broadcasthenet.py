@@ -331,8 +331,10 @@ class BroadcasTheNetUploader(Uploader):
                     ).json()
                     snapshot_urls.append(next(iter(res.values()))["hotlink"])
 
+            thumbnail_row_width = max(520, self.config.get(self, "snapshot_row_width"))
+            thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2) - 5)
             thumbnail_urls = []
-            for thumb in generate_thumbnails(snapshots):
+            for thumb in generate_thumbnails(snapshots, width=thumbnail_width):
                 with open(thumb, "rb") as fd:
                     res = httpx.post(
                         url="https://imgbin.broadcasthe.net/upload",
