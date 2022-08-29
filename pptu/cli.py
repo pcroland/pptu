@@ -108,7 +108,9 @@ def main():
             pptu = PPTU(file, tracker, auto=args.auto)
 
             current_step += 1
-            print(f"\n[bold green]\\[{current_step}/{step_count}] Creating torrent file for tracker ({tracker.abbrev})[/bold green]")
+            print(
+                f"\n[bold green]\\[{current_step}/{step_count}] Creating torrent file for tracker ({tracker.abbrev})[/]"
+            )
             pptu.create_torrent()
 
             current_step += 1
@@ -118,7 +120,7 @@ def main():
 
             # [5/6] Generating snapshots
             current_step += 1
-            snapshots = pptu.generate_snapshots(step=f'{current_step}/{step_count}')
+            snapshots = pptu.generate_snapshots(step=f"{current_step}/{step_count}")
 
             current_step += 1
             print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/bold green]")
