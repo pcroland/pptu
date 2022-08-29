@@ -32,20 +32,6 @@ class PPTU:
         )
 
     def create_torrent(self):
-        base_torrent_path = self.cache_dir / f"{self.file.name}.torrent"
-        if not base_torrent_path.exists():
-            subprocess.run([
-                "torrenttools",
-                "create",
-                "--no-created-by",
-                "--no-creation-date",
-                "--no-cross-seed",
-                "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
-                "-o",
-                base_torrent_path,
-                self.file,
-            ], check=True)
-
         passkey = self.config.get(self.tracker, "passkey") or self.tracker.passkey
         if not passkey and "{passkey}" in self.tracker.announce_url:
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
@@ -93,7 +79,9 @@ class PPTU:
         snapshots = []
 
         print()
-        for i in track(range(num_snapshots), description="[bold green]\\[4/6] Generating snapshots[/bold green]"):
+        for i in track(
+            range(num_snapshots), description=f"[bold green]\\[5/7] Generating snapshots ({self.tracker.abbrev})[/]"
+        ):
             mediainfo_obj = MediaInfo.parse(files[i])
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
             interval = duration / (num_snapshots + 1)

@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import subprocess
 from copy import copy
 from pathlib import Path
 
@@ -55,7 +56,7 @@ def main():
 
     trackers = []
 
-    print("[bold green]\\[1/6] Logging in to trackers[/bold green]")
+    print("[bold green]\\[1/7] Logging in to trackers[/bold green]")
     for i, tracker_name in enumerate(copy(args.trackers)):
         try:
             tracker = next(
@@ -83,24 +84,41 @@ def main():
             eprint(f"File [cyan]{file.name!r}[/cyan] does not exist.")
             continue
 
+        cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
+
+        print("\n[bold green]\\[2/6] Creating initial torrent file[/bold green]")
+        base_torrent_path = cache_dir / f"{file.name}.torrent"
+        if not base_torrent_path.exists():
+            subprocess.run([
+                "torrenttools",
+                "create",
+                "--no-created-by",
+                "--no-creation-date",
+                "--no-cross-seed",
+                "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
+                "-o",
+                base_torrent_path,
+                file,
+            ], check=True)
+
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            print("\n[bold green]\\[2/6] Creating torrent files[/bold green]")
+            print(f"\n[bold green]\\[3/7] Creating torrent file for tracker ({tracker.abbrev})[/bold green]")
             pptu.create_torrent()
 
-            print("\n[bold green]\\[3/6] Generating MediaInfo[/bold green]")
+            print(f"\n[bold green]\\[4/7] Generating MediaInfo ({tracker.abbrev})[/bold green]")
             mediainfo = pptu.get_mediainfo()
             print("Done!")
 
-            # [4/6] Generating snapshots
+            # [5/7] Generating snapshots
             snapshots = pptu.generate_snapshots()
 
-            print("\n[bold green]\\[5/6] Generating thumbnails[/bold green]")
+            print(f"\n[bold green]\\[6/7] Generating thumbnails ({tracker.abbrev})[/bold green]")
             thumbnails = pptu.generate_thumbnails(snapshots)
             print("Done!")
 
-            print("\n[bold green]\\[6/6] Uploading[/bold green]")
+            print(f"\n[bold green]\\[7/7] Uploading ({tracker.abbrev})[/bold green]")
             pptu.upload(mediainfo, snapshots, thumbnails)
 
             print()
