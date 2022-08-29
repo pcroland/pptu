@@ -32,15 +32,15 @@ class RParse(argparse.ArgumentParser):
     def _print_message(self, message, file=None):
         if message:
             if message.startswith("usage"):
-                message = f"[bold cyan]{PROG_NAME}[/bold cyan] {PROG_VERSION}\n\n{message}"
+                message = f"[bold cyan]{PROG_NAME}[/] {PROG_VERSION}\n\n{message}"
                 message = re.sub(r"(-[a-z]+\s*|\[)([A-Z]+)(?=]|,|\s\s|\s\.)", r"\1[bold color(231)]\2[/]", message)
-                message = re.sub(r"((-|--)[a-z]+)", r"[{}]\1[/{}]".format("green", "green"), message)
-                message = message.replace("usage", "[yellow]USAGE[/yellow]")
-                message = message.replace("positional arguments", "[yellow]POSITIONAL ARGUMENTS[/yellow]")
-                message = message.replace("options", "[yellow]FLAGS[/yellow]", 1)
-                message = message.replace(" file ", "[bold magenta] file [/bold magenta]", 2)
-                message = message.replace(self.prog, f"[bold cyan]{self.prog}[/bold cyan]")
-            message = f"[not bold default]{message.strip()}[/not bold default]"
+                message = re.sub(r"((-|--)[a-z]+)", r"[green]\1[/]", message)
+                message = message.replace("usage", "[yellow]USAGE[/]")
+                message = message.replace("positional arguments", "[yellow]POSITIONAL ARGUMENTS[/]")
+                message = message.replace("options", "[yellow]FLAGS[/]", 1)
+                message = message.replace(" file ", "[bold magenta] file [/]", 2)
+                message = message.replace(self.prog, f"[bold cyan]{self.prog}[/]")
+            message = f"[not bold default]{message.strip()}[/]"
             print(message)
 
 
@@ -58,11 +58,11 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
 
 
 def wprint(inp):
-    print(f"[bold color(231) on yellow]WARNING:[/bold color(231) on yellow] [yellow]{inp}[/yellow]")
+    print(f"[bold color(231) on yellow]WARNING:[/] [yellow]{inp}[/]")
 
 
 def eprint(inp, fatal=False, exit_code=1):
-    print(f"[bold color(231) on red]ERROR:[/bold color(231) on red] [red]{inp}[/red]")
+    print(f"[bold color(231) on red]ERROR:[/] [red]{inp}[/]")
     if fatal:
         sys.exit(exit_code)
 

@@ -79,7 +79,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
                 },
             ).json()
             if res["status"] != 1:
-                eprint(f"2Captcha API error: [cyan]{res['request']}[/cyan].")
+                eprint(f"2Captcha API error: [cyan]{res['request']}[/].")
                 return False
             req_id = res["request"]
 
@@ -98,7 +98,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
                 if res["request"] == "CAPCHA_NOT_READY":
                     print(".", end="", flush=True)
                 elif res["status"] != 1:
-                    eprint(f"2Captcha API error: [cyan]{res['request']}[/cyan].")
+                    eprint(f"2Captcha API error: [cyan]{res['request']}[/].")
                     return False
                 else:
                     captcha_answer = res["request"]
@@ -195,7 +195,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
 
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = m.group(1).replace(".", " ")
-            print(f"Detected title: [bold][cyan]{title}[/cyan][/bold]")
+            print(f"Detected title: [bold cyan]{title}[/]")
         else:
             eprint("Unable to extract title from filename.")
             sys.exit(1)
@@ -235,9 +235,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
         r.raise_for_status()
         res = next(x for x in res["data"] if x.get("release_year") == year or not year)
         movie_id = res["id"]
-        print(
-            f'Found title: [bold][cyan]{res["title"]}[/cyan][/bold] ([bold][green]{res["release_year"]}[/green][/bold])'
-        )
+        print(f"Found title: [bold cyan]{res['title']}[/] ([bold green]{res['release_year']}[/])")
         data = {
             "_token": token,
             "type_id": 1 if collection == "movie" else 2,

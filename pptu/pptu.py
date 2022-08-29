@@ -119,7 +119,7 @@ class PPTU:
 
     def upload(self, mediainfo, snapshots):
         if not self.tracker.upload(self.file, mediainfo, snapshots, auto=self.auto):
-            eprint(f"Upload to [cyan]{self.tracker.name}[/cyan] failed.")
+            eprint(f"Upload to [cyan]{self.tracker.name}[/] failed.")
             return
 
         torrent_path = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"

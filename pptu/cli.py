@@ -27,7 +27,7 @@ def main():
                         help="files/directories to create torrents for")
     parser.add_argument("-v", "--version",
                         action="version",
-                        version=f"[bold cyan]{PROG_NAME}[/bold cyan] [not bold white]{PROG_VERSION}[/not bold white]",
+                        version=f"[bold cyan]{PROG_NAME}[/] [not bold white]{PROG_VERSION}[/]",
                         help="show version and exit")
     parser.add_argument("-t", "--trackers",
                         metavar="ABBREV",
@@ -58,7 +58,7 @@ def main():
 
     step_count = 6
     current_step = 1
-    print(f"[bold green]\\[{current_step}/{step_count}] Logging in to trackers[/bold green]")
+    print(f"[bold green]\\[{current_step}/{step_count}] Logging in to trackers[/]")
     for i, tracker_name in enumerate(copy(args.trackers)):
         try:
             tracker = next(
@@ -67,14 +67,14 @@ def main():
                 and (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
             )()
         except StopIteration:
-            eprint(f"Tracker [cyan]{tracker_name}[/cyan] not found.")
+            eprint(f"Tracker [cyan]{tracker_name}[/] not found.")
             continue
         trackers.append(tracker)
 
         print(f"[bold cyan]\\[{i + 1}/{len(trackers)}] Logging in to {tracker.abbrev}")
 
         if not tracker.login():
-            eprint(f"Failed to log in to tracker [cyan]{tracker.name}[/cyan].")
+            eprint(f"Failed to log in to tracker [cyan]{tracker.name}[/].")
             continue
         for cookie in tracker.session.cookies:
             tracker.cookie_jar.set_cookie(cookie)
@@ -83,13 +83,13 @@ def main():
 
     for i, file in enumerate(args.file):
         if not file.exists():
-            eprint(f"File [cyan]{file.name!r}[/cyan] does not exist.")
+            eprint(f"File [cyan]{file.name!r}[/] does not exist.")
             continue
 
         cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
 
         current_step += 1
-        print(f"\n[bold green]\\[{current_step}/{step_count}] Creating initial torrent file[/bold green]")
+        print(f"\n[bold green]\\[{current_step}/{step_count}] Creating initial torrent file[/]")
         base_torrent_path = cache_dir / f"{file.name}.torrent"
         if not base_torrent_path.exists():
             subprocess.run([
@@ -109,12 +109,12 @@ def main():
 
             current_step += 1
             print(
-                f"\n[bold green]\\[{current_step}/{step_count}] Creating torrent file for tracker ({tracker.abbrev})[/]"
+                f"\n[bold green]\\[{current_step}/{step_count}] Creating torrent file for tracker ({tracker.abbrev})"
             )
             pptu.create_torrent()
 
             current_step += 1
-            print(f"\n[bold green]\\[{current_step}/{step_count}] Generating MediaInfo ({tracker.abbrev})[/bold green]")
+            print(f"\n[bold green]\\[{current_step}/{step_count}] Generating MediaInfo ({tracker.abbrev})[/]")
             mediainfo = pptu.get_mediainfo()
             print("Done!")
 
@@ -123,7 +123,7 @@ def main():
             snapshots = pptu.generate_snapshots(step=f"{current_step}/{step_count}")
 
             current_step += 1
-            print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/bold green]")
+            print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
             pptu.upload(mediainfo, snapshots)
 
             print()
