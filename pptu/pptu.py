@@ -81,7 +81,7 @@ class PPTU:
         return True
 
     def get_mediainfo(self):
-        if self.file.is_file() or self.all_files:
+        if self.file.is_file() or self.tracker.all_files:
             f = self.file
         else:
             f = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))[0]
@@ -93,16 +93,16 @@ class PPTU:
             mediainfo = mediainfo[0]
         return mediainfo
 
-    def generate_snapshots(self, *, all_files=False):
+    def generate_snapshots(self):
         num_snapshots = self.num_snapshots
 
-        if self.file.is_dir() or all_files:
+        if self.file.is_dir() or self.tracker.all_files:
             # TODO: Handle case when number of files < num_snapshots
             files = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))
         elif self.file.is_file():
             files = [self.file] * num_snapshots
 
-        if all_files:
+        if self.tracker.all_files:
             num_snapshots = len(files)
 
         snapshots = []
