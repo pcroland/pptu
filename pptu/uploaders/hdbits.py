@@ -19,7 +19,6 @@ ia = Cinemagoer()
 class HDBitsUploader(Uploader):
     name = "HDBits"
     abbrev = "HDB"
-    require_cookies = False
     require_passkey = False
     min_snapshots = 4  # 2 for movies and single episodes
 

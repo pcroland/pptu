@@ -12,7 +12,6 @@ class Uploader(ABC):
     name = None
     abbrev = None
     all_files = False  # Whether to generate MediaInfo and snapshots for all files
-    require_cookies = True
     require_passkey = True
     min_snapshots = 0
 
@@ -24,9 +23,6 @@ class Uploader(ABC):
         self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.name.lower()}.txt"
         if not self.cookies_path.exists():
             self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.abbrev.lower()}.txt"
-        if not self.cookies_path.exists() and self.require_cookies:
-            eprint(f"No cookies found for tracker [cyan]{self.name}[/cyan].")
-            return
 
         self.cookie_jar = MozillaCookieJar(self.cookies_path)
         if self.cookies_path.exists():
@@ -44,6 +40,13 @@ class Uploader(ABC):
         for cookie in self.cookie_jar:
             self.session.cookies.set_cookie(cookie)
         self.session.proxies.update({"all": self.config.get(self, "proxy")})
+
+    def login(self):
+        if not self.session.cookies:
+            eprint(f"No cookies found for {self.abbrev}, cannot log in.")
+            return False
+
+        return True
 
     @property
     def passkey(self):

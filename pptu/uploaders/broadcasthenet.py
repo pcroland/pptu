@@ -24,7 +24,6 @@ from . import Uploader
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"
     abbrev = "BTN"
-    require_cookies = False
 
     COUNTRY_MAP = {
         "AD": 65,
