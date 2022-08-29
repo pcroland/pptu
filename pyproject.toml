@@ -47,6 +47,7 @@ exclude = ["pptu/uploaders/__init__.py"]
 remove-all-unused-imports = true
 
 [tool.isort]
+classes = ["PPTU"]
 line_length = 120
 lines_after_imports = 2
 profile = "black"
