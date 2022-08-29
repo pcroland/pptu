@@ -7,5 +7,9 @@ fi
 
 poetry config virtualenvs.in-project true
 poetry install
-mkdir -p ~/.local/bin
-ln -sf "$(realpath .venv/bin/pptu)" ~/.local/bin/pptu
+if [ -f ".venv/bin/pptu" ]; then 
+    mkdir -p ~/.local/bin
+    ln -sf "$(realpath .venv/bin/pptu)" ~/.local/bin/
+  else
+    echo "ERROR: .venv/bin/pptu doesn't exist."
+fi
