@@ -118,7 +118,7 @@ def main():
             mediainfo = pptu.get_mediainfo()
             print("Done!")
 
-            # [5/6] Generating snapshots
+            # Generating snapshots
             current_step += 1
             snapshots = pptu.generate_snapshots(step=f"{current_step}/{step_count}")
 
