@@ -72,7 +72,7 @@ def load_html(text):
 
 
 def generate_thumbnails(snapshots, width=300):
-    for i, snap in enumerate(snapshots):
+    for snap in snapshots:
         thumb = snap.with_stem(f"{snap.stem}_thumb_{width}.png")
         if not thumb.exists():
             with Image(filename=snap) as img:

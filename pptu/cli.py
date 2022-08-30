@@ -88,7 +88,7 @@ def main():
         tracker.cookies_path.parent.mkdir(parents=True, exist_ok=True)
         tracker.cookie_jar.save(ignore_discard=True)
 
-    for i, file in enumerate(args.file):
+    for file in args.file:
         if not file.exists():
             eprint(f"File [cyan]{file.name!r}[/] does not exist.")
             continue

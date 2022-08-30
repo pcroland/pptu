@@ -13,7 +13,7 @@ from ..utils import eprint, load_html, wprint
 from . import Uploader
 
 
-class AvistaZNetworkUploader(Uploader, ABC):
+class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     min_snapshots = 3
 
     COLLECTION_MAP = {

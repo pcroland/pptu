@@ -226,10 +226,7 @@ class BroadcasTheNetUploader(Uploader):
             )
             r.raise_for_status()
 
-        if "login.php" in r.url:
-            return False
-
-        return True
+        return "login.php" not in r.url
 
     def upload(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
