@@ -35,6 +35,9 @@ def main():
                         type=lambda x: x.split(","),
                         required=True,
                         help="tracker(s) to upload torrents to (required)")
+    parser.add_argument("-f", "--fast-upload",
+                        action="store_true",
+                        help="only upload when every step is done for every input")
     parser.add_argument("-a", "--auto",
                         action="store_true",
                         help="upload without confirmation")
@@ -130,13 +133,24 @@ def main():
             current_step += 1
             snapshots = pptu.generate_snapshots(step=f"{current_step}/{step_count}")
 
-            current_step += 1
-            if args.skip_upload:
-                print(f"\n[bold green]\\[{current_step}/{step_count}] Skip uploading ({tracker.abbrev})[/]")
-            else:
-                print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
-                pptu.upload(mediainfo, snapshots)
+            if not args.fast_upload:
+                current_step += 1
+                if args.skip_upload:
+                    print(f"\n[bold green]\\[{current_step}/{step_count}] Skip uploading ({tracker.abbrev})[/]")
+                else:
+                    print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
+                    pptu.upload(mediainfo, snapshots)
+            print()
 
+    if args.fast_upload:
+        for file in args.file:
+            for tracker in trackers:
+                current_step = step_count
+                if args.skip_upload:
+                    print(f"\n[bold green]\\[{current_step}/{step_count}] Skip uploading ({tracker.abbrev})[/]")
+                else:
+                    print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
+                    pptu.upload(mediainfo, snapshots)
             print()
 
 
