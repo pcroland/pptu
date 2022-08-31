@@ -12,6 +12,7 @@ from langcodes import Language
 from pyotp import TOTP
 from pyvirtualdisplay import Display
 from rich import print
+from rich.progress import track
 from rich.prompt import Confirm
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
@@ -313,7 +314,7 @@ class BroadcasTheNetUploader(Uploader):
         thumbnails_str = ""
         if imgbin_api_key := self.config.get(self, "imgbin_api_key"):
             snapshot_urls = []
-            for snap in snapshots:
+            for snap in track(snapshots, description="Uploading snapshots"):
                 with open(snap, "rb") as fd:
                     # requests gets blocked by Cloudflare here, have to use httpx
                     res = httpx.post(
