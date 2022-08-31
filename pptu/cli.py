@@ -106,10 +106,11 @@ def main():
                 "--no-creation-date",
                 "--no-cross-seed",
                 "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
-                "-o",
-                base_torrent_path,
+                "-o", base_torrent_path,
                 file,
             ], check=True)
+        if not base_torrent_path.exists():
+            sys.exit(1)
 
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)

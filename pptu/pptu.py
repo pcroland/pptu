@@ -37,6 +37,7 @@ class PPTU:
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
             return False
 
+        output = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
         subprocess.run([
             "torrenttools",
             "edit",
@@ -45,11 +46,10 @@ class PPTU:
             "-a", self.tracker.announce_url.format(passkey=passkey),
             "-s", self.tracker.source,
             "-p", "on",
-            "-o", self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent",
+            "-o", output,
             self.cache_dir / f"{self.file.name}.torrent",
         ], check=True)
-
-        return True
+        return output.exists()
 
     def get_mediainfo(self):
         mediainfo_path = self.cache_dir / "mediainfo.txt"
