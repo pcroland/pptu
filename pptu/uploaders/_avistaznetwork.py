@@ -66,7 +66,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
             print("Submitting captcha to 2captcha")
             res = self.session.post(
-                url="http://2captcha.com/in.php",
+                url="https://2captcha.com/in.php",
                 data={
                     "key": twocaptcha_api_key,
                     "json": "1",
@@ -87,7 +87,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             while True:
                 time.sleep(5)
                 res = self.session.get(
-                    url="http://2captcha.com/res.php",
+                    url="https://2captcha.com/res.php",
                     params={
                         "key": twocaptcha_api_key,
                         "action": "get",
@@ -119,7 +119,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
                 if "/captcha" in r.url or "Verification failed. You might be a robot!" in res:
                     self.session.post(
-                        url="http://2captcha.com/res.php",
+                        url="https://2captcha.com/res.php",
                         params={
                             "key": twocaptcha_api_key,
                             "action": "reportbad",
@@ -136,7 +136,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     continue
 
                 self.session.post(
-                    url="http://2captcha.com/res.php",
+                    url="https://2captcha.com/res.php",
                     params={
                         "key": twocaptcha_api_key,
                         "action": "reportgood",
