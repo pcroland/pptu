@@ -332,6 +332,7 @@ class BroadcasTheNetUploader(Uploader):
             thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2) - 5)
             thumbnail_width = int(thumbnail_width)
             thumbnail_urls = []
+            print(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
             for thumb in generate_thumbnails(snapshots, width=thumbnail_width):
                 with open(thumb, "rb") as fd:
                     res = httpx.post(
