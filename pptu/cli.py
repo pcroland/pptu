@@ -116,7 +116,7 @@ def main():
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            print(f"[bold green]Creating torrent file for tracker ({tracker.abbrev})")
+            print(f"[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")
             pptu.create_torrent()
 
             print(f"\n[bold green]Generating MediaInfo ({tracker.abbrev})[/]")
@@ -128,7 +128,7 @@ def main():
 
             if not args.fast_upload:
                 if args.skip_upload:
-                    print(f"\n[bold green]Skip uploading ({tracker.abbrev})[/]")
+                    print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
                 else:
                     print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                     pptu.upload(mediainfo, snapshots)
@@ -139,7 +139,7 @@ def main():
             for tracker in trackers:
                 pptu = PPTU(file, tracker, auto=args.auto)
                 if args.skip_upload:
-                    print(f"\n[bold green]Skip uploading ({tracker.abbrev})[/]")
+                    print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
                 else:
                     print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                     pptu.upload(mediainfo, snapshots)
