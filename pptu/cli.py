@@ -66,9 +66,7 @@ def main():
 
     trackers = []
 
-    step_count = 6
-    current_step = 1
-    print(f"[bold green]\\[{current_step}/{step_count}] Logging in to trackers[/]")
+    print("[bold green]Logging in to trackers[/]")
     for i, tracker_name in enumerate(copy(args.trackers)):
         try:
             tracker = next(
@@ -99,8 +97,7 @@ def main():
         cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-        current_step += 1
-        print(f"\n[bold green]\\[{current_step}/{step_count}] Creating initial torrent file[/]")
+        print("\n[bold green]Creating initial torrent file[/]")
         base_torrent_path = cache_dir / f"{file.name}.torrent"
         if not base_torrent_path.exists():
             subprocess.run([
@@ -116,32 +113,24 @@ def main():
         if not base_torrent_path.exists():
             sys.exit(1)
 
-        last_step = current_step
-
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            current_step = last_step + 1
-            print(
-                f"\n[bold green]\\[{current_step}/{step_count}] Creating torrent file for tracker ({tracker.abbrev})"
-            )
+            print(f"[bold green]Creating torrent file for tracker ({tracker.abbrev})")
             pptu.create_torrent()
 
-            current_step += 1
-            print(f"\n[bold green]\\[{current_step}/{step_count}] Generating MediaInfo ({tracker.abbrev})[/]")
+            print(f"\n[bold green]Generating MediaInfo ({tracker.abbrev})[/]")
             mediainfo = pptu.get_mediainfo()
             print("Done!")
 
             # Generating snapshots
-            current_step += 1
-            snapshots = pptu.generate_snapshots(step=f"{current_step}/{step_count}")
+            snapshots = pptu.generate_snapshots()
 
             if not args.fast_upload:
-                current_step += 1
                 if args.skip_upload:
-                    print(f"\n[bold green]\\[{current_step}/{step_count}] Skip uploading ({tracker.abbrev})[/]")
+                    print(f"\n[bold green]Skip uploading ({tracker.abbrev})[/]")
                 else:
-                    print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
+                    print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                     pptu.upload(mediainfo, snapshots)
             print()
 
@@ -149,11 +138,10 @@ def main():
         for file in args.file:
             for tracker in trackers:
                 pptu = PPTU(file, tracker, auto=args.auto)
-                current_step = step_count
                 if args.skip_upload:
-                    print(f"\n[bold green]\\[{current_step}/{step_count}] Skip uploading ({tracker.abbrev})[/]")
+                    print(f"\n[bold green]Skip uploading ({tracker.abbrev})[/]")
                 else:
-                    print(f"\n[bold green]\\[{current_step}/{step_count}] Uploading ({tracker.abbrev})[/]")
+                    print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                     pptu.upload(mediainfo, snapshots)
             print()
 

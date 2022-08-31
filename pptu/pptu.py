@@ -75,7 +75,7 @@ class PPTU:
             mediainfo = mediainfo[0]
         return mediainfo
 
-    def generate_snapshots(self, step):
+    def generate_snapshots(self):
         num_snapshots = self.num_snapshots
 
         if self.file.is_dir() or self.tracker.all_files:
@@ -91,7 +91,7 @@ class PPTU:
 
         print()
         for i in track(
-            range(num_snapshots), description=f"[bold green]\\[{step}] Generating snapshots ({self.tracker.abbrev})[/]"
+            range(num_snapshots), description=f"[bold green]Generating snapshots ({self.tracker.abbrev})[/]"
         ):
             mediainfo_obj = MediaInfo.parse(files[i])
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
