@@ -145,6 +145,7 @@ def main():
     if args.fast_upload:
         for file in args.file:
             for tracker in trackers:
+                pptu = PPTU(file, tracker, auto=args.auto)
                 current_step = step_count
                 if args.skip_upload:
                     print(f"\n[bold green]\\[{current_step}/{step_count}] Skip uploading ({tracker.abbrev})[/]")
