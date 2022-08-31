@@ -115,10 +115,12 @@ def main():
         if not base_torrent_path.exists():
             sys.exit(1)
 
+        last_step = current_step
+
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            current_step += 1
+            current_step = last_step + 1
             print(
                 f"\n[bold green]\\[{current_step}/{step_count}] Creating torrent file for tracker ({tracker.abbrev})"
             )
