@@ -97,6 +97,7 @@ def main():
             continue
 
         cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
+        cache_dir.mkdir(parents=True, exist_ok=True)
 
         current_step += 1
         print(f"\n[bold green]\\[{current_step}/{step_count}] Creating initial torrent file[/]")
