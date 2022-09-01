@@ -53,7 +53,7 @@ def main():
                         help="skip upload")
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
-        wprint('Please use PPTU from the command line if you double-clicked the standalone build.', newline_bef=True)
+        wprint("\nPlease use PPTU from the command line if you double-clicked the standalone build.")
         time.sleep(10)
         sys.exit(1)
     args = parser.parse_args()

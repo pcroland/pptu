@@ -57,13 +57,17 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
         return ", ".join(action.option_strings) + " " + args_string
 
 
-def wprint(inp, newline_before=False):
-    if newline_before: print()
+def wprint(inp):
+    if inp.startswith("\n"):
+        inp = inp.lstrip("\n")
+        print()
     print(f"[bold color(231) on yellow]WARNING:[/] [yellow]{inp}[/]")
 
 
-def eprint(inp, newline_before=False, fatal=False, exit_code=1):
-    if newline_before: print()
+def eprint(inp, fatal=False, exit_code=1):
+    if inp.startswith("\n"):
+        inp = inp.lstrip("\n")
+        print()
     print(f"[bold color(231) on red]ERROR:[/] [red]{inp}[/]")
     if fatal:
         sys.exit(exit_code)
