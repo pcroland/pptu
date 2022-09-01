@@ -4,7 +4,6 @@ import platform
 import re
 import shutil
 import subprocess
-import sys
 
 import httpx
 import seleniumwire.undetected_chromedriver as uc
@@ -245,7 +244,7 @@ class BroadcasTheNetUploader(Uploader):
             type_ = "Season"
         else:
             eprint("Movies are not yet supported")
-            sys.exit(1)
+            return False
 
         release_name = path.stem if path.is_file() else path.name
         release_name = re.sub(r"\.([a-z]+)\.?([\d.]+)\.Atmos", r"\.\1A\2", release_name, flags=re.I)
@@ -272,11 +271,11 @@ class BroadcasTheNetUploader(Uploader):
         soup = load_html(r.text)
         if r.status_code == 302:
             eprint("Cookies expired.")
-            sys.exit(1)
+            return False
         if r.status_code != 200:
             eprint(f"HTTP Error [cyan]{r.status_code}[/]")
             print(soup.prettify(), highlight=True)
-            sys.exit(1)
+            return False
 
         gi = guessit(release_name)
 
@@ -289,9 +288,8 @@ class BroadcasTheNetUploader(Uploader):
 
         if artist == "AutoFill Fail" or title == "AutoFill Fail":
             eprint("AutoFill Fail.")
-            sys.exit(1)
-        else:
-            print("AutoFill complete.")
+            return False
+        print("AutoFill complete.")
 
         if path.is_dir():
             file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
@@ -303,7 +301,7 @@ class BroadcasTheNetUploader(Uploader):
             lang = audio["properties"].get("language_ietf") or audio["properties"].get("language")
             if not lang:
                 eprint("Unable to determine audio language.")
-                sys.exit(1)
+                return False
             lang = Language.get(lang)
             if not lang.language:
                 eprint("Primary audio track has no language set.")

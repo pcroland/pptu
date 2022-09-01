@@ -1,5 +1,4 @@
 import re
-import sys
 import time
 import uuid
 from abc import ABC
@@ -197,14 +196,15 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             print(f"Detected title: [bold cyan]{title}[/]")
         else:
             eprint("Unable to extract title from filename.")
-            sys.exit(1)
+            return False
 
         season = None
         if collection != "movie":
             if m := re.search(r"\.S(\d+)[E.]", path.name):
                 season = int(m.group(1))
             else:
-                print("Unable to extract season from filename.")
+                eprint("Unable to extract season from filename.")
+                return False
 
         episode = None
         if m := re.search(r"\.S\d+E(\d+)\.", path.name):
@@ -241,7 +241,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "movie_id": movie_id,
             "media_info": mediainfo,
         }
-        print({**data, "_token": "[hidden]", "media_info": "[hidden]"})
+        print({**data, "_token": "[hidden]", "media_info": "[hidden]"}, highlight=True)
 
         if not auto:
             if not Confirm.ask("\nContinue with upload?"):
