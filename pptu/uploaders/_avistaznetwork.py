@@ -7,7 +7,7 @@ from abc import ABC
 from pyotp import TOTP
 from rich import print
 from rich.markup import escape
-from rich.prompt import Confirm
+from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, wprint
 from . import Uploader
@@ -160,7 +160,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 url=r.url,
                 data={
                     "_token": soup.select_one("input[name='_token']")["value"],
-                    "twofa_code": TOTP(totp_secret).now() if totp_secret else Confirm.ask("Enter 2FA code: "),
+                    "twofa_code": TOTP(totp_secret).now() if totp_secret else Prompt.ask("Enter 2FA code"),
                 },
             )
             if "/auth/twofa" in r.url:

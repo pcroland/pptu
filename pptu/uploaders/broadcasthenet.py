@@ -13,7 +13,7 @@ from pyotp import TOTP
 from pyvirtualdisplay import Display
 from rich import print
 from rich.progress import track
-from rich.prompt import Confirm
+from rich.prompt import Confirm, Prompt
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -221,7 +221,7 @@ class BroadcasTheNetUploader(Uploader):
             r = self.session.post(
                 url="https://broadcasthe.net/login.php",
                 data={
-                    "code": TOTP(totp_secret).now() if totp_secret else Confirm.ask("Enter 2FA code: "),
+                    "code": TOTP(totp_secret).now() if totp_secret else Prompt.ask("Enter 2FA code"),
                     "act": "authenticate",
                 },
             )

@@ -6,7 +6,7 @@ from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
 from rich import print
-from rich.prompt import Confirm
+from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, wprint
 from . import Uploader
@@ -123,7 +123,7 @@ class HDBitsUploader(Uploader):
                     "csrf": soup.select_one("[name='csrf']")["value"],
                     "uname": self.config.get(self, "username"),
                     "password": self.config.get(self, "password"),
-                    "twostep_code": Confirm.ask("Enter 2FA code: ")
+                    "twostep_code": Prompt.ask("Enter 2FA code")
                 },
             )
 
