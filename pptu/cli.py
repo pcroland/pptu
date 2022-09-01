@@ -115,7 +115,7 @@ def main():
         if not base_torrent_path.exists():
             sys.exit(1)
 
-        fast_upload = args.fast_upload or config.get("default", "fast_upload", True)
+        fast_upload = args.fast_upload or config.get("default", "fast_upload", False)
 
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
