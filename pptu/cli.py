@@ -3,7 +3,6 @@
 import subprocess
 import sys
 import time
-from copy import copy
 from pathlib import Path
 
 from platformdirs import PlatformDirs
@@ -58,21 +57,25 @@ def main():
 
     config = Config(dirs.user_config_path / "config.toml")
 
-    trackers = []
+    all_trackers = [
+        x for x in vars(uploaders).values()
+        if isinstance(x, type) and x != Uploader and issubclass(x, Uploader)
+    ]
 
-    print("[bold green]Logging in to trackers[/]")
-    for i, tracker_name in enumerate(copy(args.trackers)):
+    trackers = []
+    for tracker_name in args.trackers:
         try:
             tracker = next(
-                x for x in vars(uploaders).values()
-                if isinstance(x, type) and x != Uploader and issubclass(x, Uploader)
-                and (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
+                x for x in all_trackers
+                if (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
             )()
         except StopIteration:
             eprint(f"Tracker [cyan]{tracker_name}[/] not found.")
             continue
         trackers.append(tracker)
 
+    print("[bold green]Logging in to trackers[/]")
+    for i, tracker in enumerate(trackers):
         print(f"[bold cyan]\\[{i + 1}/{len(trackers)}] Logging in to {tracker.abbrev}")
 
         if not tracker.login():
