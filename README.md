@@ -2,7 +2,7 @@
 
 ## Requirements
 * Python 3.8+
-* Python package dependencies (`poetry install` or `pip install .`)
+* Python package dependencies (`poetry install` – requires poetry 1.2.0 or newer – or `pip install .`)
 * torrenttools (for creating torrents)
 * MediaInfo CLI (for generating tech info)
 * FFmpeg (for generating snapshots)
