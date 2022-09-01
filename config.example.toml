@@ -1,6 +1,7 @@
 [default]
 proxy = ""
 watch_dir = "~/rtorrent/watch/start"
+fast_upload = true
 snapshot_columns = 2
 snapshot_rows = 2
 snapshot_row_width = 1000 # will be lowered if it's higher than the site's width for the torrent page
