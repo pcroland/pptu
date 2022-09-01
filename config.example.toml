@@ -4,8 +4,7 @@ watch_dir = "~/rtorrent/watch/start"
 fast_upload = false
 snapshot_columns = 2
 snapshot_rows = 2
-snapshot_row_width = 1000 # will be lowered if it's higher than the site's width for the torrent page
-generate_snapshots_from_last_file = false
+snapshot_row_width = 1000  # will be lowered if it's higher than the site's width for the torrent page
 
 # Credentials below are required unless you save cookies instead.
 
