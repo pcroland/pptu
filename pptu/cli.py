@@ -75,8 +75,8 @@ def main():
         trackers.append(tracker)
 
     print("[bold green]Logging in to trackers[/]")
-    for i, tracker in enumerate(trackers):
-        print(f"[bold cyan]\\[{i + 1}/{len(trackers)}] Logging in to {tracker.abbrev}")
+    for tracker in trackers:
+        print(f"Logging in to {tracker.abbrev}")
 
         if not tracker.login():
             eprint(f"Failed to log in to tracker [cyan]{tracker.name}[/].")
