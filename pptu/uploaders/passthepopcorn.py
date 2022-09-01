@@ -3,9 +3,10 @@ import re
 
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
+from pyotp import TOTP
 from rich import print
 from rich.markup import escape
-from rich.prompt import Confirm
+from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, wprint
 from . import Uploader
@@ -29,10 +30,63 @@ class PassThePopcornUploader(Uploader):
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
     def login(self):
-        r = self.session.get("https://passthepopcorn.me/user.php?action=edit")
-        if r.status_code == 302:
-            eprint("Cookies expired.")
+        r = self.session.get("https://passthepopcorn.me/user.php?action=edit", allow_redirects=False)
+        if r.status_code == 200:
+            return True
+
+        wprint("Cookies missing or expired, logging in...")
+
+        if not (username := self.config.get(self, "username")):
+            eprint("No username specified in config, cannot log in.")
             return False
+
+        if not (password := self.config.get(self, "password")):
+            eprint("No password specified in config, cannot log in.")
+            return False
+
+        if not (passkey := self.config.get(self, "passkey")):
+            eprint("No passkey specified in config, cannot log in.")
+            return False
+
+        totp_secret = self.config.get(self, "totp_secret")
+
+        res = self.session.post(
+            url="https://passthepopcorn.me/ajax.php?action=login",
+            data={
+                "Popcron": "",
+                "username": username,
+                "password": password,
+                "passkey": passkey,
+                "WhatsYourSecret": "Hacker! Do you really have nothing better to do than this?",
+                "keeplogged": "1",
+                **({
+                    "TfaType": "normal",
+                    "TfaCode": TOTP(totp_secret).now(),
+                } if totp_secret else {}),
+            },
+        ).json()
+
+        if res["Result"] == "TfaRequired":
+            totp_code = Prompt.ask("Enter 2FA code")
+            res = self.session.post(
+                url="https://passthepopcorn.me/ajax.php?action=login",
+                data={
+                    "Popcron": "",
+                    "username": username,
+                    "password": password,
+                    "passkey": passkey,
+                    "WhatsYourSecret": "Hacker! Do you really have nothing better to do than this?",
+                    "keeplogged": "1",
+                    "TfaType": "normal",
+                    "TfaCode": totp_code,
+                },
+            ).json()
+
+        if res["Result"] != "Ok":
+            eprint(f"Login failed: [cyan]{res['Result']}[/]")
+            return False
+
+        self.anti_csrf_token = res["AntiCsrfToken"]
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
@@ -68,7 +122,10 @@ class PassThePopcornUploader(Uploader):
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
         res = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": groupid}).text
-        soup = load_html(res)
+
+        if not self.anti_csrf_token:
+            soup = load_html(res)
+            self.anti_csrf_token = soup.select_one("[name='AntiCsrfToken']")["value"]
 
         if path.is_dir():
             file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]

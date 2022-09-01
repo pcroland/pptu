@@ -39,7 +39,7 @@
   <tr>
     <th>PassThePopcorn</th>
     <td align="center"><code>PTP</code></td>
-    <td align="center">Cookies</td>
+    <td align="center">Credentials/<br />Cookies</td>
     <td align="center">N/A</td>
     <td align="center">N/A</td>
     <td><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" width="14" /> Dedicated servers only, requires staff approval</td>
@@ -72,6 +72,9 @@ For sites with captcha, a 2captcha API key is required to solve the captcha. Man
 * selenium-wire and undetected-chromedriver are required for credential login to pass the Cloudflare challenge.
   You'll also need Xvfb on Linux as ChromeDriver's headless mode is detected by Cloudflare.
 * Movie support is not yet implemented.
+
+### PassThePopcorn
+* Credential auth requires passkey in addition to username and password.
 
 ### AvistaZ Network
 * Using credential auth is strongly recommended as cookies always expire within a few days.

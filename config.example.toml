@@ -32,6 +32,8 @@ totp_secret = ""
 #proxy = "http://user:pass@example.com:6060"
 
 [passthepopcorn]
-#passkey = ""  # auto-detected
+username = ""
+password = ""
+passkey = ""  # required for credential auth, auto-detected when using cookies
 ptpimg_api_key = ""  # required
 #proxy = "http://user:pass@example.com:6060"
