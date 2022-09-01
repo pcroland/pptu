@@ -39,6 +39,7 @@ autoflake = "^1.5.1"
 flake8 = "^5.0.4"
 flake8-bugbear = "^22.8.23"
 flake8-pie = "^0.16.0"
+Flake8-pyproject = "^1.1.0.post0"
 isort = {git = "https://github.com/PyCQA/isort.git", rev = "main"}
 pre-commit = "^2.20.0"
 pyupgrade = "^2.37.3"
@@ -50,6 +51,12 @@ pptu = "pptu.cli:main"
 [tool.autoflake]
 exclude = ["pptu/uploaders/__init__.py"]
 remove-all-unused-imports = true
+
+[tool.flake8]
+exclude = [".venv"]
+inline-quotes = "double"
+max-line-length = 120
+per-file-ignores = ["pptu/uploaders/__init__.py:F401"]
 
 [tool.isort]
 classes = ["PPTU"]
