@@ -100,7 +100,7 @@ For cookie-based auth, place cookies in `~/.local/share/pptu/cookies/TRACKER.txt
 ## Usage
 ```
 ❯ pptu -h
-pptu 2022.09.01.
+pptu 2022.09.01
 
 USAGE: pptu [-h] [-v] -t ABBREV [-f] [-nf] [-a] [-s] file
 
