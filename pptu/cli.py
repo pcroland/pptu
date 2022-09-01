@@ -3,7 +3,6 @@
 import subprocess
 import sys
 import time
-from collections import defaultdict
 from copy import copy
 from pathlib import Path
 
@@ -84,7 +83,7 @@ def main():
         tracker.cookies_path.parent.mkdir(parents=True, exist_ok=True)
         tracker.cookie_jar.save(ignore_discard=True)
 
-    prepared = defaultdict(lambda: defaultdict(bool))
+    jobs = []
 
     for file in args.file:
         if not file.exists():
@@ -128,11 +127,12 @@ def main():
             snapshots = pptu.generate_snapshots()
 
             print(f"\n[bold green]Preparing upload ({tracker.abbrev})[/]")
-            prepared[file][tracker] = pptu.prepare(mediainfo, snapshots)
-            if not prepared[file][tracker]:
+            if not pptu.prepare(mediainfo, snapshots):
                 continue
 
-            if not fast_upload:
+            if fast_upload:
+                jobs.append((pptu, mediainfo, snapshots))
+            else:
                 if args.skip_upload:
                     print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
                 else:
@@ -141,16 +141,12 @@ def main():
             print()
 
     if fast_upload:
-        for file in args.file:
-            if not prepared[file][tracker]:
-                continue
-            for tracker in trackers:
-                pptu = PPTU(file, tracker, auto=args.auto)
-                if args.skip_upload:
-                    print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
-                else:
-                    print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
-                    pptu.upload(mediainfo, snapshots)
+        for pptu, mediainfo, snapshots in jobs:
+            if args.skip_upload:
+                print(f"\n[bold green]Skipping upload ({pptu.tracker.abbrev})[/]")
+            else:
+                print(f"\n[bold green]Uploading ({pptu.tracker.abbrev})[/]")
+                pptu.upload(mediainfo, snapshots)
             print()
 
 
