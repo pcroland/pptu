@@ -115,6 +115,8 @@ def main():
         if not base_torrent_path.exists():
             sys.exit(1)
 
+        fast_upload = args.fast_upload or config.get("default", "fast_upload", True)
+
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
@@ -128,7 +130,7 @@ def main():
             # Generating snapshots
             snapshots = pptu.generate_snapshots()
 
-            if not (args.fast_upload or config.get("default", "fast_upload", True)):
+            if not fast_upload:
                 if args.skip_upload:
                     print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
                 else:
@@ -136,7 +138,7 @@ def main():
                     pptu.upload(mediainfo, snapshots)
             print()
 
-    if args.fast_upload or config.get("default", "fast_upload", True):
+    if fast_upload:
         for file in args.file:
             for tracker in trackers:
                 pptu = PPTU(file, tracker, auto=args.auto)
