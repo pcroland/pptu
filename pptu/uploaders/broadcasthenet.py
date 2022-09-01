@@ -18,7 +18,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
 
-from ..utils import eprint, generate_thumbnails, load_html, rprint, wprint
+from ..utils import eprint, generate_thumbnails, load_html, print, wprint
 from . import Uploader
 
 
@@ -168,7 +168,7 @@ class BroadcasTheNetUploader(Uploader):
         chrome_version = int(p.stdout.split()[-1].split(".")[0])
 
         with display:
-            rprint("Starting ChromeDriver")
+            print("Starting ChromeDriver")
             proxy_url = self.session.proxies.get("all")
             with uc.Chrome(
                 browser_executable=chrome_path,
@@ -211,7 +211,7 @@ class BroadcasTheNetUploader(Uploader):
         self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
         self.cookie_jar.save(ignore_discard=True)
 
-        rprint("Logging in")
+        print("Logging in")
         r = self.session.post(
             url="https://broadcasthe.net/login.php",
             data={
@@ -238,10 +238,10 @@ class BroadcasTheNetUploader(Uploader):
 
     def prepare(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
-            rprint("Detected episode")
+            print("Detected episode")
             type_ = "Episode"
         elif re.search(r"\.S\d+\.", str(path)):
-            rprint("Detected season")
+            print("Detected season")
             type_ = "Season"
         else:
             eprint("Movies are not yet supported")
@@ -275,7 +275,7 @@ class BroadcasTheNetUploader(Uploader):
             sys.exit(1)
         if r.status_code != 200:
             eprint(f"HTTP Error [cyan]{r.status_code}[/]")
-            rprint(soup.prettify(), highlight=True)
+            print(soup.prettify(), highlight=True)
             sys.exit(1)
 
         gi = guessit(release_name)
@@ -291,7 +291,7 @@ class BroadcasTheNetUploader(Uploader):
             eprint("AutoFill Fail.")
             sys.exit(1)
         else:
-            rprint("AutoFill complete.")
+            print("AutoFill complete.")
 
         if path.is_dir():
             file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
@@ -311,8 +311,8 @@ class BroadcasTheNetUploader(Uploader):
         else:
             eprint("MP4 is not yet supported.")  # TODO
 
-        rprint(f"Detected language as {lang.language}")
-        rprint(f"Detected country as {lang.territory}")
+        print(f"Detected language as {lang.language}")
+        print(f"Detected country as {lang.territory}")
 
         # Strip episode title if name is too long
         if len(release_name) > 100:
@@ -339,7 +339,7 @@ class BroadcasTheNetUploader(Uploader):
             thumbnail_row_width = max(530, self.config.get(self, "snapshot_row_width", 530))
             thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2) - 5)
             thumbnail_urls = []
-            rprint(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
+            print(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
             for thumb in generate_thumbnails(snapshots, width=thumbnail_width):
                 with open(thumb, "rb") as fd:
                     res = httpx.post(
@@ -392,7 +392,7 @@ class BroadcasTheNetUploader(Uploader):
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
-        rprint(self.data, highlight=True)
+        print(self.data, highlight=True)
 
         if not auto:
             if not Confirm.ask("\nUpload torrent?"):

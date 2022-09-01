@@ -8,7 +8,7 @@ from pyotp import TOTP
 from rich.markup import escape
 from rich.prompt import Confirm, Prompt
 
-from ..utils import eprint, load_html, rprint, wprint
+from ..utils import eprint, load_html, print, wprint
 from . import Uploader
 
 
@@ -63,7 +63,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             token = soup.select_one("input[name='_token']")["value"]
             captcha_url = soup.select_one(".img-captcha")["src"]
 
-            rprint("Submitting captcha to 2captcha")
+            print("Submitting captcha to 2captcha")
             res = self.session.post(
                 url="https://2captcha.com/in.php",
                 data={
@@ -82,7 +82,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 return False
             req_id = res["request"]
 
-            rprint("Waiting for solution.", end="", flush=True)
+            print("Waiting for solution.", end="", flush=True)
             while True:
                 time.sleep(5)
                 res = self.session.get(
@@ -95,13 +95,13 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     },
                 ).json()
                 if res["request"] == "CAPCHA_NOT_READY":
-                    rprint(".", end="", flush=True)
+                    print(".", end="", flush=True)
                 elif res["status"] != 1:
                     eprint(f"2Captcha API error: [cyan]{res['request']}[/].")
                     return False
                 else:
                     captcha_answer = res["request"]
-                    rprint(" Received")
+                    print(" Received")
                     break
 
             while True:
@@ -151,7 +151,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         self.cookie_jar.save(ignore_discard=True)
 
         if "/auth/twofa" in r.url:
-            rprint("2FA detected")
+            print("2FA detected")
 
             soup = load_html(res)
 
@@ -164,12 +164,12 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             )
             if "/auth/twofa" in r.url:
                 eprint("TOTP code rejected.")
-                rprint(r.text)
+                print(r.text)
                 return False
 
         if r.url != self.base_url:
             eprint("Login failed - Unknown error.")
-            rprint(r.url)
+            print(r.url)
             return False
 
         return True
@@ -182,10 +182,10 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
     def prepare(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
-            rprint("Detected episode")
+            print("Detected episode")
             collection = "episode"
         elif re.search(r"\.S\d+\.", str(path)):
-            rprint("Detected season")
+            print("Detected season")
             collection = "season"
         elif re.search(r"\.S\d+-S?\d+\.", str(path)):
             collection = "series"
@@ -194,7 +194,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = m.group(1).replace(".", " ")
-            rprint(f"Detected title: [bold cyan]{title}[/]")
+            print(f"Detected title: [bold cyan]{title}[/]")
         else:
             eprint("Unable to extract title from filename.")
             sys.exit(1)
@@ -204,7 +204,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             if m := re.search(r"\.S(\d+)[E.]", path.name):
                 season = int(m.group(1))
             else:
-                rprint("Unable to extract season from filename.")
+                print("Unable to extract season from filename.")
 
         episode = None
         if m := re.search(r"\.S\d+E(\d+)\.", path.name):
@@ -230,18 +230,18 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             },
             timeout=60,
         ).json()
-        rprint(res, highlight=True)
+        print(res, highlight=True)
         r.raise_for_status()
         res = next(x for x in res["data"] if x.get("release_year") == year or not year)
         movie_id = res["id"]
-        rprint(f"Found title: [bold cyan]{res['title']}[/] ([bold green]{res['release_year']}[/])")
+        print(f"Found title: [bold cyan]{res['title']}[/] ([bold green]{res['release_year']}[/])")
         data = {
             "_token": token,
             "type_id": 1 if collection == "movie" else 2,
             "movie_id": movie_id,
             "media_info": mediainfo,
         }
-        rprint({**data, "_token": "[hidden]", "media_info": "[hidden]"})
+        print({**data, "_token": "[hidden]", "media_info": "[hidden]"})
 
         if not auto:
             if not Confirm.ask("\nContinue with upload?"):
@@ -283,7 +283,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 },
                 timeout=60,
             ).json()
-            rprint(res, highlight=True)
+            print(res, highlight=True)
             r.raise_for_status()
             images.append(res["imageId"])
 
@@ -325,7 +325,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
-        rprint(self.data, highlight=True)
+        print(self.data, highlight=True)
 
         if not auto:
             if not Confirm.ask("Upload torrent?"):
