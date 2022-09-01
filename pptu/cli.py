@@ -128,7 +128,7 @@ def main():
             # Generating snapshots
             snapshots = pptu.generate_snapshots()
 
-            if not args.fast_upload or not config.get('default', 'fast_upload', True):
+            if not args.fast_upload or not config.get("default", "fast_upload", True):
                 if args.skip_upload:
                     print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
                 else:
@@ -136,7 +136,7 @@ def main():
                     pptu.upload(mediainfo, snapshots)
             print()
 
-    if args.fast_upload or config.get('default', 'fast_upload', True):
+    if args.fast_upload or config.get("default", "fast_upload", True):
         for file in args.file:
             for tracker in trackers:
                 pptu = PPTU(file, tracker, auto=args.auto)
