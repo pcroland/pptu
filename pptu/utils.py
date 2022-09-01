@@ -57,6 +57,11 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
         return ", ".join(action.option_strings) + " " + args_string
 
 
+def flatten(L):
+    # https://stackoverflow.com/a/952952/492203
+    return [item for sublist in L for item in sublist]
+
+
 def print(text, highlight=False):
     with Console(highlight=highlight) as console:
         console.print(text)

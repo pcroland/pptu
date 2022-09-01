@@ -12,7 +12,7 @@ from pymediainfo import MediaInfo
 from rich.progress import track
 from wand.image import Image
 
-from .utils import Config, eprint
+from .utils import Config, eprint, flatten
 
 
 class PPTU:
@@ -76,16 +76,20 @@ class PPTU:
         return mediainfo
 
     def generate_snapshots(self):
-        num_snapshots = self.num_snapshots
-
         if self.file.is_dir() or self.tracker.all_files:
-            # TODO: Handle case when number of files < num_snapshots
             files = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))
         elif self.file.is_file():
-            files = [self.file] * num_snapshots
+            files = [self.file]
 
+        num_snapshots = self.num_snapshots
         if self.tracker.all_files:
             num_snapshots = len(files)
+
+        orig_files = files[:]
+        i = 2
+        while len(files) < num_snapshots:
+            files = flatten(zip(*([orig_files] * i)))
+            i += 1
 
         snapshots = []
 
