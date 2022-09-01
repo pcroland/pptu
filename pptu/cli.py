@@ -76,7 +76,7 @@ def main():
 
     print("[bold green]Logging in to trackers[/]")
     for tracker in trackers:
-        print(f"Logging in to {tracker.abbrev}")
+        print(f"[bold cyan]Logging in to {tracker.abbrev}[/]")
 
         if not tracker.login():
             eprint(f"Failed to log in to tracker [cyan]{tracker.name}[/].")
