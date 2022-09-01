@@ -37,7 +37,13 @@ def main():
                         help="tracker(s) to upload torrents to (required)")
     parser.add_argument("-f", "--fast-upload",
                         action="store_true",
+                        default=None,
                         help="only upload when every step is done for every input")
+    parser.add_argument("-nf", "--no-fast-upload",
+                        dest="fast_upload",
+                        action="store_false",
+                        default=None,
+                        help="disable fast upload even if enabled in config")
     parser.add_argument("-a", "--auto",
                         action="store_true",
                         help="upload without confirmation")
@@ -115,7 +121,9 @@ def main():
         if not base_torrent_path.exists():
             sys.exit(1)
 
-        fast_upload = args.fast_upload or config.get("default", "fast_upload", False)
+        fast_upload = (
+            args.fast_upload or (config.get("default", "fast_upload", False) and args.fast_upload is not False)
+        )
 
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
