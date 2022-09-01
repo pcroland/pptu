@@ -88,6 +88,3 @@ def generate_thumbnails(snapshots, width=300):
                 img.save(filename=thumb)
             oxipng.optimize(thumb)
         yield thumb
-
-
-__all__ = ["Config", "RParse"]
