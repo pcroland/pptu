@@ -62,7 +62,7 @@ def flatten(L):
     return [item for sublist in L for item in sublist]
 
 
-def print(text, highlight=False):
+def print(text="", highlight=False):
     with Console(highlight=highlight) as console:
         console.print(text)
 
