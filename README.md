@@ -1,4 +1,4 @@
-<p align="center"><img src="logo/logo.png" width="160" /><br />Python P2P Torrent Uploader</p>
+<p align="center"><img width="300" src="logo/logo.svg"><br>Python P2P Torrent Uploader</p>
 
 ## Requirements
 * Python 3.8+
