@@ -100,9 +100,9 @@ For cookie-based auth, place cookies in `~/.local/share/pptu/cookies/TRACKER.txt
 ## Usage
 ```
 ❯ pptu -h
-pptu 2022.08.29.1
+pptu 2022.09.01.
 
-USAGE: pptu [-h] [-v] -t ABBREV [-a] [-s] file
+USAGE: pptu [-h] [-v] -t ABBREV [-f] [-nf] [-a] [-s] file
 
 POSITIONAL ARGUMENTS:
   file                   files/directories to create torrents for
@@ -111,6 +111,8 @@ FLAGS:
   -h, --help             show this help message and exit
   -v, --version          show version and exit
   -t, --trackers ABBREV  tracker(s) to upload torrents to (required)
+  -f, --fast-upload      only upload when every step is done for every input
+  -nf, --no-fast-upload  disable fast upload even if enabled in config
   -a, --auto             upload without confirmation
   -s, --skip-upload      skip upload
 ```
