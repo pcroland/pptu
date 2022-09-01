@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 
-import time
 import subprocess
 import sys
+import time
 from copy import copy
 from pathlib import Path
 
@@ -15,7 +15,7 @@ from . import uploaders
 from .constants import PROG_NAME, PROG_VERSION
 from .pptu import PPTU
 from .uploaders import Uploader
-from .utils import Config, RParse, wprint, eprint
+from .utils import Config, RParse, eprint, wprint
 
 
 dirs = PlatformDirs(appname="pptu", appauthor=False)
