@@ -23,6 +23,10 @@ class PassThePopcornUploader(Uploader):
     min_snapshots = 3
     all_files = True
 
+    def __init__(self):
+        super().__init__()
+        self.anti_csrf_token = None
+
     @property
     def passkey(self):
         res = self.session.get("https://passthepopcorn.me/upload.php").text
