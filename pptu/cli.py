@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import time
 import subprocess
 import sys
 from copy import copy
@@ -14,7 +15,7 @@ from . import uploaders
 from .constants import PROG_NAME, PROG_VERSION
 from .pptu import PPTU
 from .uploaders import Uploader
-from .utils import Config, RParse, eprint
+from .utils import Config, RParse, wprint, eprint
 
 
 dirs = PlatformDirs(appname="pptu", appauthor=False)
@@ -52,6 +53,8 @@ def main():
                         help="skip upload")
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
+        wprint('If you double clicked the standalone build', newline_bef=True)
+        time.sleep(10)
         sys.exit(1)
     args = parser.parse_args()
 
