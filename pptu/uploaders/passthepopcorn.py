@@ -4,11 +4,10 @@ import re
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
 from pyotp import TOTP
-from rich import print
 from rich.markup import escape
 from rich.prompt import Confirm, Prompt
 
-from ..utils import eprint, load_html, wprint
+from ..utils import eprint, load_html, rprint, wprint
 from . import Uploader
 
 
@@ -97,7 +96,7 @@ class PassThePopcornUploader(Uploader):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
-            print(f"Detected title: [bold cyan]{title}[/]")
+            rprint(f"Detected title: [bold cyan]{title}[/]")
 
             if imdb_results := ia.search_movie(title):
                 imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
@@ -109,7 +108,7 @@ class PassThePopcornUploader(Uploader):
         title = imdb_movie.data["original title"]
         year = imdb_movie.data["year"]
 
-        print(f"IMDb: [cyan][bold]{title}[/] [not bold]({year})[/][/]")
+        rprint(f"IMDb: [cyan][bold]{title}[/] [not bold]({year})[/][/]")
 
         self.groupid = None
         torrent_info = self.session.get(
@@ -120,7 +119,7 @@ class PassThePopcornUploader(Uploader):
                 "fast": "1",
             },
         ).json()[0]
-        print(torrent_info)
+        rprint(torrent_info, highlight=True)
         self.groupid = torrent_info.get("groupid")
 
         self.torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
@@ -162,7 +161,7 @@ class PassThePopcornUploader(Uploader):
                 snapshot_urls.append(f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}')
 
         if re.search(r"\.S\d+\.", str(path)):
-            print("Detected series")
+            rprint("Detected series")
             type_ = "Miniseries"
             desc = ""
             for i in range(len(mediainfo)):
@@ -172,7 +171,7 @@ class PassThePopcornUploader(Uploader):
                 )
         else:
             # TODO: Detect other types
-            print("Detected movie")
+            rprint("Detected movie")
             type_ = "Feature Film"
             desc = "[mi]\n{mediainfo}\n[/mi]\n{snapshots}".format(
                 mediainfo=mediainfo[0],
@@ -196,7 +195,7 @@ class PassThePopcornUploader(Uploader):
             source = "VHS"
         else:
             source = "Other"
-        print(f"Detected source: [bold cyan]{source}[/]")
+        rprint(f"Detected source: [bold cyan]{source}[/]")
 
         self.data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
@@ -226,7 +225,7 @@ class PassThePopcornUploader(Uploader):
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
-        print(self.data)
+        rprint(self.data, highlight=True)
 
         if not auto:
             if not Confirm.ask("\nUpload torrent?"):

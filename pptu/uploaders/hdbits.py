@@ -5,10 +5,9 @@ import time
 from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
-from rich import print
 from rich.prompt import Confirm, Prompt
 
-from ..utils import eprint, load_html, wprint
+from ..utils import eprint, load_html, rprint, wprint
 from . import Uploader
 
 
@@ -96,7 +95,7 @@ class HDBitsUploader(Uploader):
             res = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"hash": image}).content
             if self.CAPTCHA_MAP.get(hashlib.sha256(res).hexdigest()) == captcha["text"]:
                 correct_hash = image
-                print(f"Found captcha solution: [bold cyan]{captcha['text']}[/] ([cyan]{correct_hash}[/])")
+                rprint(f"Found captcha solution: [bold cyan]{captcha['text']}[/] ([cyan]{correct_hash}[/])")
                 break
         if not correct_hash:
             eprint("Unable to solve captcha, perhaps it has new images?")
@@ -146,10 +145,10 @@ class HDBitsUploader(Uploader):
 
     def prepare(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
-            print("Detected series")
+            rprint("Detected series")
             category = "TV"
         else:
-            print("Detected movie")
+            rprint("Detected movie")
             category = "Movie"
 
         if category == "TV":
@@ -163,7 +162,7 @@ class HDBitsUploader(Uploader):
                     "uid": int(time.time() * 1000),
                 },
             ).json()
-            print(res)
+            rprint(res, highlight=True)
             if not (tvdb := res.get("tvdb_id")):
                 r = self.session.get(
                     url="https://hdbits.org/ajax/tvdb.php",
@@ -184,7 +183,7 @@ class HDBitsUploader(Uploader):
             imdb = None
             if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
                 title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
-                print(f"Detected title: [bold cyan]{title}[/]")
+                rprint(f"Detected title: [bold cyan]{title}[/]")
 
                 if imdb_results := ia.search_movie(title):
                     imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
@@ -210,7 +209,7 @@ class HDBitsUploader(Uploader):
         else:
             eprint("Unable to determine video codec")
             return False
-        print(f"Detected codec as [bold cyan]{codec}[/]")
+        rprint(f"Detected codec as [bold cyan]{codec}[/]")
 
         if re.search(r"\b(?:b[dr]-?rip|blu-?ray|hd-?dvd)\b", str(path), flags=re.I):
             medium = "Blu-ray/HD-DVD"
@@ -225,7 +224,7 @@ class HDBitsUploader(Uploader):
         else:
             eprint("Unable to determine medium")
             return False
-        print(f"Detected medium as [bold cyan]{medium}[/]")
+        rprint(f"Detected medium as [bold cyan]{medium}[/]")
 
         self.torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
 
@@ -250,7 +249,7 @@ class HDBitsUploader(Uploader):
         allowed_widths = [100, 150, 200, 250, 300, 350]
         thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2) - 5)
         thumbnail_width = max(x for x in allowed_widths if x <= thumbnail_width)
-        print(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
+        rprint(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
 
         thumbnails_str = ""
         r = self.session.post(
@@ -291,7 +290,7 @@ class HDBitsUploader(Uploader):
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
-        print(self.data)
+        rprint(self.data, highlight=True)
 
         if not auto:
             if not Confirm.ask("\nUpload torrent?"):

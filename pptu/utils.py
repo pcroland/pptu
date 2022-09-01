@@ -6,7 +6,7 @@ import oxipng
 import toml
 from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
-from rich import print
+from rich.console import Console
 from wand.image import Image
 
 from .constants import PROG_NAME, PROG_VERSION
@@ -41,7 +41,7 @@ class RParse(argparse.ArgumentParser):
                 message = message.replace(" file ", "[bold magenta] file [/]", 2)
                 message = message.replace(self.prog, f"[bold cyan]{self.prog}[/]")
             message = f"[not bold default]{message.strip()}[/]"
-            print(message)
+            rprint(message)
 
 
 class CustomHelpFormatter(argparse.RawTextHelpFormatter):
@@ -57,18 +57,23 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
         return ", ".join(action.option_strings) + " " + args_string
 
 
+def rprint(text, highlight=False):
+    with Console(highlight=highlight) as console:
+        console.print(text)
+
+
 def wprint(text):
     if text.startswith("\n"):
         text = text.lstrip("\n")
         print()
-    print(f"[bold color(231) on yellow]WARNING:[/] [yellow]{text}[/]")
+    rprint(f"[bold color(231) on yellow]WARNING:[/] [yellow]{text}[/]")
 
 
 def eprint(text, fatal=False, exit_code=1):
     if text.startswith("\n"):
         text = text.lstrip("\n")
         print()
-    print(f"[bold color(231) on red]ERROR:[/] [red]{text}[/]")
+    rprint(f"[bold color(231) on red]ERROR:[/] [red]{text}[/]")
     if fatal:
         sys.exit(exit_code)
 

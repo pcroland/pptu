@@ -8,13 +8,12 @@ from copy import copy
 from pathlib import Path
 
 from platformdirs import PlatformDirs
-from rich import print
 
 from . import uploaders
 from .constants import PROG_NAME, PROG_VERSION
 from .pptu import PPTU
 from .uploaders import Uploader
-from .utils import Config, RParse, eprint, wprint
+from .utils import Config, RParse, eprint, rprint, wprint
 
 
 dirs = PlatformDirs(appname="pptu", appauthor=False)
@@ -61,7 +60,7 @@ def main():
 
     trackers = []
 
-    print("[bold green]Logging in to trackers[/]")
+    rprint("[bold green]Logging in to trackers[/]")
     for i, tracker_name in enumerate(copy(args.trackers)):
         try:
             tracker = next(
@@ -74,7 +73,7 @@ def main():
             continue
         trackers.append(tracker)
 
-        print(f"[bold cyan]\\[{i + 1}/{len(trackers)}] Logging in to {tracker.abbrev}")
+        rprint(f"[bold cyan]\\[{i + 1}/{len(trackers)}] Logging in to {tracker.abbrev}")
 
         if not tracker.login():
             eprint(f"Failed to log in to tracker [cyan]{tracker.name}[/].")
@@ -94,7 +93,7 @@ def main():
         cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
         cache_dir.mkdir(parents=True, exist_ok=True)
 
-        print("\n[bold green]Creating initial torrent file[/]")
+        rprint("\n[bold green]Creating initial torrent file[/]")
         base_torrent_path = cache_dir / f"{file.name}.torrent"
         if not base_torrent_path.exists():
             subprocess.run([
@@ -117,26 +116,26 @@ def main():
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            print(f"[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")
+            rprint(f"[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")
             pptu.create_torrent()
 
-            print(f"\n[bold green]Generating MediaInfo ({tracker.abbrev})[/]")
+            rprint(f"\n[bold green]Generating MediaInfo ({tracker.abbrev})[/]")
             mediainfo = pptu.get_mediainfo()
-            print("Done!")
+            rprint("Done!")
 
             # Generating snapshots
             snapshots = pptu.generate_snapshots()
 
-            print(f"\n[bold green]Preparing upload ({tracker.abbrev})[/]")
+            rprint(f"\n[bold green]Preparing upload ({tracker.abbrev})[/]")
             prepared[file][tracker] = pptu.prepare(mediainfo, snapshots)
             if not prepared[file][tracker]:
                 continue
 
             if not fast_upload:
                 if args.skip_upload:
-                    print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
+                    rprint(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
                 else:
-                    print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
+                    rprint(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                     pptu.upload(mediainfo, snapshots)
             print()
 
@@ -147,9 +146,9 @@ def main():
             for tracker in trackers:
                 pptu = PPTU(file, tracker, auto=args.auto)
                 if args.skip_upload:
-                    print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
+                    rprint(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
                 else:
-                    print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
+                    rprint(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                     pptu.upload(mediainfo, snapshots)
             print()
 
