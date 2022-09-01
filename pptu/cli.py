@@ -7,9 +7,7 @@ from collections import defaultdict
 from copy import copy
 from pathlib import Path
 
-import requests
 from platformdirs import PlatformDirs
-from requests.adapters import HTTPAdapter, Retry
 from rich import print
 
 from . import uploaders
@@ -60,21 +58,6 @@ def main():
     args = parser.parse_args()
 
     config = Config(dirs.user_config_path / "config.toml")
-
-    session = requests.Session()
-    for scheme in ("http://", "https://"):
-        session.mount(
-            scheme,
-            HTTPAdapter(
-                max_retries=Retry(
-                    total=5,
-                    backoff_factor=1,
-                    allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
-                    status_forcelist=[429, 500, 502, 503, 504],
-                    raise_on_status=False,
-                ),
-            ),
-        )
 
     trackers = []
 
