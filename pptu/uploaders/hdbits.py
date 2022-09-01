@@ -114,6 +114,8 @@ class HDBitsUploader(Uploader):
                 "uname": self.config.get(self, "username"),
                 "password": self.config.get(self, "password"),
                 "twostep_code": TOTP(totp_secret).now() if totp_secret else None,
+                "captchaSelection": correct_hash,
+                "returnto": "/",
             },
         )
         if "error=7" in r.url:
@@ -123,7 +125,9 @@ class HDBitsUploader(Uploader):
                     "csrf": soup.select_one("[name='csrf']")["value"],
                     "uname": self.config.get(self, "username"),
                     "password": self.config.get(self, "password"),
-                    "twostep_code": Prompt.ask("Enter 2FA code")
+                    "twostep_code": Prompt.ask("Enter 2FA code"),
+                    "captchaSelection": correct_hash,
+                    "returnto": "/",
                 },
             )
 
