@@ -117,6 +117,12 @@ class PPTU:
 
         return snapshots
 
+    def prepare(self, mediainfo, snapshots):
+        if not self.tracker.prepare(self.file, mediainfo, snapshots, auto=self.auto):
+            eprint(f"Preparing upload to [cyan]{self.tracker.name}[/] failed.")
+            return False
+        return True
+
     def upload(self, mediainfo, snapshots):
         if not self.tracker.upload(self.file, mediainfo, snapshots, auto=self.auto):
             eprint(f"Upload to [cyan]{self.tracker.name}[/] failed.")

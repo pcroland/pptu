@@ -237,7 +237,7 @@ class BroadcasTheNetUploader(Uploader):
 
         return "login.php" not in r.url
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def prepare(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
             type_ = "Episode"
@@ -366,7 +366,7 @@ class BroadcasTheNetUploader(Uploader):
         else:
             wprint("No imgbin API key specified, skipping snapshots")
 
-        data = {
+        self.data = {
             "submit": "true",
             "type": type_,
             "scenename": release_name,
@@ -389,16 +389,20 @@ class BroadcasTheNetUploader(Uploader):
             "release_desc": f"{mediainfo}\n\n\n{thumbnails_str}".strip(),
             "tvdb": "autofilled",
         }
-        print(data)
+
+        return True
+
+    def upload(self, path, mediainfo, snapshots, *, auto):
+        print(self.data)
 
         if not auto:
             if not Confirm.ask("\nUpload torrent?"):
                 return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
-        r = self.session.post(
+        self.session.post(
             url="https://broadcasthe.net/upload.php",
-            data=data,
+            data=self.data,
             files={
                 "file_input": (str(torrent_path), torrent_path.open("rb"), "application/x-bittorrent"),
             },

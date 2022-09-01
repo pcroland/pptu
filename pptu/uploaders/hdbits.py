@@ -140,7 +140,7 @@ class HDBitsUploader(Uploader):
         res = self.session.get("https://hdbits.org/").text
         return re.search(r"passkey=([a-f0-9]+)", res).group(1)
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def prepare(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
             category = "TV"
@@ -223,7 +223,7 @@ class HDBitsUploader(Uploader):
             return False
         print(f"Detected medium as [bold cyan]{medium}[/]")
 
-        torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
+        self.torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
 
         name = path.name
 
@@ -268,7 +268,7 @@ class HDBitsUploader(Uploader):
             else:
                 thumbnails_str += "\n"
 
-        data = {
+        self.data = {
             "name": name,
             "category": self.CATEGORY_MAP[category],
             "codec": self.CODEC_MAP[codec],
@@ -283,7 +283,11 @@ class HDBitsUploader(Uploader):
             "tvdb_episode": episode,  # TODO: Get special episode number from TVDB
             "anidb_id": None,  # TODO
         }
-        print(data)
+
+        return True
+
+    def upload(self, path, mediainfo, snapshots, *, auto):
+        print(self.data)
 
         if not auto:
             if not Confirm.ask("\nUpload torrent?"):
@@ -292,12 +296,16 @@ class HDBitsUploader(Uploader):
         res = self.session.post(
             url="https://hdbits.org/upload/upload",
             files={
-                "file": (torrent_path.name.replace("[HDB]", ""), torrent_path.open("rb"), "application/x-bittorrent"),
+                "file": (
+                    self.torrent_path.name.replace("[HDB]", ""),
+                    self.torrent_path.open("rb"),
+                    "application/x-bittorrent",
+                ),
             },
-            data=data,
+            data=self.data,
         ).text
         soup = load_html(res)
         torrent_url = f'https://hdbits.org{soup.select_one(".js-download")["href"]}'
-        torrent_path.write_bytes(self.session.get(torrent_url).content)
+        self.torrent_path.write_bytes(self.session.get(torrent_url).content)
 
         return True

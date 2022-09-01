@@ -78,6 +78,14 @@ class Uploader(ABC):
         return None
 
     @abstractmethod
+    def prepare(self, path, mediainfo, snapshots, *, auto):
+        """
+        Do any necessary preparations for the upload.
+        This is a separate stage because of --fast-upload.
+        """
+        ...
+
+    @abstractmethod
     def upload(self, path, mediainfo, snapshots, *, auto):
         """Perform the actual upload."""
         ...

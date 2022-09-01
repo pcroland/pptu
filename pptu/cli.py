@@ -3,6 +3,7 @@
 import subprocess
 import sys
 import time
+from collections import defaultdict
 from copy import copy
 from pathlib import Path
 
@@ -100,6 +101,8 @@ def main():
         tracker.cookies_path.parent.mkdir(parents=True, exist_ok=True)
         tracker.cookie_jar.save(ignore_discard=True)
 
+    prepared = defaultdict(lambda: defaultdict(bool))
+
     for file in args.file:
         if not file.exists():
             eprint(f"File [cyan]{file.name!r}[/] does not exist.")
@@ -141,6 +144,11 @@ def main():
             # Generating snapshots
             snapshots = pptu.generate_snapshots()
 
+            print(f"\n[bold green]Preparing upload ({tracker.abbrev})[/]")
+            prepared[file][tracker] = pptu.prepare(mediainfo, snapshots)
+            if not prepared[file][tracker]:
+                continue
+
             if not fast_upload:
                 if args.skip_upload:
                     print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
@@ -151,6 +159,8 @@ def main():
 
     if fast_upload:
         for file in args.file:
+            if not prepared[file][tracker]:
+                continue
             for tracker in trackers:
                 pptu = PPTU(file, tracker, auto=args.auto)
                 if args.skip_upload:

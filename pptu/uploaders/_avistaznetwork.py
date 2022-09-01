@@ -181,7 +181,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         soup = load_html(res)
         return soup.select_one(".current_pid").text
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def prepare(self, path, mediainfo, snapshots, *, auto):
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
             collection = "episode"
@@ -261,7 +261,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             },
             timeout=60,
         )
-        upload_url = r.url
+        self.upload_url = r.url
         res = r.text
         soup = load_html(res)
 
@@ -293,12 +293,12 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 eprint(f"[cyan]{escape(error.text)}[cyan]")
             return False
 
-        data = {
+        self.data = {
             "_token": token,
             "info_hash": soup.select_one('input[name="info_hash"]')["value"],
             "torrent_id": "",
             "type_id": 1 if collection == "movie" else 2,
-            "task_id": upload_url.split("/")[-1],
+            "task_id": self.upload_url.split("/")[-1],
             "file_name": (
                 (path.stem if path.is_file() else path.name)
                 .replace(".", " ")
@@ -322,13 +322,17 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "subtitles[]": [x["value"] for x in soup.select('select[name="subtitles[]"] option[selected]')],
             "media_info": mediainfo,
         }
-        print(data)
+
+        return True
+
+    def upload(self, path, mediainfo, snapshots, *, auto):
+        print(self.data)
 
         if not auto:
             if not Confirm.ask("Upload torrent?"):
                 return False
 
-        r = self.session.post(url=upload_url, data=data, timeout=60)
+        r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
         res = r.text
         soup = load_html(res)
         r.raise_for_status()

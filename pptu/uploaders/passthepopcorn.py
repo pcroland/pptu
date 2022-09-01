@@ -93,7 +93,7 @@ class PassThePopcornUploader(Uploader):
         self.anti_csrf_token = res["AntiCsrfToken"]
         return True
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def prepare(self, path, mediainfo, snapshots, *, auto):
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
@@ -111,7 +111,7 @@ class PassThePopcornUploader(Uploader):
 
         print(f"IMDb: [cyan][bold]{title}[/] [not bold]({year})[/][/]")
 
-        groupid = None
+        self.groupid = None
         torrent_info = self.session.get(
             url="https://passthepopcorn.me/ajax.php",
             params={
@@ -121,11 +121,11 @@ class PassThePopcornUploader(Uploader):
             },
         ).json()[0]
         print(torrent_info)
-        groupid = torrent_info.get("groupid")
+        self.groupid = torrent_info.get("groupid")
 
-        torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
+        self.torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
-        res = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": groupid}).text
+        res = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": self.groupid}).text
 
         if not self.anti_csrf_token:
             soup = load_html(res)
@@ -198,7 +198,7 @@ class PassThePopcornUploader(Uploader):
             source = "Other"
         print(f"Detected source: [bold cyan]{source}[/]")
 
-        data = {
+        self.data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
             "type": type_,
             "imdb": imdb,
@@ -223,7 +223,10 @@ class PassThePopcornUploader(Uploader):
             **res[0],
         }
 
-        print(data)
+        return True
+
+    def upload(self, path, mediainfo, snapshots, *, auto):
+        print(self.data)
 
         if not auto:
             if not Confirm.ask("\nUpload torrent?"):
@@ -232,11 +235,11 @@ class PassThePopcornUploader(Uploader):
         res = self.session.post(
             url="https://passthepopcorn.me/upload.php",
             params={
-                "groupid": groupid,
+                "groupid": self.groupid,
             },
-            data=data,
+            data=self.data,
             files={
-                "file_input": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
+                "file_input": (self.torrent_path.name, self.torrent_path.open("rb"), "application/x-bittorrent"),
             },
         ).text
         soup = load_html(res)
