@@ -2,6 +2,7 @@ import contextlib
 import json
 import platform
 import re
+import shutil
 import subprocess
 import sys
 
@@ -160,12 +161,19 @@ class BroadcasTheNetUploader(Uploader):
         else:
             display = Display(visible=False)
 
+        if not (chrome_path := shutil.which("google-chrome") or shutil.which("chromium")):
+            eprint("Chrome or Chromium is required for login but was not found.")
+            return False
+
+        p = subprocess.run([chrome_path, "--version"], capture_output=True, encoding="utf-8")
+        chrome_version = int(p.stdout.split()[-1].split(".")[0])
+
         with display:
             print("Starting ChromeDriver")
-            options = uc.ChromeOptions()
             proxy_url = self.session.proxies.get("all")
             with uc.Chrome(
-                options=options,
+                browser_executable=chrome_path,
+                version_main=chrome_version,
                 seleniumwire_options={
                     "proxy": {
                         "http": proxy_url,
