@@ -155,19 +155,19 @@ def main():
             if fast_upload:
                 jobs.append((pptu, mediainfo, snapshots))
             else:
+                print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                 if args.skip_upload:
-                    print(f"\n[bold green]Skipping upload ({tracker.abbrev})[/]")
+                    print("Skipping")
                 else:
-                    print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                     pptu.upload(mediainfo, snapshots)
             print()
 
     if fast_upload:
         for pptu, mediainfo, snapshots in jobs:
+            print(f"\n[bold green]Uploading ({pptu.tracker.abbrev})[/]")
             if args.skip_upload:
-                print(f"\n[bold green]Skipping upload ({pptu.tracker.abbrev})[/]")
+                print("Skipping")
             else:
-                print(f"\n[bold green]Uploading ({pptu.tracker.abbrev})[/]")
                 pptu.upload(mediainfo, snapshots)
             print()
 
