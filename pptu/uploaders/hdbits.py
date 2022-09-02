@@ -1,3 +1,4 @@
+import contextlib
 import hashlib
 import re
 import time
@@ -252,16 +253,17 @@ class HDBitsUploader(Uploader):
         print(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
 
         thumbnails_str = ""
-        r = self.session.post(
-            url="https://img.hdbits.org/upload_api.php",
-            files={
-                **{f"images_files[{i}]": snap.read_bytes() for i, snap in enumerate(snapshots)},
-                "thumbsize": f"w{thumbnail_width}",
-                "galleryoption": "1",
-                "galleryname": name,
-            },
-            timeout=60,
-        )
+        with contextlib.ExitStack() as stack:
+            r = self.session.post(
+                url="https://img.hdbits.org/upload_api.php",
+                files={
+                    **{f"images_files[{i}]": stack.enter_context(snap.open("rb")) for i, snap in enumerate(snapshots)},
+                    "thumbsize": f"w{thumbnail_width}",
+                    "galleryoption": "1",
+                    "galleryname": name,
+                },
+                timeout=60,
+            )
         r.raise_for_status()
         res = r.text
         for i, url in enumerate(res.split()):
