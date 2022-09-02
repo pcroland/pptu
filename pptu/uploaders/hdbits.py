@@ -264,8 +264,11 @@ class HDBitsUploader(Uploader):
                 },
                 timeout=60,
             )
-        r.raise_for_status()
         res = r.text
+        if res.startswith("error"):
+            error = re.sub(r"^error: ", "", res)
+            eprint(f"Snapshot upload failed: [cyan]{error}[/cyan]")
+            return False
         for i, url in enumerate(res.split()):
             thumbnails_str += url
             if i % self.config.get(self, "snapshot_columns", 2) == 0:
