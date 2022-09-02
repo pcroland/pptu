@@ -114,7 +114,7 @@ class PPTU:
                     "ffmpeg",
                     "-y",
                     "-v", "error",
-                    "-ss", interval * (j + 1),
+                    "-ss", str(interval * (j + 1)),
                     "-i", files[i],
                     "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
                     "-frames:v", "1",
