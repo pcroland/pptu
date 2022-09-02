@@ -12,7 +12,7 @@ from langcodes import Language
 from pyotp import TOTP
 from pyvirtualdisplay import Display
 from rich.progress import track
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Prompt
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import WebDriverWait
@@ -390,11 +390,6 @@ class BroadcasTheNetUploader(Uploader):
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
-        print(self.data, highlight=True)
-
-        if not auto and not Confirm.ask("\nUpload torrent?"):
-            return False
-
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
         self.session.post(
             url="https://broadcasthe.net/upload.php",

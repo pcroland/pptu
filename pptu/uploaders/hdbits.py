@@ -6,7 +6,7 @@ import time
 from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Prompt
 
 from ..utils import eprint, load_html, print, wprint
 from . import Uploader
@@ -292,11 +292,6 @@ class HDBitsUploader(Uploader):
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
-        print(self.data, highlight=True)
-
-        if not auto and not Confirm.ask("\nUpload torrent?"):
-            return False
-
         res = self.session.post(
             url="https://hdbits.org/upload/upload",
             files={

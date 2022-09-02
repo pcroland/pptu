@@ -324,11 +324,6 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     def upload(self, path, mediainfo, snapshots, *, auto):
-        print(self.data, highlight=True)
-
-        if not auto and not Confirm.ask("Upload torrent?"):
-            return False
-
         r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
         res = r.text
         soup = load_html(res)

@@ -7,6 +7,7 @@ from pathlib import Path
 
 from platformdirs import PlatformDirs
 from rich.console import Console
+from rich.prompt import Confirm
 from rich.table import Table
 
 from . import uploaders
@@ -156,17 +157,19 @@ def main():
                 jobs.append((pptu, mediainfo, snapshots))
             else:
                 print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
-                if args.skip_upload:
-                    print("Skipping")
-                else:
-                    pptu.upload(mediainfo, snapshots)
+                if not args.auto and pptu.data:
+                    print(pptu.data)
+                if args.skip_upload or (not args.auto and not Confirm.ask("Upload torrent?")):
+                    print("Skipping upload")
+                    continue
+                pptu.upload(mediainfo, snapshots)
             print()
 
     if fast_upload:
         for pptu, mediainfo, snapshots in jobs:
             print(f"\n[bold green]Uploading ({pptu.tracker.abbrev})[/]")
             if args.skip_upload:
-                print("Skipping")
+                print("Skipping upload")
             else:
                 pptu.upload(mediainfo, snapshots)
             print()
