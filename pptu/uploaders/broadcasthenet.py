@@ -335,7 +335,7 @@ class BroadcasTheNetUploader(Uploader):
                     snapshot_urls.append(next(iter(res.values()))["hotlink"])
 
             thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
-            thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
+            thumbnail_width = int((thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5)
             thumbnail_urls = []
             print(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
             for thumb in generate_thumbnails(snapshots, width=thumbnail_width):
