@@ -157,8 +157,8 @@ def main():
                 jobs.append((pptu, mediainfo, snapshots))
             else:
                 print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
-                if not args.auto and pptu.data:
-                    print(pptu.data)
+                if not args.auto and pptu.tracker.data:
+                    print(pptu.tracker.data, highlight=True)
                 if args.skip_upload or (not args.auto and not Confirm.ask("Upload torrent?")):
                     print("Skipping upload")
                     continue
@@ -168,6 +168,8 @@ def main():
     if fast_upload:
         for pptu, mediainfo, snapshots in jobs:
             print(f"\n[bold green]Uploading ({pptu.tracker.abbrev})[/]")
+            if not args.auto and pptu.tracker.data:
+                print(pptu.tracker.data, highlight=True)
             if args.skip_upload or (not args.auto and not Confirm.ask("Upload torrent?")):
                 print("Skipping upload")
                 continue

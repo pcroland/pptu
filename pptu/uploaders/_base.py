@@ -38,6 +38,8 @@ class Uploader(ABC):
             self.session.cookies.set_cookie(cookie)
         self.session.proxies.update({"all": self.config.get(self, "proxy")})
 
+        self.data = None
+
     @property
     @abstractmethod
     def name(self):

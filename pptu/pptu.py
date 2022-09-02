@@ -31,8 +31,6 @@ class PPTU:
             tracker.min_snapshots,
         )
 
-        self.data = None
-
     def create_torrent(self):
         passkey = self.config.get(self.tracker, "passkey") or self.tracker.passkey
         if not passkey and "{passkey}" in self.tracker.announce_url:
