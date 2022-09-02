@@ -108,6 +108,10 @@ def main():
 
     jobs = []
 
+    fast_upload = (
+        args.fast_upload or (config.get("default", "fast_upload", False) and args.fast_upload is not False)
+    )
+
     for file in args.file:
         if not file.exists():
             eprint(f"File [cyan]{file.name!r}[/] does not exist.")
@@ -131,10 +135,6 @@ def main():
             ], check=True)
         if not base_torrent_path.exists():
             sys.exit(1)
-
-        fast_upload = (
-            args.fast_upload or (config.get("default", "fast_upload", False) and args.fast_upload is not False)
-        )
 
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
