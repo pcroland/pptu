@@ -241,7 +241,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "movie_id": movie_id,
             "media_info": mediainfo,
         }
-        print({**data, "_token": "[hidden]", "media_info": "[hidden]"}, highlight=True)
+        print(data)
 
         if not auto and not Confirm.ask("\nContinue with upload?"):
             return False
