@@ -89,6 +89,7 @@ def load_html(text):
 
 def generate_thumbnails(snapshots, width=300):
     width = int(width)
+    print(f"Using thumbnail width: [bold cyan]{width}[/]")
     for snap in snapshots:
         thumb = snap.with_stem(f"{snap.stem}_thumb_{width}")
         if not thumb.exists():

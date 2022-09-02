@@ -251,7 +251,6 @@ class HDBitsUploader(Uploader):
         allowed_widths = [100, 150, 200, 250, 300, 350]
         thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
         thumbnail_width = max(x for x in allowed_widths if x <= thumbnail_width)
-        print(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
 
         thumbnails_str = ""
         with Progress() as p:
