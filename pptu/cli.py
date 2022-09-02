@@ -23,7 +23,7 @@ def main():
     parser = RParse(prog=PROG_NAME)
     parser.add_argument("file",
                         type=Path,
-                        nargs="+",
+                        nargs="*",
                         help="files/directories to create torrents for")
     parser.add_argument("-v", "--version",
                         action="version",
@@ -32,7 +32,6 @@ def main():
     parser.add_argument("-t", "--trackers",
                         metavar="ABBREV",
                         type=lambda x: x.split(","),
-                        required=True,
                         help="tracker(s) to upload torrents to (required)")
     parser.add_argument("-f", "--fast-upload",
                         action="store_true",
@@ -76,6 +75,11 @@ def main():
         console = Console()
         console.print(supported_trackers)
         sys.exit(0)
+
+    if not args.trackers:
+        parser.error("the following arguments are required: -t/--trackers")
+    if not args.file:
+        parser.error("the following arguments are required: file")
 
     trackers = []
     for tracker_name in args.trackers:
