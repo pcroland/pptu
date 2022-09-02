@@ -77,9 +77,9 @@ def main():
         sys.exit(0)
 
     if not args.trackers:
-        eprint("the following arguments are required: [green]-t[/green]/[green]--trackers[/green]", fatal=True)
+        parser.error("the following arguments are required: -t/--trackers")
     if not args.file:
-        eprint("the following arguments are required: [bold magenta]file[/bold magenta]", fatal=True)
+        parser.error("the following arguments are required: file")
 
     trackers = []
     for tracker_name in args.trackers:
