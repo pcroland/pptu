@@ -242,6 +242,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "movie_id": movie_id,
             "media_info": mediainfo,
         }
+        if not auto:
+            print(data, highlight=True)
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[{self.abbrev}].torrent"
         url = f"{self.base_url}/upload/{'movie' if collection == 'movie' else 'tv'}"
