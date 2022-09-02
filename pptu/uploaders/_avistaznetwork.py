@@ -262,6 +262,11 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         res = r.text
         soup = load_html(res)
 
+        if errors := soup.select(".form-error"):
+            for error in errors:
+                eprint(f"[cyan]{escape(error.text)}[cyan]")
+            return False
+
         images = []
         snapshots = snapshots[: len(snapshots) - len(snapshots) % 3]
         for img in track(snapshots, description="Uploading snapshots"):
@@ -283,11 +288,6 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             ).json()
             r.raise_for_status()
             images.append(res["imageId"])
-
-        if errors := soup.select(".form-error"):
-            for error in errors:
-                eprint(f"[cyan]{escape(error.text)}[cyan]")
-            return False
 
         self.data = {
             "_token": token,
