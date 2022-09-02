@@ -255,7 +255,7 @@ class HDBitsUploader(Uploader):
         r = self.session.post(
             url="https://img.hdbits.org/upload_api.php",
             files={
-                **{f"images_files[{i}]": open(snap, "rb") for i, snap in enumerate(snapshots)},
+                **{f"images_files[{i}]": snap.read_bytes() for i, snap in enumerate(snapshots)},
                 "thumbsize": f"w{thumbnail_width}",
                 "galleryoption": "1",
                 "galleryname": name,
@@ -292,9 +292,8 @@ class HDBitsUploader(Uploader):
     def upload(self, path, mediainfo, snapshots, *, auto):
         print(self.data, highlight=True)
 
-        if not auto:
-            if not Confirm.ask("\nUpload torrent?"):
-                return False
+        if not auto and not Confirm.ask("\nUpload torrent?"):
+            return False
 
         res = self.session.post(
             url="https://hdbits.org/upload/upload",

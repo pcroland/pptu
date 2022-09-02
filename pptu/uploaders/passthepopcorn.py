@@ -227,9 +227,8 @@ class PassThePopcornUploader(Uploader):
     def upload(self, path, mediainfo, snapshots, *, auto):
         print(self.data, highlight=True)
 
-        if not auto:
-            if not Confirm.ask("\nUpload torrent?"):
-                return False
+        if not auto and not Confirm.ask("\nUpload torrent?"):
+            return False
 
         res = self.session.post(
             url="https://passthepopcorn.me/upload.php",

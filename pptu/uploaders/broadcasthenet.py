@@ -392,9 +392,8 @@ class BroadcasTheNetUploader(Uploader):
     def upload(self, path, mediainfo, snapshots, *, auto):
         print(self.data, highlight=True)
 
-        if not auto:
-            if not Confirm.ask("\nUpload torrent?"):
-                return False
+        if not auto and not Confirm.ask("\nUpload torrent?"):
+            return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
         self.session.post(

@@ -243,9 +243,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         }
         print({**data, "_token": "[hidden]", "media_info": "[hidden]"}, highlight=True)
 
-        if not auto:
-            if not Confirm.ask("\nContinue with upload?"):
-                return False
+        if not auto and not Confirm.ask("\nContinue with upload?"):
+            return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[{self.abbrev}].torrent"
         url = f"{self.base_url}/upload/{'movie' if collection == 'movie' else 'tv'}"
@@ -327,9 +326,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     def upload(self, path, mediainfo, snapshots, *, auto):
         print(self.data, highlight=True)
 
-        if not auto:
-            if not Confirm.ask("Upload torrent?"):
-                return False
+        if not auto and not Confirm.ask("Upload torrent?"):
+            return False
 
         r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
         res = r.text
