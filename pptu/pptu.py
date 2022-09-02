@@ -94,6 +94,7 @@ class PPTU:
         snapshots = []
 
         print()
+        last_file = None
         for i in track(
             range(num_snapshots), description=f"[bold green]Generating snapshots ({self.tracker.abbrev})[/]"
         ):
@@ -101,13 +102,19 @@ class PPTU:
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
             interval = duration / (num_snapshots + 1)
 
+            j = i
+            if last_file != files[i]:
+                j = 0
+            last_file = files[i]
+
             snap = self.cache_dir / "{num:02}{alt}.png".format(num=i + 1, alt="_alt" if self.tracker.all_files else "")
+
             if not snap.exists():
                 subprocess.run([
                     "ffmpeg",
                     "-y",
                     "-v", "error",
-                    "-ss", str(interval * (i + 1) if len(set(files)) == 1 else duration / 2),
+                    "-ss", interval * (j + 1),
                     "-i", files[i],
                     "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
                     "-frames:v", "1",
