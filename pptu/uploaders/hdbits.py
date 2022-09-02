@@ -245,9 +245,9 @@ class HDBitsUploader(Uploader):
         name = re.sub(r"HDR10(?:\+|P|Plus)", "HDR", name, flags=re.IGNORECASE)
         name = re.sub(r"(?:DV|DoVi)\.HDR", "DoVi", name)
 
-        thumbnail_row_width = max(900, self.config.get(self, "snapshot_row_width", 900))
+        thumbnail_row_width = min(900, self.config.get(self, "snapshot_row_width", 900))
         allowed_widths = [100, 150, 200, 250, 300, 350]
-        thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2) - 5)
+        thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
         thumbnail_width = max(x for x in allowed_widths if x <= thumbnail_width)
         print(f"Using thumbnail width: [bold cyan]{thumbnail_width}[/]")
 
