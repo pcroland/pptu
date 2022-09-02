@@ -6,6 +6,8 @@ import time
 from pathlib import Path
 
 from platformdirs import PlatformDirs
+from rich.console import Console
+from rich.table import Table
 
 from . import uploaders
 from .constants import PROG_NAME, PROG_VERSION
@@ -47,6 +49,9 @@ def main():
     parser.add_argument("-s", "--skip-upload",
                         action="store_true",
                         help="skip upload")
+    parser.add_argument("-lt", "--list-trackers",
+                        action="store_true",
+                        help="list supported trackers")
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         if getattr(sys, "frozen", False):
@@ -61,6 +66,16 @@ def main():
         x for x in vars(uploaders).values()
         if isinstance(x, type) and x != Uploader and issubclass(x, Uploader)
     ]
+
+    if args.list_trackers:
+        supported_trackers = Table(title="Supported trackers", title_style="not italic bold magenta")
+        supported_trackers.add_column("Site", style="cyan")
+        supported_trackers.add_column("Abbreviation", style="bold green")
+        for tracker in all_trackers:
+            supported_trackers.add_row(tracker.name, tracker.abbrev)
+        console = Console()
+        console.print(supported_trackers)
+        sys.exit(0)
 
     trackers = []
     for tracker_name in args.trackers:
