@@ -12,6 +12,7 @@ repos:
           - 'flake8-bugbear==22.8.23'
           - 'flake8-pie==0.16.0'
           - 'Flake8-pyproject==1.1.0.post0'
+          - 'flake8-simplify==0.19.3'
 
   - repo: 'https://github.com/pycqa/isort'
     rev: '12cc5fbd67eebf92eb2213b03c07b138ae1fb448'

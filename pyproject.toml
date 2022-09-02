@@ -40,6 +40,7 @@ flake8 = "^5.0.4"
 flake8-bugbear = "^22.8.23"
 flake8-pie = "^0.16.0"
 Flake8-pyproject = "^1.1.0.post0"
+flake8-simplify = "^0.19.3"
 isort = {git = "https://github.com/PyCQA/isort.git", rev = "main"}
 pre-commit = "^2.20.0"
 pyupgrade = "^2.37.3"
