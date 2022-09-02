@@ -5,6 +5,7 @@ from abc import ABC
 
 from pyotp import TOTP
 from rich.markup import escape
+from rich.progress import track
 from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, print, wprint
@@ -265,7 +266,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
         images = []
         snapshots = snapshots[: len(snapshots) - len(snapshots) % 3]
-        for img in snapshots:
+        for img in track(snapshots, description="Uploading snapshots"):
             res = self.session.post(
                 url=f"{self.base_url}/ajax/image/upload",
                 data={
@@ -282,7 +283,6 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 },
                 timeout=60,
             ).json()
-            print(res, highlight=True)
             r.raise_for_status()
             images.append(res["imageId"])
 
