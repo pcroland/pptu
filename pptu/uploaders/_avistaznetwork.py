@@ -6,7 +6,7 @@ from abc import ABC
 from pyotp import TOTP
 from rich.markup import escape
 from rich.progress import track
-from rich.prompt import Confirm, Prompt
+from rich.prompt import Prompt
 
 from ..utils import eprint, load_html, print, wprint
 from . import Uploader
@@ -242,10 +242,6 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "movie_id": movie_id,
             "media_info": mediainfo,
         }
-        print(data)
-
-        if not auto and not Confirm.ask("\nContinue with upload?"):
-            return False
 
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[{self.abbrev}].torrent"
         url = f"{self.base_url}/upload/{'movie' if collection == 'movie' else 'tv'}"
