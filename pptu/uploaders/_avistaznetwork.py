@@ -5,7 +5,7 @@ from abc import ABC
 
 from pyotp import TOTP
 from rich.markup import escape
-from rich.progress import track
+from rich.progress import Progress, track
 from rich.prompt import Prompt
 
 from ..utils import eprint, load_html, print, wprint
@@ -35,9 +35,11 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return f"https://tracker.{self.domain}/{{passkey}}/announce"
 
     def login(self):
-        r = self.session.get(f"{self.base_url}/account", allow_redirects=False, timeout=60)
-        if r.status_code == 200:
-            return True
+        with Progress() as p:
+            p.add_task("Checking cookie validity", total=None)
+            r = self.session.get(f"{self.base_url}/account", allow_redirects=False, timeout=60)
+            if r.status_code == 200:
+                return True
 
         wprint("Cookies missing or expired, logging in...")
 
