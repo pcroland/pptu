@@ -63,9 +63,11 @@ def flatten(L):
     return [item for sublist in L for item in sublist]
 
 
-def print(text="", highlight=False):
+def print(text="", highlight=False, file=sys.stdout, flush=False, **kwargs):
     with Console(highlight=highlight) as console:
-        console.print(text)
+        console.print(text, **kwargs)
+        if flush:
+            file.flush()
 
 
 def wprint(text):
