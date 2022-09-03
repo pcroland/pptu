@@ -110,6 +110,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     "email_username": username,
                     "password": password,
                     "captcha": captcha_answer,
+                    "remember": "1",
                 },
             )
             res = r.text
