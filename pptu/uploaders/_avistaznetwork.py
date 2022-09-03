@@ -56,8 +56,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             return False
 
         attempt = 1
-        done = False
-        while not done:
+        while True:
             res = self.session.get(f"{self.base_url}/auth/login").text
             soup = load_html(res)
             token = soup.select_one("input[name='_token']")["value"]
@@ -104,46 +103,44 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     print(" Received")
                     break
 
-            while True:
-                r = self.session.post(
-                    url=f"{self.base_url}/auth/login",
-                    data={
-                        "_token": token,
-                        "email_username": username,
-                        "password": password,
-                        "captcha": captcha_answer,
-                    },
-                )
-                res = r.text
+            r = self.session.post(
+                url=f"{self.base_url}/auth/login",
+                data={
+                    "_token": token,
+                    "email_username": username,
+                    "password": password,
+                    "captcha": captcha_answer,
+                },
+            )
+            res = r.text
 
-                if "/captcha" in r.url or "Verification failed. You might be a robot!" in res:
-                    self.session.post(
-                        url="https://2captcha.com/res.php",
-                        params={
-                            "key": twocaptcha_api_key,
-                            "action": "reportbad",
-                            "id": req_id,
-                        },
-                    )
-
-                    if attempt > 5:
-                        eprint("Captcha answer rejected too many times, giving up.")
-                        return False
-
-                    wprint("Captcha answer rejected, retrying.")
-                    attempt += 1
-                    continue
-
+            if "/captcha" in r.url or "Verification failed. You might be a robot!" in res:
                 self.session.post(
                     url="https://2captcha.com/res.php",
                     params={
                         "key": twocaptcha_api_key,
-                        "action": "reportgood",
+                        "action": "reportbad",
                         "id": req_id,
                     },
                 )
-                done = True
-                break
+
+                if attempt > 5:
+                    eprint("Captcha answer rejected too many times, giving up.")
+                    return False
+
+                wprint("Captcha answer rejected, retrying.")
+                attempt += 1
+                continue
+
+            self.session.post(
+                url="https://2captcha.com/res.php",
+                params={
+                    "key": twocaptcha_api_key,
+                    "action": "reportgood",
+                    "id": req_id,
+                },
+            )
+            break
 
         for cookie in self.session.cookies:
             self.cookie_jar.set_cookie(cookie)
