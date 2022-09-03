@@ -7,6 +7,7 @@ import toml
 from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
 from rich.console import Console
+from rich.progress import track
 from wand.image import Image
 
 from .constants import PROG_NAME, PROG_VERSION
@@ -90,7 +91,10 @@ def load_html(text):
 def generate_thumbnails(snapshots, width=300):
     width = int(width)
     print(f"Using thumbnail width: [bold cyan]{width}[/]")
-    for snap in snapshots:
+
+    thumbnails = []
+
+    for snap in track(snapshots, description="Generating thumbnails"):
         thumb = snap.with_stem(f"{snap.stem}_thumb_{width}")
         if not thumb.exists():
             with Image(filename=snap) as img:
@@ -98,4 +102,6 @@ def generate_thumbnails(snapshots, width=300):
                 img.depth = 8
                 img.save(filename=thumb)
             oxipng.optimize(thumb)
-        yield thumb
+        thumbnails.append(thumb)
+
+    return thumbnails
