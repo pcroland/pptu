@@ -1,5 +1,6 @@
 import contextlib
 import json
+import os
 import platform
 import re
 import shutil
@@ -161,6 +162,10 @@ class BroadcasTheNetUploader(Uploader):
 
         if not (chrome_path := shutil.which("google-chrome") or shutil.which("chromium")):
             eprint("Chrome or Chromium is required for login but was not found.")
+            return False
+
+        if hasattr(os, "uname") and "Microsoft" in os.uname().release:  # Microsoft = WSL1, microsoft = WSL2
+            eprint("Login will not work in WSL1. Please update to WSL2 or use cookies.")
             return False
 
         p = subprocess.run([chrome_path, "--version"], capture_output=True, encoding="utf-8")
