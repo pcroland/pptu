@@ -1,22 +1,13 @@
-import contextlib
 import json
-import os
-import platform
 import re
-import shutil
 import subprocess
 
 import httpx
-import seleniumwire.undetected_chromedriver as uc
 from guessit import guessit
 from langcodes import Language
 from pyotp import TOTP
-from pyvirtualdisplay import Display
 from rich.progress import track
 from rich.prompt import Prompt
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.support.ui import WebDriverWait
 
 from ..utils import eprint, generate_thumbnails, load_html, print, wprint
 from . import Uploader
@@ -136,12 +127,16 @@ class BroadcasTheNetUploader(Uploader):
 
     @property
     def passkey(self):
-        res = self.session.get("https://broadcasthe.net/upload.php").text
+        res = self.session.get("https://backup.landof.tv/upload.php").text
         soup = load_html(res)
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
     def login(self):
-        r = self.session.get("https://broadcasthe.net/user.php")
+        # Allow cookies from either broadcasthe.net or backup.landof.tv
+        for cookie in self.session.cookies:
+            cookie.domain = cookie.domain.replace("broadcasthe.net", "backup.landof.tv")
+
+        r = self.session.get("https://backup.landof.tv/user.php")
         if "login.php" not in r.url:
             return True
 
@@ -155,69 +150,9 @@ class BroadcasTheNetUploader(Uploader):
             eprint("No password specified in config, cannot log in.")
             return False
 
-        if platform.system() == "Windows":
-            display = contextlib.nullcontext()
-        else:
-            display = Display(visible=False)
-
-        if not (chrome_path := shutil.which("google-chrome") or shutil.which("chromium")):
-            eprint("Chrome or Chromium is required for login but was not found.")
-            return False
-
-        if hasattr(os, "uname") and "Microsoft" in os.uname().release:  # Microsoft = WSL1, microsoft = WSL2
-            eprint("Login will not work in WSL1. Please update to WSL2 or use cookies.")
-            return False
-
-        p = subprocess.run([chrome_path, "--version"], capture_output=True, encoding="utf-8")
-        chrome_version = int(p.stdout.split()[-1].split(".")[0])
-
-        with display:
-            print("Starting ChromeDriver")
-            proxy_url = self.session.proxies.get("all")
-            with uc.Chrome(
-                browser_executable=chrome_path,
-                version_main=chrome_version,
-                seleniumwire_options={
-                    "proxy": {
-                        "http": proxy_url,
-                        "https": proxy_url,
-                        "no_proxy": "localhost,127.0.0.1",
-                    },
-                    "request_storage": "memory",
-                }
-            ) as driver:
-                driver.get("https://broadcasthe.net/login.php")
-
-                WebDriverWait(driver, 60).until(EC.presence_of_element_located((By.XPATH, "//form[@name='loginform']")))
-
-                self.session.headers.update({
-                    "User-Agent": driver.execute_script("return navigator.userAgent;")
-                })
-
-                for cookie in driver.get_cookies():
-                    cookie.setdefault("rest", {})
-
-                    if "expiry" in cookie:
-                        cookie["expires"] = cookie.pop("expiry")
-
-                    if "httpOnly" in cookie:
-                        # cookie["rest"].update({"HttpOnly": cookie["httpOnly"]})
-                        cookie.pop("httpOnly")
-
-                    if "sameSite" in cookie:
-                        # cookie["rest"].update({"SameSite": cookie["sameSite"]})
-                        cookie.pop("sameSite")
-
-                    self.session.cookies.set(**cookie)
-
-        for cookie in self.session.cookies:
-            self.cookie_jar.set_cookie(cookie)
-        self.cookies_path.parent.mkdir(parents=True, exist_ok=True)
-        self.cookie_jar.save(ignore_discard=True)
-
         print("Logging in")
         r = self.session.post(
-            url="https://broadcasthe.net/login.php",
+            url="https://backup.landof.tv/login.php",
             data={
                 "username": username,
                 "password": password,
@@ -230,7 +165,7 @@ class BroadcasTheNetUploader(Uploader):
         if "login.php" in r.url:
             totp_secret = self.config.get(self, "totp_secret")
             r = self.session.post(
-                url="https://broadcasthe.net/login.php",
+                url="https://backup.landof.tv/login.php",
                 data={
                     "code": TOTP(totp_secret).now() if totp_secret else Prompt.ask("Enter 2FA code"),
                     "act": "authenticate",
@@ -264,7 +199,7 @@ class BroadcasTheNetUploader(Uploader):
             release_name = re.sub(r"\.(\d+p)", r".HLG.\1", release_name)
 
         r = self.session.post(
-            url="https://broadcasthe.net/upload.php",
+            url="https://backup.landof.tv/upload.php",
             data={
                 "type": type_,
                 "scene_yesno": "yes",
@@ -398,7 +333,7 @@ class BroadcasTheNetUploader(Uploader):
     def upload(self, path, mediainfo, snapshots, *, auto):
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
         self.session.post(
-            url="https://broadcasthe.net/upload.php",
+            url="https://backup.landof.tv/upload.php",
             data=self.data,
             files={
                 "file_input": (str(torrent_path), torrent_path.open("rb"), "application/x-bittorrent"),

@@ -24,7 +24,7 @@
     <th>BroadcasTheNet</th>
     <td align="center"><code>BTN</code></td>
     <td align="center">Credentials/<br />Cookies</td>
-    <td align="center"><img src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png" width="14" /> Yes</td>
+    <td align="center"><img src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png" width="14" /> No</td>
     <td align="center"><img src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png" width="14" /> No</td>
     <td><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" width="14" /> Dedicated servers only, requires staff approval</td>
   </tr>
@@ -69,8 +69,6 @@ For sites with captcha, a 2captcha API key is required to solve the captcha. Man
 "Simple" captchas can be solved automatically without 2captcha or user interaction.
 
 ### BroadcasTheNet
-* selenium-wire and undetected-chromedriver are required for credential login to pass the Cloudflare challenge.
-  You'll also need Xvfb on Linux as ChromeDriver's headless mode is detected by Cloudflare.
 * Movie support is not yet implemented.
 
 ### PassThePopcorn
