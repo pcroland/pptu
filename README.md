@@ -40,8 +40,8 @@
     <th>PassThePopcorn</th>
     <td align="center"><code>PTP</code></td>
     <td align="center">Credentials/<br />Cookies</td>
-    <td align="center">N/A</td>
-    <td align="center">N/A</td>
+    <td align="center"><img src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png" width="14" /> No</td>
+    <td align="center"><img src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png" width="14" /> No</td>
     <td><img src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png" width="14" /> Dedicated servers only, requires staff approval</td>
   </tr>
   <tr>
