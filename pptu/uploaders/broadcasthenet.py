@@ -249,6 +249,9 @@ class BroadcasTheNetUploader(Uploader):
         else:
             eprint("MP4 is not yet supported.")  # TODO
 
+        if lang.territory == "419":
+            lang.territory = "ES"  # Technically Latin America but we can't guess automatically
+
         print(f"Detected language as {lang.language}")
         print(f"Detected country as {lang.territory}")
 
