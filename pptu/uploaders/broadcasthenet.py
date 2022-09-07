@@ -246,8 +246,12 @@ class BroadcasTheNetUploader(Uploader):
             if not lang.language:
                 eprint("Primary audio track has no language set.")
             lang = lang.fill_likely_values()
-        else:
+        elif file.suffix == ".mp4":
             eprint("MP4 is not yet supported.")  # TODO
+            return False
+        else:
+            eprint("File must be MKV or MP4.")
+            return False
 
         if lang.territory == "419":
             lang.territory = "ES"  # Technically Latin America but we can't guess automatically
