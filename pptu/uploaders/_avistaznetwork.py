@@ -233,7 +233,12 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         ).json()
         print(res, highlight=True)
         r.raise_for_status()
-        res = next(x for x in res["data"] if x.get("release_year") == year or not year)
+        # TODO: Automatically add new titles
+        try:
+            res = next(x for x in res["data"] if x.get("release_year") == year or not year)
+        except StopIteration:
+            eprint("Title not found on site, please add it manually and try again.")
+            return False
         movie_id = res["id"]
         print(f"Found title: [bold cyan]{res['title']}[/] ([bold green]{res['release_year']}[/])")
         data = {
