@@ -99,6 +99,12 @@ class PPTU:
             range(num_snapshots), description=f"[bold green]Generating snapshots ({self.tracker.abbrev})[/]"
         ):
             mediainfo_obj = MediaInfo.parse(files[i])
+            if not mediainfo_obj.video_tracks:
+                eprint("File has no video tracks")
+                return False
+            if not mediainfo_obj.audio_tracks:
+                eprint("File has no audio tracks")
+                return False
             duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
             interval = duration / (num_snapshots + 1)
 
