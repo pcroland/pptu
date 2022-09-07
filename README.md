@@ -6,6 +6,7 @@
 * torrenttools (for creating torrents)
 * MediaInfo CLI (for generating tech info)
 * FFmpeg (for generating snapshots)
+* ImageMagick/libmagickwand (for optimizing snapshots)
 
 ## Supported trackers
 <table>
