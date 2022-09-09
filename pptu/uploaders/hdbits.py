@@ -56,35 +56,35 @@ class HDBitsUploader(Uploader):
     }
     TAG_MAP = {
         # Formats
-        r"\b(?:Atmos|DDPA|TrueHDA)\b": 5,
-        r"\b(?:DV|DoVi)\b": 6,
-        r"\bHDR": 9,
-        r"(?i)\bHDR10(?:\+|P(?:lus)?)\b": 25,
-        r"\bHFR\b": 36,
-        r"\bHLG\b": 10,
-        r"\bIMAX\b": 14,
-        r"\bOM\b": 58,
+        r"\b(?:Atmos|DDPA|TrueHDA)\b": 5,  # Dolby Atmos
+        r"\b(?:DV|DoVi)\b": 6,  # Dolby Vision
+        r"\bHDR": 9,  # HDR10
+        r"(?i)\bHDR10(?:\+|P(?:lus)?)\b": 25,  # HDR10+
+        r"\bHFR\b": 36,  # HFR
+        r"\bHLG\b": 10,  # HLG
+        r"\bIMAX\b": 14,  # IMAX
+        r"\bOM\b": 58,  # Open Matte
         # Streaming services
-        r"\bAMZN\b": 28,
-        r"\bATVP\b": 27,
-        r"\bB?CORE\b": 66,
-        r"\bCRAV\b": 80,
-        r"\bCRKL\b": 73,
-        r"\bCR\b": 72,
-        r"\bDSNP\b": 33,
-        r"\bFUNI\b": 74,
-        r"\bHLMK\b": 71,
-        r"\bHMAX\b": 30,
-        r"\bHS\b": 79,
-        r"\bHULU\b": 34,
-        r"\biP\b": 56,
-        r"\biT\b": 38,
-        r"\bMA\.WEB\b": 77,
-        r"\bNF\b": 29,
-        r"\bPCOK\b": 31,
-        r"\bPMTP\b": 69,
-        r"\bSHO\b": 76,
-        r"\bSTAN\b": 32,
+        r"\bAMZN\b": 28,  # Amazon
+        r"\bATVP\b": 27,  # Apple TV+
+        r"\bB?CORE\b": 66,  # Bravia Core
+        r"\bCRAV\b": 80,  # Crave
+        r"\bCRKL\b": 73,  # Crackle
+        r"\bCR\b": 72,  # Crunchyroll
+        r"\bDSNP\b": 33,  # Disney+
+        r"\bFUNI\b": 74,  # Funimation
+        r"\bHLMK\b": 71,  # Hallmark Channel
+        r"\bHMAX\b": 30,  # HBO Max
+        r"\bHS\b": 79,  # Hotstar
+        r"\bHULU\b": 34,  # Hulu
+        r"\biP\b": 56,  # BBC iPlayer
+        r"\biT\b": 38,  # iTunes
+        r"\bMA\.WEB\b": 77,  # Movies Anywhere
+        r"\bNF\b": 29,  # Netflix
+        r"\bPCOK\b": 31,  # Peacock
+        r"\bPMTP\b": 69,  # Paramount+
+        r"\bSHO\b": 76,  # Showtime
+        r"\bSTAN\b": 32,  # Stan
     }
 
     def login(self):
