@@ -69,9 +69,6 @@
 For sites with captcha, a 2captcha API key is required to solve the captcha. Manual solving may be added in the future.
 "Simple" captchas can be solved automatically without 2captcha or user interaction.
 
-### BroadcasTheNet
-* Movie support is not yet implemented.
-
 ### PassThePopcorn
 * Credential auth requires passkey in addition to username and password.
 

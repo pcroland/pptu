@@ -183,8 +183,8 @@ class BroadcasTheNetUploader(Uploader):
             print("Detected season")
             type_ = "Season"
         else:
-            eprint("Movies are not yet supported")
-            return False
+            print("Detected movie")
+            type_ = "Episode"
 
         release_name = path.stem if path.is_file() else path.name
         release_name = re.sub(r"\.([a-z]+)\.?([\d.]+)\.Atmos", r"\.\1A\2", release_name, flags=re.I)
@@ -227,9 +227,19 @@ class BroadcasTheNetUploader(Uploader):
             title = soup.select_one('[name="title"]').get("value")
 
         if artist == "AutoFill Fail" or title == "AutoFill Fail":
-            eprint("AutoFill Fail.")
-            return False
-        print("AutoFill complete.")
+            if auto:
+                eprint("AutoFill Fail.")
+                return False
+            else:
+                wprint("AutoFill Fail, please enter details manually.")
+                if type_ == "Movie":
+                    artist = Prompt.ask("TV Network / Series Title")
+                    title = Prompt.ask("Movie Title")
+                else:
+                    artist = Prompt.ask("Series Title")
+                    title = Prompt.ask("Season/Episode")
+        else:
+            print("AutoFill complete.")
 
         if path.is_dir():
             file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
