@@ -329,7 +329,7 @@ class BroadcasTheNetUploader(Uploader):
             "artist": artist,
             "title": title,
             "actors": (soup.select_one('[name="actors"]') or {}).get("value"),
-            "origin": "P2P",
+            "origin": "Internal" if release_name.endswith(("-BTW", "-NTb", "-TVSmash")) else "P2P",
             "foreign": None if lang.language == "en" else "on",
             "country": self.COUNTRY_MAP.get(lang.territory),
             "year": soup.select_one('[name="year"]').get("value"),
