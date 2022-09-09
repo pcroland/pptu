@@ -55,33 +55,33 @@ class HDBitsUploader(Uploader):
         "WEB-DL": 6,
     }
     TAG_MAP = {
-        "Amazon": r"\bAMZN\b",
-        "Apple TV+": r"\bATVP\b",
-        "BBC iPlayer": r"\biP\b",
-        "Bravia Core": r"\bB?CORE\b",
-        "Crackle": r"\bCRKL\b",
-        "Crunchyroll": r"\bCR\b",
-        "Disney+": r"\bDSNP\b",
-        "Dolby Atmos": r"\b(?:Atmos|DDPA|TrueHDA)\b",
-        "Dolby Vision": r"\b(?:DV|DoVi)\b",
-        "Funimation": r"\bFUNI\b",
-        "Hallmark Channel": r"\bHLMK\b",
-        "HBO Max": r"\bHMAX\b",
-        "HDR10": r"\bHDR",
-        "HDR10+": r"(?i)\bHDR10(?:\+|P(?:lus)?)\b",
-        "HFR": r"\bHFR\b",
-        "HLG": r"\bHLG\b",
-        "Hotstar": r"\bHS\b",
-        "Hulu": r"\bHULU\b",
-        "IMAX": r"\bIMAX\b",
-        "iTunes": r"\biT\b",
-        "Movies Anywhere": r"\bMA\.WEB\b",
-        "Netflix": r"\bNF\b",
-        "Open Matte": r"\bOM\b",
-        "Paramount+": r"\bPMTP\b",
-        "Peacock": r"\bPCOK\b",
-        "Showtime": r"\bSHO\b",
-        "Stan": r"\bSTAN\b",
+        r"\bAMZN\b": 28,
+        r"\bATVP\b": 27,
+        r"\biP\b": 56,
+        r"\bB?CORE\b": 66,
+        r"\bCRKL\b": 73,
+        r"\bCR\b": 72,
+        r"\bDSNP\b": 33,
+        r"\b(?:Atmos|DDPA|TrueHDA)\b": 5,
+        r"\b(?:DV|DoVi)\b": 6,
+        r"\bFUNI\b": 74,
+        r"\bHLMK\b": 71,
+        r"\bHMAX\b": 30,
+        r"\bHDR": 9,
+        r"(?i)\bHDR10(?:\+|P(?:lus)?)\b": 25,
+        r"\bHFR\b": 36,
+        r"\bHLG\b": 10,
+        r"\bHS\b": 79,
+        r"\bHULU\b": 34,
+        r"\bIMAX\b": 14,
+        r"\biT\b": 38,
+        r"\bMA\.WEB\b": 77,
+        r"\bNF\b": 29,
+        r"\bOM\b": 58,
+        r"\bPMTP\b": 69,
+        r"\bPCOK\b": 31,
+        r"\bSHO\b": 76,
+        r"\bSTAN\b": 32,
     }
 
     def login(self):
@@ -233,9 +233,9 @@ class HDBitsUploader(Uploader):
         name = path.name
 
         tags = []
-        for tag, pattern in self.TAG_MAP.items():
+        for pattern, tag_id in self.TAG_MAP.items():
             if re.search(pattern, name):
-                tags.append(tag)
+                tags.append(tag_id)
 
         gi = guessit(path.name)
         if gi.get("episode_details") != "Special":
