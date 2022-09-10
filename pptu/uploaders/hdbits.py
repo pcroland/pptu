@@ -178,8 +178,8 @@ class HDBitsUploader(Uploader):
                     },
                 )
                 r.raise_for_status()
-                res2 = r.json()
-                tvdb = next(iter(res2.keys()))
+                if res2 := r.json():
+                    tvdb = next(iter(res2.keys()))
             tvdb = tvdb or input("Enter TVDB ID: ")
 
             season = res["season"]
