@@ -11,7 +11,8 @@ from pathlib import Path
 import oxipng
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
-from rich.progress import track
+from rich.progress import Progress, track
+from torf import Torrent
 from wand.image import Image
 
 from .utils import Config, eprint, flatten
@@ -43,33 +44,31 @@ class PPTU:
         output = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
 
         if base_torrent_path:
-            subprocess.run([
-                "torrenttools",
-                "edit",
-                "--no-created-by",
-                "--no-creation-date",
-                "-a", self.tracker.announce_url.format(passkey=passkey),
-                "-s", self.tracker.source,
-                "-p", "on",
-                "-o", output,
-                base_torrent_path,
-            ], check=True)
+            torrent = Torrent(base_torrent_path)
+            torrent.trackers = [self.trackers.announce_url.format(passkey=passkey)]
+            torrent.source = self.tracker.source
+            torrent.private = True
+            torrent.write(output)
         else:
-            subprocess.run([
-                "torrenttools",
-                "create",
-                "--no-created-by",
-                "--no-creation-date",
-                "--no-cross-seed",
-                "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
-                "-a", self.tracker.announce_url.format(passkey=passkey),
-                "-s", self.tracker.source,
-                "-p", "on",
-                "-o", output,
+            torrent = Torrent(
                 self.file,
-            ], check=True)
+                trackers=[self.tracker.announce_url.format(passkey=passkey)],
+                private=True,
+                source=self.tracker.source,
+                created_by=None,
+                randomize_infohash=not self.tracker.source,
+                exclude_regexs=[r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$"],
+            )
+            with Progress() as progress:
+                def update_progress(_torrent, _filepath, pieces_done, pieces_total):
+                    progress.update(task, completed=pieces_done, total=pieces_total)
 
-        return output.exists()
+                task = progress.add_task(
+                    description=f"[bold green]Creating torrent file for tracker ({self.tracker.abbrev})[/]"
+                )
+                torrent.generate(callback=update_progress, interval=1)
+
+        return True
 
     def get_mediainfo(self):
         mediainfo_path = self.cache_dir / "mediainfo.txt"
