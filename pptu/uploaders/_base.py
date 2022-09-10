@@ -11,6 +11,7 @@ from ..utils import Config, eprint
 class Uploader(ABC):
     all_files = False  # Whether to generate MediaInfo and snapshots for all files
     min_snapshots = 0
+    random_snapshots = False
 
     def __init__(self):
         self.dirs = PlatformDirs(appname="pptu", appauthor=False)
