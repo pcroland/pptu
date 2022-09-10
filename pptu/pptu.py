@@ -55,7 +55,7 @@ class PPTU:
     def get_mediainfo(self):
         mediainfo_path = self.cache_dir / "mediainfo.txt"
         if self.tracker.all_files and self.file.is_dir():
-            mediainfo_path = self.cache_dir / "mediainfo_alt.txt"
+            mediainfo_path = self.cache_dir / "mediainfo_all.txt"
 
         if mediainfo_path.exists():
             mediainfo = mediainfo_path.read_text()
