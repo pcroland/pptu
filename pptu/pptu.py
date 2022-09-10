@@ -128,7 +128,8 @@ class PPTU:
                     "-y",
                     "-v", "error",
                     "-ss", str(
-                        random.randint(interval * 1, interval * num_snapshots) if self.tracker.random_snapshots
+                        random.randint(round(interval * 10), round(interval * 10 * num_snapshots)) / 10
+                        if self.tracker.random_snapshots
                         else str(interval * (j + 1))
                     ),
                     "-i", files[i],
