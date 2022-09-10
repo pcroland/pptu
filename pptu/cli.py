@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import subprocess
 import sys
 import time
 from pathlib import Path
@@ -122,22 +121,6 @@ def main():
 
         cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
         cache_dir.mkdir(parents=True, exist_ok=True)
-
-        print("\n[bold green]Creating initial torrent file[/]")
-        base_torrent_path = cache_dir / f"{file.name}.torrent"
-        if not base_torrent_path.exists():
-            subprocess.run([
-                "torrenttools",
-                "create",
-                "--no-created-by",
-                "--no-creation-date",
-                "--no-cross-seed",
-                "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
-                "-o", base_torrent_path,
-                file,
-            ], check=True)
-        if not base_torrent_path.exists():
-            sys.exit(1)
 
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)

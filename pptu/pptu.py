@@ -1,3 +1,4 @@
+import glob
 import importlib.resources
 import os
 import random
@@ -38,18 +39,33 @@ class PPTU:
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
             return False
 
+        base_torrent_path = next(iter(self.cache_dir.glob(f"{glob.escape(self.file.name)}[*].torrent")), None)
         output = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
-        subprocess.run([
-            "torrenttools",
-            "edit",
-            "--no-created-by",
-            "--no-creation-date",
-            "-a", self.tracker.announce_url.format(passkey=passkey),
-            "-s", self.tracker.source,
-            "-p", "on",
-            "-o", output,
-            self.cache_dir / f"{self.file.name}.torrent",
-        ], check=True)
+
+        if base_torrent_path:
+            subprocess.run([
+                "torrenttools",
+                "edit",
+                "--no-created-by",
+                "--no-creation-date",
+                "-a", self.tracker.announce_url.format(passkey=passkey),
+                "-s", self.tracker.source,
+                "-p", "on",
+                "-o", output,
+                base_torrent_path,
+            ], check=True)
+        else:
+            subprocess.run([
+                "torrenttools",
+                "create",
+                "--no-created-by",
+                "--no-creation-date",
+                "--no-cross-seed",
+                "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
+                "-o", output,
+                self.file,
+            ], check=True)
+
         return output.exists()
 
     def get_mediainfo(self):
