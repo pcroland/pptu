@@ -14,6 +14,7 @@ from . import Uploader
 
 class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     min_snapshots = 3
+    random_snapshots = True
 
     COLLECTION_MAP = {
         "movie": None,
