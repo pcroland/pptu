@@ -62,6 +62,9 @@ class PPTU:
                 "--no-creation-date",
                 "--no-cross-seed",
                 "--exclude", r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$",
+                "-a", self.tracker.announce_url.format(passkey=passkey),
+                "-s", self.tracker.source,
+                "-p", "on",
                 "-o", output,
                 self.file,
             ], check=True)
