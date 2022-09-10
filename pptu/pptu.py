@@ -1,5 +1,6 @@
 import importlib.resources
 import os
+import random
 import re
 import shutil
 import subprocess
@@ -113,14 +114,23 @@ class PPTU:
                 j = 0
             last_file = files[i]
 
-            snap = self.cache_dir / "{num:02}{alt}.png".format(num=i + 1, alt="_alt" if self.tracker.all_files else "")
+            snap = self.cache_dir / "{num:02}{suffix}.png".format(
+                num=i + 1,
+                suffix=(
+                    "_all" if self.tracker.all_files else ""
+                    + "_rand" if self.tracker.random_snapshots else ""
+                ),
+            )
 
             if not snap.exists():
                 subprocess.run([
                     "ffmpeg",
                     "-y",
                     "-v", "error",
-                    "-ss", str(interval * (j + 1)),
+                    "-ss", str(
+                        random.randint(interval * 1, interval * num_snapshots) if self.tracker.random_snapshots
+                        else str(interval * (j + 1))
+                    ),
                     "-i", files[i],
                     "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
                     "-frames:v", "1",
