@@ -131,7 +131,7 @@ class BroadcasTheNetUploader(Uploader):
         soup = load_html(res)
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
-    def login(self):
+    def login(self, *, auto):
         # Allow cookies from either broadcasthe.net or backup.landof.tv
         for cookie in self.session.cookies:
             cookie.domain = cookie.domain.replace("broadcasthe.net", "backup.landof.tv")
@@ -163,11 +163,18 @@ class BroadcasTheNetUploader(Uploader):
         r.raise_for_status()
 
         if "login.php" in r.url:
-            totp_secret = self.config.get(self, "totp_secret")
+            if totp_secret := self.config.get(self, "totp_secret"):
+                tfa_code = TOTP(totp_secret).now()
+            else:
+                if auto:
+                    eprint("No TOTP secret specified in config")
+                    return False
+                tfa_code = Prompt.ask("Enter 2FA code")
+
             r = self.session.post(
                 url="https://backup.landof.tv/login.php",
                 data={
-                    "code": TOTP(totp_secret).now() if totp_secret else Prompt.ask("Enter 2FA code"),
+                    "code": tfa_code,
                     "act": "authenticate",
                 },
             )

@@ -87,7 +87,7 @@ class HDBitsUploader(Uploader):
         r"\bSTAN\b": 32,  # Stan
     }
 
-    def login(self):
+    def login(self, *, auto):
         r = self.session.get("https://hdbits.org")
         if not r.url.startswith("https://hdbits.org/login"):
             return True
@@ -123,6 +123,10 @@ class HDBitsUploader(Uploader):
             },
         )
         if "error=7" in r.url:
+            print("2FA detected")
+            if auto:
+                eprint("No TOTP secret specified in config")
+                return False
             r = self.session.post(
                 url="https://hdbits.org/login/doLogin",
                 data={
@@ -180,7 +184,10 @@ class HDBitsUploader(Uploader):
                 r.raise_for_status()
                 if res2 := r.json():
                     tvdb = next(iter(res2.keys()))
-            tvdb = tvdb or input("Enter TVDB ID: ")
+            if not tvdb:
+                if auto:
+                    eprint("Unable to get TVDB ID")
+                tvdb = Prompt.ask("Enter TVDB ID")
 
             season = res["season"]
             episode = res["episode"]

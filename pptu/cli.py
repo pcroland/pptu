@@ -43,9 +43,12 @@ def main():
                         action="store_false",
                         default=None,
                         help="disable fast upload even if enabled in config")
+    parser.add_argument("-c", "--confirm",
+                        action="store_true",
+                        help="ask for confirmation before uploading")
     parser.add_argument("-a", "--auto",
                         action="store_true",
-                        help="upload without confirmation")
+                        help="never prompt for user input")
     parser.add_argument("-s", "--skip-upload",
                         action="store_true",
                         help="skip upload")
@@ -157,9 +160,9 @@ def main():
                 jobs.append((pptu, mediainfo, snapshots))
             else:
                 print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
-                if not args.auto and pptu.tracker.data:
+                if args.confirm and pptu.tracker.data:
                     print(pptu.tracker.data, highlight=True)
-                if args.skip_upload or (not args.auto and not Confirm.ask("Upload torrent?")):
+                if args.skip_upload or (args.confirm and not Confirm.ask("Upload torrent?")):
                     print("Skipping upload")
                     continue
                 pptu.upload(mediainfo, snapshots)
@@ -168,9 +171,9 @@ def main():
     if fast_upload:
         for pptu, mediainfo, snapshots in jobs:
             print(f"\n[bold green]Uploading ({pptu.tracker.abbrev})[/]")
-            if not args.auto and pptu.tracker.data:
+            if args.confirm and pptu.tracker.data:
                 print(pptu.tracker.data, highlight=True)
-            if args.skip_upload or (not args.auto and not Confirm.ask("Upload torrent?")):
+            if args.skip_upload or (args.confirm and not Confirm.ask("Upload torrent?")):
                 print("Skipping upload")
                 continue
             pptu.upload(mediainfo, snapshots)

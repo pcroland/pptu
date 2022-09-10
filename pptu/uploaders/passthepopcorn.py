@@ -32,7 +32,7 @@ class PassThePopcornUploader(Uploader):
         soup = load_html(res)
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
-    def login(self):
+    def login(self, *, auto):
         r = self.session.get("https://passthepopcorn.me/user.php?action=edit", allow_redirects=False)
         if r.status_code == 200:
             return True
@@ -70,7 +70,10 @@ class PassThePopcornUploader(Uploader):
         ).json()
 
         if res["Result"] == "TfaRequired":
-            totp_code = Prompt.ask("Enter 2FA code")
+            if auto:
+                eprint("No TOTP secret specified in config")
+                return False
+            tfa_code = Prompt.ask("Enter 2FA code")
             res = self.session.post(
                 url="https://passthepopcorn.me/ajax.php?action=login",
                 data={
@@ -81,7 +84,7 @@ class PassThePopcornUploader(Uploader):
                     "WhatsYourSecret": "Hacker! Do you really have nothing better to do than this?",
                     "keeplogged": "1",
                     "TfaType": "normal",
-                    "TfaCode": totp_code,
+                    "TfaCode": tfa_code,
                 },
             ).json()
 
@@ -102,7 +105,11 @@ class PassThePopcornUploader(Uploader):
                 imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
         else:
             wprint("Unable to extract title from filename.")
-        imdb = imdb or input("Enter IMDb URL: ")
+        if not imdb:
+            if auto:
+                eprint("Unable to get IMDb URL")
+                return False
+            imdb = Prompt.ask("Enter IMDb URL")
 
         imdb_movie = ia.get_movie(re.search(r"tt(\d+)", imdb).group(1))
         title = imdb_movie.data["original title"]

@@ -35,7 +35,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     def announce_url(self):
         return f"https://tracker.{self.domain}/{{passkey}}/announce"
 
-    def login(self):
+    def login(self, *, auto):
         with Progress() as p:
             p.add_task("Checking cookie validity", total=None)
             r = self.session.get(f"{self.base_url}/account", allow_redirects=False, timeout=60)
@@ -156,11 +156,19 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
             soup = load_html(res)
 
+            if totp_secret:
+                tfa_code = TOTP(totp_secret).now()
+            else:
+                if auto:
+                    eprint("No TOTP secret specified in config")
+                    return False
+                tfa_code = Prompt.ask("Enter 2FA code")
+
             r = self.session.post(
                 url=r.url,
                 data={
                     "_token": soup.select_one("input[name='_token']")["value"],
-                    "twofa_code": TOTP(totp_secret).now() if totp_secret else Prompt.ask("Enter 2FA code"),
+                    "twofa_code": tfa_code,
                 },
             )
             if "/auth/twofa" in r.url:

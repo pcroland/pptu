@@ -65,7 +65,7 @@ class Uploader(ABC):
         """Announce URL of the tracker. May include {passkey} variable."""
         ...
 
-    def login(self):
+    def login(self, **_):
         if not self.session.cookies:
             eprint(f"No cookies found for {self.abbrev}, cannot log in.")
             return False
