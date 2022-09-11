@@ -43,6 +43,9 @@ class PPTU:
         base_torrent_path = next(iter(self.cache_dir.glob(f"{glob.escape(self.file.name)}[*].torrent")), None)
         output = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
 
+        if output.exists():
+            return True
+
         if base_torrent_path:
             print(f"\n[bold green]Creating torrent file for tracker ({self.tracker.abbrev})[/]")
             torrent = Torrent(base_torrent_path)
