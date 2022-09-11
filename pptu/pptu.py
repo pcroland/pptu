@@ -44,6 +44,7 @@ class PPTU:
         output = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
 
         if base_torrent_path:
+            print(f"\n[bold green]Creating torrent file for tracker ({self.tracker.abbrev})[/]")
             torrent = Torrent(base_torrent_path)
             torrent.trackers = [self.trackers.announce_url.format(passkey=passkey)]
             torrent.source = self.tracker.source
