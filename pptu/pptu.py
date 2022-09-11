@@ -69,6 +69,7 @@ class PPTU:
                     description=f"[bold green]Creating torrent file for tracker ({self.tracker.abbrev})[/]"
                 )
                 torrent.generate(callback=update_progress, interval=1)
+                torrent.write(output)
 
         return True
 
