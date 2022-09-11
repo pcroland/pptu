@@ -59,6 +59,7 @@ class PPTU:
                 randomize_infohash=not self.tracker.source,
                 exclude_regexs=[r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$"],
             )
+            print()
             with Progress() as progress:
                 def update_progress(_torrent, _filepath, pieces_done, pieces_total):
                     progress.update(task, completed=pieces_done, total=pieces_total)

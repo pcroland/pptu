@@ -149,7 +149,6 @@ def main():
                     print("Skipping upload")
                     continue
                 pptu.upload(mediainfo, snapshots)
-            print()
 
     if fast_upload:
         for pptu, mediainfo, snapshots in jobs:
