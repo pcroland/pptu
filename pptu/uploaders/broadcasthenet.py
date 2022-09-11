@@ -270,7 +270,10 @@ class BroadcasTheNetUploader(Uploader):
             return False
 
         if lang.territory == "419":
-            lang.territory = "ES"  # Technically Latin America but we can't guess automatically
+            if auto:
+                lang.territory = "ES"  # Technically Latin America but we can't guess automatically
+            else:
+                lang.territory = Prompt.ask("Enter country code")
 
         print(f"Detected language as {lang.language}")
         print(f"Detected country as {lang.territory}")
