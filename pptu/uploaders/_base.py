@@ -12,6 +12,7 @@ class Uploader(ABC):
     all_files = False  # Whether to generate MediaInfo and snapshots for all files
     min_snapshots = 0
     random_snapshots = False
+    source = None  # Source tag to use in created torrent files
 
     def __init__(self):
         self.dirs = PlatformDirs(appname="pptu", appauthor=False)
@@ -51,12 +52,6 @@ class Uploader(ABC):
     @abstractmethod
     def abbrev(self):
         """Abbreviation of the tracker."""
-        ...
-
-    @property
-    @abstractmethod
-    def source(self):
-        """Source tag to use in created torrent files."""
         ...
 
     @property
