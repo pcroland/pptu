@@ -7,7 +7,7 @@ from pyotp import TOTP
 from rich.console import Console
 from rich.markup import escape
 from rich.progress import track
-from rich.prompt import Prompt
+from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, print, wprint
 from . import Uploader
@@ -243,11 +243,20 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         print(res, highlight=True)
         r.raise_for_status()
         # TODO: Automatically add new titles
-        try:
-            res = next(x for x in res["data"] if x.get("release_year") == year or not year)
-        except StopIteration:
-            eprint("Title not found on site, please add it manually and try again.")
-            return False
+        while True:
+            try:
+                res = next(x for x in res["data"] if x.get("release_year") == year or not year)
+            except StopIteration:
+                err = "Title not found on site, please add it manually and try again."
+                if auto:
+                    eprint(err)
+                    return False
+                else:
+                    wprint(err)
+                    if not Confirm.ask("Retry?"):
+                        return False
+            else:
+                break
         movie_id = res["id"]
         print(f"Found title: [bold cyan]{res['title']}[/] ([bold green]{res['release_year']}[/])")
         data = {
