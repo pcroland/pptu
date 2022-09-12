@@ -6,7 +6,7 @@ from abc import ABC
 from pyotp import TOTP
 from rich.console import Console
 from rich.markup import escape
-from rich.progress import track
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, print, wprint
@@ -292,25 +292,32 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
         images = []
         snapshots = snapshots[: len(snapshots) - len(snapshots) % 3]
-        for img in track(snapshots, description="Uploading snapshots"):
-            res = self.session.post(
-                url=f"{self.base_url}/ajax/image/upload",
-                data={
-                    "_token": token,
-                    "qquuid": str(uuid.uuid4()),
-                    "qqfilename": img.name,
-                    "qqtotalfilesize": img.stat().st_size,
-                },
-                files={
-                    "qqfile": (img.name, img.open("rb"), "image/png"),
-                },
-                headers={
-                    "x-requested-with": "XMLHttpRequest",
-                },
-                timeout=60,
-            ).json()
-            r.raise_for_status()
-            images.append(res["imageId"])
+        with Progress(
+            TextColumn("[progress.description]{task.description}[/]"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(elapsed_when_finished=True),
+        ) as progress:
+            for img in progress.track(snapshots, description="Uploading snapshots"):
+                res = self.session.post(
+                    url=f"{self.base_url}/ajax/image/upload",
+                    data={
+                        "_token": token,
+                        "qquuid": str(uuid.uuid4()),
+                        "qqfilename": img.name,
+                        "qqtotalfilesize": img.stat().st_size,
+                    },
+                    files={
+                        "qqfile": (img.name, img.open("rb"), "image/png"),
+                    },
+                    headers={
+                        "x-requested-with": "XMLHttpRequest",
+                    },
+                    timeout=60,
+                ).json()
+                r.raise_for_status()
+                images.append(res["imageId"])
 
         self.data = {
             "_token": token,

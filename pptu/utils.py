@@ -7,7 +7,7 @@ import toml
 from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
 from rich.console import Console
-from rich.progress import track
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from wand.image import Image
 
 from .constants import PROG_NAME, PROG_VERSION
@@ -96,14 +96,21 @@ def generate_thumbnails(snapshots, width=300):
 
     thumbnails = []
 
-    for snap in track(snapshots, description="Generating thumbnails"):
-        thumb = snap.with_stem(f"{snap.stem}_thumb_{width}")
-        if not thumb.exists():
-            with Image(filename=snap) as img:
-                img.resize(width, round(img.height / (img.width / width)))
-                img.depth = 8
-                img.save(filename=thumb)
-            oxipng.optimize(thumb)
-        thumbnails.append(thumb)
+    with Progress(
+        TextColumn("[progress.description]{task.description}[/]"),
+        BarColumn(),
+        MofNCompleteColumn(),
+        TaskProgressColumn(),
+        TimeRemainingColumn(elapsed_when_finished=True),
+    ) as progress:
+        for snap in progress.track(snapshots, description="Generating thumbnails"):
+            thumb = snap.with_stem(f"{snap.stem}_thumb_{width}")
+            if not thumb.exists():
+                with Image(filename=snap) as img:
+                    img.resize(width, round(img.height / (img.width / width)))
+                    img.depth = 8
+                    img.save(filename=thumb)
+                oxipng.optimize(thumb)
+            thumbnails.append(thumb)
 
     return thumbnails

@@ -6,7 +6,7 @@ import httpx
 from guessit import guessit
 from langcodes import Language
 from pyotp import TOTP
-from rich.progress import track
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from rich.prompt import Prompt
 
 from ..utils import eprint, generate_thumbnails, load_html, print, wprint
@@ -286,40 +286,49 @@ class BroadcasTheNetUploader(Uploader):
 
         thumbnails_str = ""
         if imgbin_api_key := self.config.get(self, "imgbin_api_key"):
-            snapshot_urls = []
-            for snap in track(snapshots, description="Uploading snapshots"):
-                with open(snap, "rb") as fd:
-                    # requests gets blocked by Cloudflare here, have to use httpx
-                    res = httpx.post(
-                        url="https://imgbin.broadcasthe.net/upload",
-                        files={
-                            "file": fd,
-                        },
-                        headers={
-                            "Authorization": f"Bearer {imgbin_api_key}",
-                        },
-                        timeout=60,
-                    ).json()
-                    snapshot_urls.append(next(iter(res.values()))["hotlink"])
+            with Progress(
+                TextColumn("[progress.description]{task.description}[/]"),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(elapsed_when_finished=True),
+            ) as progress:
+                snapshot_urls = []
+                for snap in progress.track(snapshots, description="Uploading snapshots"):
+                    with open(snap, "rb") as fd:
+                        # requests gets blocked by Cloudflare here, have to use httpx
+                        res = httpx.post(
+                            url="https://imgbin.broadcasthe.net/upload",
+                            files={
+                                "file": fd,
+                            },
+                            headers={
+                                "Authorization": f"Bearer {imgbin_api_key}",
+                            },
+                            timeout=60,
+                        ).json()
+                        snapshot_urls.append(next(iter(res.values()))["hotlink"])
 
-            thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
-            thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
-            thumbnail_urls = []
-            for thumb in track(
-                generate_thumbnails(snapshots, width=thumbnail_width), description="Uploading thumbnails"
-            ):
-                with open(thumb, "rb") as fd:
-                    res = httpx.post(
-                        url="https://imgbin.broadcasthe.net/upload",
-                        files={
-                            "file": fd,
-                        },
-                        headers={
-                            "Authorization": f"Bearer {imgbin_api_key}",
-                        },
-                        timeout=60,
-                    ).json()
-                    thumbnail_urls.append(next(iter(res.values()))["hotlink"])
+                thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
+                thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
+                thumbnail_urls = []
+
+            thumbnails = generate_thumbnails(snapshots, width=thumbnail_width)
+
+            with progress:
+                for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
+                    with open(thumb, "rb") as fd:
+                        res = httpx.post(
+                            url="https://imgbin.broadcasthe.net/upload",
+                            files={
+                                "file": fd,
+                            },
+                            headers={
+                                "Authorization": f"Bearer {imgbin_api_key}",
+                            },
+                            timeout=60,
+                        ).json()
+                        thumbnail_urls.append(next(iter(res.values()))["hotlink"])
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]

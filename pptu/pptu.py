@@ -11,7 +11,15 @@ from pathlib import Path
 import oxipng
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
-from rich.progress import Progress, track
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+    TransferSpeedColumn,
+)
 from torf import Torrent
 from wand.image import Image
 
@@ -64,9 +72,17 @@ class PPTU:
                 exclude_regexs=[r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$"],
             )
             print()
-            with Progress() as progress:
-                def update_progress(_torrent, _filepath, pieces_done, pieces_total):
-                    progress.update(task, completed=pieces_done, total=pieces_total)
+            with Progress(
+                TextColumn("[progress.description]{task.description}[/]"),
+                BarColumn(),
+                TransferSpeedColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(elapsed_when_finished=True),
+            ) as progress:
+                def update_progress(torrent, _filepath, pieces_done, pieces_total):
+                    progress.update(
+                        task, completed=pieces_done * torrent.piece_size, total=pieces_total * torrent.piece_size
+                    )
 
                 task = progress.add_task(
                     description=f"[bold green]Creating torrent file for tracker ({self.tracker.abbrev})[/]"
@@ -120,52 +136,59 @@ class PPTU:
 
         print()
         last_file = None
-        for i in track(
-            range(num_snapshots), description=f"[bold green]Generating snapshots ({self.tracker.abbrev})[/]"
-        ):
-            mediainfo_obj = MediaInfo.parse(files[i])
-            if not mediainfo_obj.video_tracks:
-                eprint("File has no video tracks")
-                return False
-            if not mediainfo_obj.audio_tracks:
-                eprint("File has no audio tracks")
-                return False
-            duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
-            interval = duration / (num_snapshots + 1)
+        with Progress(
+            TextColumn("[progress.description]{task.description}[/]"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(elapsed_when_finished=True),
+        ) as progress:
+            for i in progress.track(
+                range(num_snapshots), description=f"[bold green]Generating snapshots ({self.tracker.abbrev})[/]"
+            ):
+                mediainfo_obj = MediaInfo.parse(files[i])
+                if not mediainfo_obj.video_tracks:
+                    eprint("File has no video tracks")
+                    return False
+                if not mediainfo_obj.audio_tracks:
+                    eprint("File has no audio tracks")
+                    return False
+                duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
+                interval = duration / (num_snapshots + 1)
 
-            j = i
-            if last_file != files[i]:
-                j = 0
-            last_file = files[i]
+                j = i
+                if last_file != files[i]:
+                    j = 0
+                last_file = files[i]
 
-            snap = self.cache_dir / "{num:02}{suffix}.png".format(
-                num=i + 1,
-                suffix=(
-                    "_all" if self.tracker.all_files else ""
-                    + "_rand" if self.tracker.random_snapshots else ""
-                ),
-            )
-
-            if not snap.exists():
-                subprocess.run([
-                    "ffmpeg",
-                    "-y",
-                    "-v", "error",
-                    "-ss", str(
-                        random.randint(round(interval * 10), round(interval * 10 * num_snapshots)) / 10
-                        if self.tracker.random_snapshots
-                        else str(interval * (j + 1))
+                snap = self.cache_dir / "{num:02}{suffix}.png".format(
+                    num=i + 1,
+                    suffix=(
+                        "_all" if self.tracker.all_files else ""
+                        + "_rand" if self.tracker.random_snapshots else ""
                     ),
-                    "-i", files[i],
-                    "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
-                    "-frames:v", "1",
-                    snap,
-                ], check=True)
-                with Image(filename=snap) as img:
-                    img.depth = 8
-                    img.save(filename=snap)
-                oxipng.optimize(snap)
-            snapshots.append(snap)
+                )
+
+                if not snap.exists():
+                    subprocess.run([
+                        "ffmpeg",
+                        "-y",
+                        "-v", "error",
+                        "-ss", str(
+                            random.randint(round(interval * 10), round(interval * 10 * num_snapshots)) / 10
+                            if self.tracker.random_snapshots
+                            else str(interval * (j + 1))
+                        ),
+                        "-i", files[i],
+                        "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
+                        "-frames:v", "1",
+                        snap,
+                    ], check=True)
+                    with Image(filename=snap) as img:
+                        img.depth = 8
+                        img.save(filename=snap)
+                    oxipng.optimize(snap)
+                snapshots.append(snap)
 
         return snapshots
 
