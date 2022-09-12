@@ -255,7 +255,7 @@ class HDBitsUploader(Uploader):
         # Strip streaming service
         name = re.sub(r"(\d+p)\.[a-z0-9]+\.(web)", r"\1.\2", name, flags=re.IGNORECASE)
         # Strip Atmos
-        name = re.sub(r"\.atmos\.", "", name, flags=re.IGNORECASE)
+        name = re.sub(r"\.atmos", "", name, flags=re.IGNORECASE)
         # DV/HDR normalization
         name = re.sub(r"HDR10(?:\+|P|Plus)", "HDR", name, flags=re.IGNORECASE)
         name = re.sub(r"(?:DV|DoVi)\.HDR", "DoVi", name)
