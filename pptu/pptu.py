@@ -18,12 +18,11 @@ from rich.progress import (
     TaskProgressColumn,
     TextColumn,
     TimeRemainingColumn,
-    TransferSpeedColumn,
 )
 from torf import Torrent
 from wand.image import Image
 
-from .utils import Config, eprint, flatten
+from .utils import Config, CustomTransferSpeedColumn, eprint, flatten
 
 
 class PPTU:
@@ -75,7 +74,7 @@ class PPTU:
             with Progress(
                 TextColumn("[progress.description]{task.description}[/]"),
                 BarColumn(),
-                TransferSpeedColumn(),
+                CustomTransferSpeedColumn(),
                 TaskProgressColumn(),
                 TimeRemainingColumn(elapsed_when_finished=True),
             ) as progress:

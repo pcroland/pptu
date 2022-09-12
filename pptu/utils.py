@@ -2,12 +2,22 @@ import argparse
 import re
 import sys
 
+import humanize
 import oxipng
 import toml
 from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
 from rich.console import Console
-from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    ProgressColumn,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+)
+from rich.text import Text
 from wand.image import Image
 
 from .constants import PROG_NAME, PROG_VERSION
@@ -56,6 +66,15 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
         default = self._get_default_metavar_for_optional(action)
         args_string = self._format_args(action, default)
         return ", ".join(action.option_strings) + " " + args_string
+
+
+class CustomTransferSpeedColumn(ProgressColumn):
+    def render(self, task):
+        speed = task.finished_speed or task.speed
+        if speed is None:
+            return Text("--", style="progress.data.speed")
+        data_speed = humanize.naturalsize(int(speed), binary=True)
+        return Text(f"{data_speed}/s", style="progress.data.speed")
 
 
 def flatten(L):
