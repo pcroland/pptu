@@ -6,7 +6,7 @@ import time
 from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
-from rich.progress import Progress
+from rich.console import Console
 from rich.prompt import Prompt
 
 from ..utils import eprint, load_html, print, wprint
@@ -265,23 +265,21 @@ class HDBitsUploader(Uploader):
         thumbnail_width = max(x for x in allowed_widths if x <= thumbnail_width)
 
         thumbnails_str = ""
-        with Progress() as p:
-            p.add_task("Uploading snapshots", total=None)
-            with contextlib.ExitStack() as stack:
-                r = self.session.post(
-                    url="https://img.hdbits.org/upload_api.php",
-                    files={
-                        **{
-                            f"images_files[{i}]": stack.enter_context(
-                                snap.open("rb")
-                            ) for i, snap in enumerate(snapshots)
-                        },
-                        "thumbsize": f"w{thumbnail_width}",
-                        "galleryoption": "1",
-                        "galleryname": name,
+        with Console().status("Uploading snapshots..."), contextlib.ExitStack() as stack:
+            r = self.session.post(
+                url="https://img.hdbits.org/upload_api.php",
+                files={
+                    **{
+                        f"images_files[{i}]": stack.enter_context(
+                            snap.open("rb")
+                        ) for i, snap in enumerate(snapshots)
                     },
-                    timeout=60,
-                )
+                    "thumbsize": f"w{thumbnail_width}",
+                    "galleryoption": "1",
+                    "galleryname": name,
+                },
+                timeout=60,
+            )
         res = r.text
         if res.startswith("error"):
             error = re.sub(r"^error: ", "", res)
