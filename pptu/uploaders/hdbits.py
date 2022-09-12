@@ -57,6 +57,7 @@ class HDBitsUploader(Uploader):
     TAG_MAP = {
         # Formats
         r"\b(?:Atmos|DDPA|TrueHDA)\b": 5,  # Dolby Atmos
+        r"DTS[\.-]?X": 7,  # DTS:X
         r"\b(?:DV|DoVi)\b": 6,  # Dolby Vision
         r"\bHDR": 9,  # HDR10
         r"(?i)\bHDR10(?:\+|P(?:lus)?)\b": 25,  # HDR10+
