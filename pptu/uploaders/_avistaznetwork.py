@@ -3,6 +3,7 @@ import time
 import uuid
 from abc import ABC
 
+from pymediainfo import MediaInfo
 from pyotp import TOTP
 from rich.console import Console
 from rich.markup import escape
@@ -319,6 +320,19 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 r.raise_for_status()
                 images.append(res["imageId"])
 
+        release_name = path.stem if path.is_file() else path.name
+
+        if path.is_dir():
+            file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
+        else:
+            file = path
+        mediainfo_obj = MediaInfo.parse(file)
+
+        if mediainfo_obj.video_tracks[0].encoded_library_name == "x264":
+            release_name = re.sub(r"(?i)h\.?264", "x264", release_name)
+        if mediainfo_obj.video_tracks[0].encoded_library_name == "x265":
+            release_name = re.sub(r"(?i)h\.?265", "x265", release_name)
+
         self.data = {
             "_token": token,
             "info_hash": soup.select_one('input[name="info_hash"]')["value"],
@@ -326,7 +340,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "type_id": 1 if collection == "movie" else 2,
             "task_id": self.upload_url.split("/")[-1],
             "file_name": (
-                (path.stem if path.is_file() else path.name)
+                release_name
                 .replace(".", " ")
                 .replace("H 264", "H.264")
                 .replace("H 265", "H.265")
