@@ -54,7 +54,6 @@ class PPTU:
             return True
 
         if base_torrent_path:
-            print(f"\n[bold green]Creating torrent file for tracker ({self.tracker.abbrev})[/]")
             torrent = Torrent(base_torrent_path)
             torrent.trackers = [self.trackers.announce_url.format(passkey=passkey)]
             torrent.source = self.tracker.source
@@ -72,20 +71,23 @@ class PPTU:
             )
             print()
             with Progress(
-                TextColumn("[progress.description]{task.description}[/]"),
                 BarColumn(),
                 CustomTransferSpeedColumn(),
                 TaskProgressColumn(),
                 TimeRemainingColumn(elapsed_when_finished=True),
             ) as progress:
-                def update_progress(torrent, _filepath, pieces_done, pieces_total):
+                files = []
+
+                def update_progress(torrent, filepath, pieces_done, pieces_total):
+                    if filepath not in files:
+                        print(f"Hashing {Path(filepath).name}...")
+                        files.append(filepath)
+
                     progress.update(
                         task, completed=pieces_done * torrent.piece_size, total=pieces_total * torrent.piece_size
                     )
 
-                task = progress.add_task(
-                    description=f"[bold green]Creating torrent file for tracker ({self.tracker.abbrev})[/]"
-                )
+                task = progress.add_task(description="")
                 torrent.generate(callback=update_progress, interval=1)
                 torrent.write(output)
 

@@ -125,7 +125,7 @@ def main():
         for tracker in trackers:
             pptu = PPTU(file, tracker, auto=args.auto)
 
-            # Creating torrent file for tracker
+            print(f"\n[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")
             pptu.create_torrent()
 
             print(f"\n[bold green]Generating MediaInfo ({tracker.abbrev})[/]")
