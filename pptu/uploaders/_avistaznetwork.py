@@ -18,6 +18,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     min_snapshots = 3
     random_snapshots = True
 
+    keep_dubbed_dual_tags = False
+
     COLLECTION_MAP = {
         "movie": None,
         "episode": 1,
@@ -332,6 +334,10 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             release_name = re.sub(r"(?i)h\.?264", "x264", release_name)
         if mediainfo_obj.video_tracks[0].encoded_library_name == "x265":
             release_name = re.sub(r"(?i)h\.?265", "x265", release_name)
+
+        if not self.keep_dubbed_dual_tags:
+            release_name = release_name.replaced(".DUBBED.", "")
+            release_name = release_name.replaced(".DUAL.", "")
 
         self.data = {
             "_token": token,
