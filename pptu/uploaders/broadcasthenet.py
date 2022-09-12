@@ -203,6 +203,8 @@ class BroadcasTheNetUploader(Uploader):
         elif m := re.search(r"\.HLG\b", release_name, flags=re.I):
             release_name = release_name.replace(m.group(), "")
             release_name = re.sub(r"\.(\d+p)", r".HLG.\1", release_name)
+        release_name = release_name.replace(".DUBBED", "")
+        release_name = release_name.replace(".DUAL", "")
 
         r = self.session.post(
             url="https://backup.landof.tv/upload.php",

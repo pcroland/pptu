@@ -258,6 +258,9 @@ class HDBitsUploader(Uploader):
         # DV/HDR normalization
         name = re.sub(r"HDR10(?:\+|P|Plus)", "HDR", name, flags=re.IGNORECASE)
         name = re.sub(r"(?:DV|DoVi)\.HDR", "DoVi", name)
+        # Strip other tags
+        name = name.replace(".DUBBED", "")
+        name = name.replace(".DUAL", "")
 
         thumbnail_row_width = min(900, self.config.get(self, "snapshot_row_width", 900))
         allowed_widths = [100, 150, 200, 250, 300, 350]
