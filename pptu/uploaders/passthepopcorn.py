@@ -22,6 +22,26 @@ class PassThePopcornUploader(Uploader):
     min_snapshots = 3
     all_files = True
 
+    # TODO: Some of these have potential for false positives if they're in the movie name
+    EDITION_MAP = {
+        r"\.DC\.": "Director's Cut",
+        r"(?i)\.extended\.": "Extended Edition",
+        r"\.TC\.": "Theatrical Cut",
+        r"(?i)\.theatrical\.": "Theatrical Cut",
+        r"(?i)\.uncut\.": "Uncut",
+        r"(?i)\.unrated\.": "Unrated",
+        r"Hi10P": "10-bit",
+        r"DTS[\.-]?X": "DTS:X",
+        r"\.(?:Atmos|DDPA|TrueHDA)\.": "Dolby Atmos",
+        r"\.(?:DV|DoVi)\.": "Dolby Vision",
+        r"\.DUAL\.": "Dual Audio",
+        r"\.DUBBED\.": "English Dub",
+        r"(?i)\.extras\.": "Extras",
+        r"\bHDR": "HDR10",
+        r"(?i)\bHDR10(?:\+|P(?:lus)?)\b": "HDR10+",
+        r"(?i)\.remux\.": "Remux",
+    }
+
     def __init__(self):
         super().__init__()
         self.anti_csrf_token = None
@@ -211,7 +231,7 @@ class PassThePopcornUploader(Uploader):
             "title": torrent_info.get("title"),
             "year": torrent_info.get("year"),
             "image": imdb_movie.data["cover url"],
-            "remaster_title": "",
+            "remaster_title": " / ".join({v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}),
             "remaster_year": "",
             "internalrip": "on",  # TODO: Allow customizing this
             "source": source,
