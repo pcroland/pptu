@@ -79,9 +79,7 @@ class Uploader(ABC):
         Do any necessary preparations for the upload.
         This is a separate stage because of --fast-upload.
         """
-        ...
 
     @abstractmethod
     def upload(self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, auto: bool) -> bool:
         """Perform the actual upload."""
-        ...
