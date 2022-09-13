@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import re
 import time
 import uuid
 from abc import ABC
+from typing import TYPE_CHECKING
 
 from pymediainfo import MediaInfo
 from pyotp import TOTP
@@ -12,6 +15,10 @@ from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, print, wprint
 from . import Uploader
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
@@ -28,18 +35,18 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     }
 
     @property
-    def domain(self):
+    def domain(self) -> str:
         return f"{self.name.lower()}.to"
 
     @property
-    def base_url(self):
+    def base_url(self) -> str:
         return f"https://{self.domain}"
 
     @property
-    def announce_url(self):
+    def announce_url(self) -> str:
         return f"https://tracker.{self.domain}/{{passkey}}/announce"
 
-    def login(self, *, auto):
+    def login(self, *, auto: bool) -> bool:
         with Console().status("Checking cookie validity..."):
             r = self.session.get(f"{self.base_url}/account", allow_redirects=False, timeout=60)
             if r.status_code == 200:
@@ -63,8 +70,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
         attempt = 1
         while True:
-            res = self.session.get(f"{self.base_url}/auth/login").text
-            soup = load_html(res)
+            r = self.session.get(f"{self.base_url}/auth/login")
+            soup = load_html(r.text)
             token = soup.select_one("input[name='_token']")["value"]
             captcha_url = soup.select_one(".img-captcha")["src"]
 
@@ -119,9 +126,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     "remember": "1",
                 },
             )
-            res = r.text
 
-            if "/captcha" in r.url or "Verification failed. You might be a robot!" in res:
+            if "/captcha" in r.url or "Verification failed. You might be a robot!" in r.text:
                 self.session.post(
                     url="https://2captcha.com/res.php",
                     params={
@@ -157,7 +163,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         if "/auth/twofa" in r.url:
             print("2FA detected")
 
-            soup = load_html(res)
+            soup = load_html(r.text)
 
             if totp_secret:
                 tfa_code = TOTP(totp_secret).now()
@@ -187,12 +193,14 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     @property
-    def passkey(self):
-        res = self.session.get(f"{self.base_url}/account").text
-        soup = load_html(res)
+    def passkey(self) -> str:
+        r = self.session.get(f"{self.base_url}/account")
+        soup = load_html(r.text)
         return soup.select_one(".current_pid").text
 
-    def prepare(self, path, mediainfo, snapshots, *, auto):
+    def prepare(  # type: ignore[override]
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+    ) -> bool:
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
             collection = "episode"
@@ -224,8 +232,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             episode = int(m.group(1))
 
         r = self.session.get(self.base_url)
-        res = r.text
-        soup = load_html(res)
+        soup = load_html(r.text)
         token = soup.select_one('meta[name="_token"]')["content"]
 
         year = None
@@ -285,8 +292,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             timeout=60,
         )
         self.upload_url = r.url
-        res = r.text
-        soup = load_html(res)
+        soup = load_html(r.text)
 
         if errors := soup.select(".form-error"):
             for error in errors:
@@ -336,8 +342,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             release_name = re.sub(r"(?i)h\.?265", "x265", release_name)
 
         if not self.keep_dubbed_dual_tags:
-            release_name = release_name.replaced(".DUBBED.", "")
-            release_name = release_name.replaced(".DUAL.", "")
+            release_name = release_name.replace(".DUBBED.", "")
+            release_name = release_name.replace(".DUAL.", "")
 
         self.data = {
             "_token": token,
@@ -371,10 +377,11 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
         return True
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def upload(  # type: ignore[override]
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+    ) -> bool:
         r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
-        res = r.text
-        soup = load_html(res)
+        soup = load_html(r.text)
         r.raise_for_status()
         torrent_url = soup.select_one('a[href*="/download/"]')["href"]
         self.session.get(torrent_url, timeout=60)

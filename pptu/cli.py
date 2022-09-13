@@ -19,7 +19,7 @@ from .utils import Config, RParse, eprint, print, wprint
 dirs = PlatformDirs(appname="pptu", appauthor=False)
 
 
-def main():
+def main() -> None:
     parser = RParse(prog=PROG_NAME)
     parser.add_argument("file",
                         type=Path,
@@ -73,8 +73,8 @@ def main():
         supported_trackers = Table(title="Supported trackers", title_style="not italic bold magenta")
         supported_trackers.add_column("Site", style="cyan")
         supported_trackers.add_column("Abbreviation", style="bold green")
-        for tracker in all_trackers:
-            supported_trackers.add_row(tracker.name, tracker.abbrev)
+        for tracker_cls in all_trackers:
+            supported_trackers.add_row(tracker_cls.name, tracker_cls.abbrev)
         console = Console()
         console.print(supported_trackers)
         sys.exit(0)

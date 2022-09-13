@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import json
 import re
 import subprocess
+from typing import TYPE_CHECKING
 
 import httpx
 from guessit import guessit
@@ -11,6 +14,10 @@ from rich.prompt import Prompt
 
 from ..utils import eprint, generate_thumbnails, load_html, print, wprint
 from . import Uploader
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 class BroadcasTheNetUploader(Uploader):
@@ -125,12 +132,12 @@ class BroadcasTheNetUploader(Uploader):
     }
 
     @property
-    def passkey(self):
+    def passkey(self) -> str:
         res = self.session.get("https://backup.landof.tv/upload.php").text
         soup = load_html(res)
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
-    def login(self, *, auto):
+    def login(self, *, auto: bool) -> bool:
         # Allow cookies from either broadcasthe.net or backup.landof.tv
         for cookie in self.session.cookies:
             cookie.domain = cookie.domain.replace("broadcasthe.net", "backup.landof.tv")
@@ -181,7 +188,9 @@ class BroadcasTheNetUploader(Uploader):
 
         return "login.php" not in r.url
 
-    def prepare(self, path, mediainfo, snapshots, *, auto):
+    def prepare(  # type: ignore[override]
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+    ) -> bool:
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
             type_ = "Episode"
@@ -367,7 +376,9 @@ class BroadcasTheNetUploader(Uploader):
 
         return True
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def upload(  # type: ignore[override]
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+    ) -> bool:
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
         self.session.post(
             url="https://backup.landof.tv/upload.php",

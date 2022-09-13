@@ -1,6 +1,9 @@
+from __future__ import annotations
+
 import argparse
 import re
 import sys
+from typing import TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload
 
 import humanize
 import oxipng
@@ -23,11 +26,19 @@ from wand.image import Image
 from .constants import PROG_NAME, PROG_VERSION
 
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from rich.progress import Task
+
+    from .uploaders import Uploader
+
+
 class Config:
-    def __init__(self, file):
+    def __init__(self, file: Path):
         self._config = CaseInsensitiveDict(toml.load(file))
 
-    def get(self, tracker, key, default=None):
+    def get(self, tracker: Uploader | Literal["default"], key: str, default: Any = None) -> Any:
         value = None
         if tracker != "default":
             value = self._config.get(tracker.name, {}).get(key) or self._config.get(tracker.abbrev, {}).get(key)
@@ -36,11 +47,11 @@ class Config:
 
 
 class RParse(argparse.ArgumentParser):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         kwargs.setdefault("formatter_class", lambda prog: CustomHelpFormatter(prog))
         super().__init__(*args, **kwargs)
 
-    def _print_message(self, message, file=None):
+    def _print_message(self, message: str, file: IO | None = None) -> None:
         if message:
             if message.startswith("usage"):
                 message = f"[bold cyan]{PROG_NAME}[/] {PROG_VERSION}\n\n{message}"
@@ -56,11 +67,11 @@ class RParse(argparse.ArgumentParser):
 
 
 class CustomHelpFormatter(argparse.RawTextHelpFormatter):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args: Any, **kwargs: Any):
         kwargs.setdefault("max_help_position", 80)
         super().__init__(*args, **kwargs)
 
-    def _format_action_invocation(self, action):
+    def _format_action_invocation(self, action: argparse.Action) -> str:
         if not action.option_strings or action.nargs == 0:
             return super()._format_action_invocation(action)
         default = self._get_default_metavar_for_optional(action)
@@ -69,7 +80,7 @@ class CustomHelpFormatter(argparse.RawTextHelpFormatter):
 
 
 class CustomTransferSpeedColumn(ProgressColumn):
-    def render(self, task):
+    def render(self, task: Task) -> Text:
         speed = task.finished_speed or task.speed
         if speed is None:
             return Text("--", style="progress.data.speed")
@@ -77,39 +88,50 @@ class CustomTransferSpeedColumn(ProgressColumn):
         return Text(f"{data_speed}/s", style="progress.data.speed")
 
 
-def flatten(L):
+def flatten(L: Iterable) -> list:
     # https://stackoverflow.com/a/952952/492203
     return [item for sublist in L for item in sublist]
 
 
-def print(text="", highlight=False, file=sys.stdout, flush=False, **kwargs):
+def print(text: Any = "", highlight: bool = False, file: IO = sys.stdout, flush: bool = False, **kwargs: Any) -> None:
     with Console(highlight=highlight) as console:
         console.print(text, **kwargs)
         if flush:
             file.flush()
 
 
-def wprint(text):
+def wprint(text: str) -> None:
     if text.startswith("\n"):
         text = text.lstrip("\n")
         print()
     print(f"[bold color(231) on yellow]WARNING:[/] [yellow]{text}[/]")
 
 
-def eprint(text, fatal=False, exit_code=1):
+@overload
+def eprint(text: str, fatal: Literal[False] = False, exit_code: int = 1) -> None:
+    ...
+
+
+@overload
+def eprint(text: str, fatal: Literal[True], exit_code: int = 1) -> NoReturn:
+    ...
+
+
+def eprint(text: str, fatal: bool = False, exit_code: int = 1) -> None | NoReturn:
     if text.startswith("\n"):
         text = text.lstrip("\n")
         print()
     print(f"[bold color(231) on red]ERROR:[/] [red]{text}[/]")
     if fatal:
         sys.exit(exit_code)
+    return None
 
 
-def load_html(text):
+def load_html(text: str) -> BeautifulSoup:
     return BeautifulSoup(text, "lxml-html")
 
 
-def generate_thumbnails(snapshots, width=300):
+def generate_thumbnails(snapshots: list[Path], width: int = 300) -> list[Path]:
     width = int(width)
     print(f"Using thumbnail width: [bold cyan]{width}[/]")
 
@@ -123,7 +145,7 @@ def generate_thumbnails(snapshots, width=300):
         TimeRemainingColumn(elapsed_when_finished=True),
     ) as progress:
         for snap in progress.track(snapshots, description="Generating thumbnails"):
-            thumb = snap.with_stem(f"{snap.stem}_thumb_{width}")
+            thumb = snap.with_name(f"{snap.stem}_thumb_{width}.png")
             if not thumb.exists():
                 with Image(filename=snap) as img:
                     img.resize(width, round(img.height / (img.width / width)))

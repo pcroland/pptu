@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 from http.cookiejar import MozillaCookieJar
+from typing import TYPE_CHECKING, Any
 
 import requests
 from platformdirs import PlatformDirs
@@ -8,13 +11,21 @@ from requests.adapters import HTTPAdapter, Retry
 from ..utils import Config, eprint
 
 
+if TYPE_CHECKING:
+    from pathlib import Path
+
+
 class Uploader(ABC):
+    name: str  # Name of the tracker
+    abbrev: str  # Abbreviation of the tracker
+
+    source: str | None = None  # Source tag to use in created torrent files
+
     all_files = False  # Whether to generate MediaInfo and snapshots for all files
     min_snapshots = 0
     random_snapshots = False
-    source = None  # Source tag to use in created torrent files
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.dirs = PlatformDirs(appname="pptu", appauthor=False)
 
         self.config = Config(self.dirs.user_config_path / "config.toml")
@@ -40,27 +51,14 @@ class Uploader(ABC):
             self.session.cookies.set_cookie(cookie)
         self.session.proxies.update({"all": self.config.get(self, "proxy")})
 
-        self.data = None
+        self.data: dict[str, Any] = {}
 
     @property
     @abstractmethod
-    def name(self):
-        """Name of the tracker."""
-        ...
-
-    @property
-    @abstractmethod
-    def abbrev(self):
-        """Abbreviation of the tracker."""
-        ...
-
-    @property
-    @abstractmethod
-    def announce_url(self):
+    def announce_url(self) -> str:
         """Announce URL of the tracker. May include {passkey} variable."""
-        ...
 
-    def login(self, **_):
+    def login(self, *, auto: bool) -> bool:
         if not self.session.cookies:
             eprint(f"No cookies found for {self.abbrev}, cannot log in.")
             return False
@@ -68,7 +66,7 @@ class Uploader(ABC):
         return True
 
     @property
-    def passkey(self):
+    def passkey(self) -> str | None:
         """
         This method can define a way to get the passkey from the tracker
         if not specified by the user in the config.
@@ -76,7 +74,7 @@ class Uploader(ABC):
         return None
 
     @abstractmethod
-    def prepare(self, path, mediainfo, snapshots, *, auto):
+    def prepare(self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, auto: bool) -> bool:
         """
         Do any necessary preparations for the upload.
         This is a separate stage because of --fast-upload.
@@ -84,6 +82,6 @@ class Uploader(ABC):
         ...
 
     @abstractmethod
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def upload(self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, auto: bool) -> bool:
         """Perform the actual upload."""
         ...

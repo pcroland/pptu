@@ -1,5 +1,8 @@
+from __future__ import annotations
+
 import os
 import re
+from typing import TYPE_CHECKING
 
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
@@ -9,6 +12,10 @@ from rich.prompt import Prompt
 
 from ..utils import eprint, load_html, print, wprint
 from . import Uploader
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 ia = Cinemagoer()
@@ -42,17 +49,17 @@ class PassThePopcornUploader(Uploader):
         r"(?i)\.remux\.": "Remux",
     }
 
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
         self.anti_csrf_token = None
 
     @property
-    def passkey(self):
-        res = self.session.get("https://passthepopcorn.me/upload.php").text
-        soup = load_html(res)
+    def passkey(self) -> str:
+        r = self.session.get("https://passthepopcorn.me/upload.php")
+        soup = load_html(r.text)
         return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
 
-    def login(self, *, auto):
+    def login(self, *, auto: bool) -> bool:
         r = self.session.get("https://passthepopcorn.me/user.php?action=edit", allow_redirects=False)
         if r.status_code == 200:
             return True
@@ -115,7 +122,9 @@ class PassThePopcornUploader(Uploader):
         self.anti_csrf_token = res["AntiCsrfToken"]
         return True
 
-    def prepare(self, path, mediainfo, snapshots, *, auto):
+    def prepare(  # type: ignore[override]
+        self, path: Path, mediainfo: list[str], snapshots: list[Path], *, auto: bool
+    ) -> bool:
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
             title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
@@ -131,7 +140,15 @@ class PassThePopcornUploader(Uploader):
                 return False
             imdb = Prompt.ask("Enter IMDb URL")
 
-        imdb_movie = ia.get_movie(re.search(r"tt(\d+)", imdb).group(1))
+        if not imdb:
+            eprint("No IMDb URL provided")
+            return False
+
+        if not (m := re.search(r"tt(\d+)", imdb)):
+            eprint("Invalid IMDb URL")
+            return False
+
+        imdb_movie = ia.get_movie(m.group(1))
         title = imdb_movie.data["original title"]
         year = imdb_movie.data["year"]
 
@@ -151,10 +168,10 @@ class PassThePopcornUploader(Uploader):
 
         self.torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
-        res = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": self.groupid}).text
+        r = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": self.groupid})
 
         if not self.anti_csrf_token:
-            soup = load_html(res)
+            soup = load_html(r.text)
             self.anti_csrf_token = soup.select_one("[name='AntiCsrfToken']")["value"]
 
         if path.is_dir():
@@ -251,8 +268,10 @@ class PassThePopcornUploader(Uploader):
 
         return True
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
-        res = self.session.post(
+    def upload(  # type: ignore[override]
+        self, path: Path, mediainfo: list[str], snapshots: list[str], *, auto: bool
+    ) -> bool:
+        r = self.session.post(
             url="https://passthepopcorn.me/upload.php",
             params={
                 "groupid": self.groupid,
@@ -261,8 +280,8 @@ class PassThePopcornUploader(Uploader):
             files={
                 "file_input": (self.torrent_path.name, self.torrent_path.open("rb"), "application/x-bittorrent"),
             },
-        ).text
-        soup = load_html(res)
+        )
+        soup = load_html(r.text)
         if error := soup.select_one(".alert--error"):
             eprint(escape(error.get_text()))
             return False

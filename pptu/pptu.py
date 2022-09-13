@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import glob
 import importlib.resources
 import os
@@ -7,6 +9,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import TYPE_CHECKING
 
 import oxipng
 from platformdirs import PlatformDirs
@@ -25,8 +28,12 @@ from wand.image import Image
 from .utils import Config, CustomTransferSpeedColumn, eprint, flatten
 
 
+if TYPE_CHECKING:
+    from .uploaders import Uploader
+
+
 class PPTU:
-    def __init__(self, file, tracker, *, auto=False):
+    def __init__(self, file: Path, tracker: Uploader, *, auto: bool = False):
         self.file = file
         self.tracker = tracker
         self.auto = auto
@@ -41,7 +48,7 @@ class PPTU:
             tracker.min_snapshots,
         )
 
-    def create_torrent(self):
+    def create_torrent(self) -> bool:
         passkey = self.config.get(self.tracker, "passkey") or self.tracker.passkey
         if not passkey and "{passkey}" in self.tracker.announce_url:
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
@@ -55,7 +62,7 @@ class PPTU:
 
         if base_torrent_path:
             torrent = Torrent(base_torrent_path)
-            torrent.trackers = [self.trackers.announce_url.format(passkey=passkey)]
+            torrent.trackers = [self.tracker.announce_url.format(passkey=passkey)]
             torrent.source = self.tracker.source
             torrent.private = True
             torrent.write(output)
@@ -78,7 +85,7 @@ class PPTU:
             ) as progress:
                 files = []
 
-                def update_progress(torrent, filepath, pieces_done, pieces_total):
+                def update_progress(torrent: Torrent, filepath: str, pieces_done: int, pieces_total: int) -> None:
                     if filepath not in files:
                         print(f"Hashing {Path(filepath).name}...")
                         files.append(filepath)
@@ -93,7 +100,7 @@ class PPTU:
 
         return True
 
-    def get_mediainfo(self):
+    def get_mediainfo(self) -> str | list[str]:
         mediainfo_path = self.cache_dir / "mediainfo.txt"
         if self.tracker.all_files and self.file.is_dir():
             mediainfo_path = self.cache_dir / "mediainfo_all.txt"
@@ -112,12 +119,12 @@ class PPTU:
             mediainfo = p.stdout
             mediainfo_path.write_text(mediainfo)
 
-        mediainfo = [x.strip() for x in re.split(r"\n\n(?=General)", mediainfo)]
+        mediainfo_list = [x.strip() for x in re.split(r"\n\n(?=General)", mediainfo)]
         if not self.tracker.all_files:
-            mediainfo = mediainfo[0]
-        return mediainfo
+            return mediainfo_list[0]
+        return mediainfo_list
 
-    def generate_snapshots(self):
+    def generate_snapshots(self) -> list[Path]:
         if self.file.is_dir() or self.tracker.all_files:
             files = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))
         elif self.file.is_file():
@@ -150,10 +157,10 @@ class PPTU:
                 mediainfo_obj = MediaInfo.parse(files[i])
                 if not mediainfo_obj.video_tracks:
                     eprint("File has no video tracks")
-                    return False
+                    return []
                 if not mediainfo_obj.audio_tracks:
                     eprint("File has no audio tracks")
-                    return False
+                    return []
                 duration = float(mediainfo_obj.video_tracks[0].duration) / 1000
                 interval = duration / (num_snapshots + 1)
 
@@ -193,13 +200,13 @@ class PPTU:
 
         return snapshots
 
-    def prepare(self, mediainfo, snapshots):
+    def prepare(self, mediainfo: str | list[str], snapshots: list[Path]) -> bool:
         if not self.tracker.prepare(self.file, mediainfo, snapshots, auto=self.auto):
             eprint(f"Preparing upload to [cyan]{self.tracker.name}[/] failed.")
             return False
         return True
 
-    def upload(self, mediainfo, snapshots):
+    def upload(self, mediainfo: str | list[str], snapshots: list[Path]) -> None:
         if not self.tracker.upload(self.file, mediainfo, snapshots, auto=self.auto):
             eprint(f"Upload to [cyan]{self.tracker.name}[/] failed.")
             return
@@ -207,14 +214,15 @@ class PPTU:
         torrent_path = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
         if watch_dir := self.config.get(self.tracker, "watch_dir"):
             watch_dir = Path(watch_dir).expanduser()
-            subprocess.run(
-                [
-                    sys.executable,
-                    importlib.resources.path("pyrosimple.scripts", "chtor.py"),
-                    "-H", self.file,
-                    torrent_path,
-                ],
-                env={**os.environ, "PYRO_RTORRENT_RC": os.devnull},
-                check=True,
-            )
+            with importlib.resources.path("pyrosimple.scripts", "chtor.py") as chtor:
+                subprocess.run(
+                    [
+                        sys.executable,
+                        chtor,
+                        "-H", self.file,
+                        torrent_path,
+                    ],
+                    env={**os.environ, "PYRO_RTORRENT_RC": os.devnull},
+                    check=True,
+                )
             shutil.copyfile(torrent_path, watch_dir / torrent_path.name)

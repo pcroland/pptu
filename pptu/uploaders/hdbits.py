@@ -1,7 +1,10 @@
+from __future__ import annotations
+
 import contextlib
 import hashlib
 import re
 import time
+from typing import TYPE_CHECKING
 
 from guessit import guessit
 from imdb import Cinemagoer
@@ -11,6 +14,10 @@ from rich.prompt import Prompt
 
 from ..utils import eprint, load_html, print, wprint
 from . import Uploader
+
+
+if TYPE_CHECKING:
+    from pathlib import Path
 
 
 ia = Cinemagoer()
@@ -88,7 +95,7 @@ class HDBitsUploader(Uploader):
         r"\bSTAN\b": 32,  # Stan
     }
 
-    def login(self, *, auto):
+    def login(self, *, auto: bool) -> bool:
         r = self.session.get("https://hdbits.org")
         if not r.url.startswith("https://hdbits.org/login"):
             return True
@@ -98,8 +105,8 @@ class HDBitsUploader(Uploader):
         captcha = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"numImages": "5"}).json()
         correct_hash = None
         for image in captcha["images"]:
-            res = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"hash": image}).content
-            if self.CAPTCHA_MAP.get(hashlib.sha256(res).hexdigest()) == captcha["text"]:
+            r = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"hash": image})
+            if self.CAPTCHA_MAP.get(hashlib.sha256(r.content).hexdigest()) == captcha["text"]:
                 correct_hash = image
                 print(f"Found captcha solution: [bold cyan]{captcha['text']}[/] ([cyan]{correct_hash}[/])")
                 break
@@ -107,8 +114,8 @@ class HDBitsUploader(Uploader):
             eprint("Unable to solve captcha, perhaps it has new images?")
             return False
 
-        res = self.session.get("https://hdbits.org/login", params={"returnto": "/"}).text
-        soup = load_html(res)
+        r = self.session.get("https://hdbits.org/login", params={"returnto": "/"})
+        soup = load_html(r.text)
 
         totp_secret = self.config.get(self, "totp_secret")
 
@@ -149,11 +156,15 @@ class HDBitsUploader(Uploader):
         return True
 
     @property
-    def passkey(self):
+    def passkey(self) -> str | None:
         res = self.session.get("https://hdbits.org/").text
-        return re.search(r"passkey=([a-f0-9]+)", res).group(1)
+        if m := re.search(r"passkey=([a-f0-9]+)", res):
+            return m.group(1)
+        return None
 
-    def prepare(self, path, mediainfo, snapshots, *, auto):
+    def prepare(  # type: ignore[override]
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+    ) -> bool:
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
             category = "TV"
@@ -169,7 +180,7 @@ class HDBitsUploader(Uploader):
                 params={
                     "action": "parsename",
                     "title": path.name,
-                    "uid": int(time.time() * 1000),
+                    "uid": str(int(time.time() * 1000)),
                 },
             ).json()
             print(res, highlight=True)
@@ -274,7 +285,7 @@ class HDBitsUploader(Uploader):
                 url="https://img.hdbits.org/upload_api.php",
                 files={
                     **{
-                        f"images_files[{i}]": stack.enter_context(
+                        f"images_files[{i}]": stack.enter_context(  # type: ignore[misc]
                             snap.open("rb")
                         ) for i, snap in enumerate(snapshots)
                     },
@@ -314,7 +325,9 @@ class HDBitsUploader(Uploader):
 
         return True
 
-    def upload(self, path, mediainfo, snapshots, *, auto):
+    def upload(  # type: ignore[override]
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+    ) -> bool:
         res = self.session.post(
             url="https://hdbits.org/upload/upload",
             files={
