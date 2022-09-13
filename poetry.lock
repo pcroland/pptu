@@ -1015,7 +1015,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "86d946e9f401eaac6678745eda0d4175600abbbf1ece281e53dc2eee3c82a0ed"
+content-hash = "2bbcd9dfe446f6e063519030271ef50379b0d6b6d53add89c0a1f50425722b79"
 
 [metadata.files]
 anyio = [

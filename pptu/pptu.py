@@ -1,19 +1,17 @@
 from __future__ import annotations
 
 import glob
-import importlib.resources
-import os
 import random
 import re
-import shutil
 import subprocess
-import sys
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+import bencode
 import oxipng
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
+from pyrosimple.util import metafile
 from rich.progress import (
     BarColumn,
     MofNCompleteColumn,
@@ -214,15 +212,6 @@ class PPTU:
         torrent_path = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
         if watch_dir := self.config.get(self.tracker, "watch_dir"):
             watch_dir = Path(watch_dir).expanduser()
-            with importlib.resources.path("pyrosimple.scripts", "chtor.py") as chtor:
-                subprocess.run(
-                    [
-                        sys.executable,
-                        chtor,
-                        "-H", self.file,
-                        torrent_path,
-                    ],
-                    env={**os.environ, "PYRO_RTORRENT_RC": os.devnull},
-                    check=True,
-                )
-            shutil.copyfile(torrent_path, watch_dir / torrent_path.name)
+            metainfo = bencode.bread(torrent_path)
+            metafile.add_fast_resume(metainfo, self.file)
+            (watch_dir / torrent_path.name).write_bytes(bencode.bwrite(metainfo))
