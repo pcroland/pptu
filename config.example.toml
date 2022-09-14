@@ -14,6 +14,7 @@ password = ""
 totp_secret = ""
 #passkey = ""  # auto-detected
 #proxy = "http://user:pass@example.com:6060"
+#anonymous_upload = true  # default is true
 
 [broadcasthenet]
 username = ""
