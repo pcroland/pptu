@@ -7,11 +7,10 @@ import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import bencode
 import oxipng
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
-from pyrosimple.util import metafile
+from pyrosimple.util.metafile import Metafile
 from rich.progress import (
     BarColumn,
     MofNCompleteColumn,
@@ -212,6 +211,6 @@ class PPTU:
         torrent_path = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
         if watch_dir := self.config.get(self.tracker, "watch_dir"):
             watch_dir = Path(watch_dir).expanduser()
-            metainfo = bencode.bread(torrent_path)
-            metafile.add_fast_resume(metainfo, self.file)
-            (watch_dir / torrent_path.name).write_bytes(bencode.bwrite(metainfo))
+            metafile = Metafile.from_file(torrent_path)
+            metafile.add_fast_resume(self.file)
+            metafile.save(watch_dir / torrent_path.name)
