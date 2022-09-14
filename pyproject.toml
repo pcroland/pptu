@@ -68,7 +68,7 @@ exclude = [".venv"]
 enable-extensions = ["TC", "TC1"]
 extend-ignore = ["FS002"]
 ignore-names = ["L"]
-known-modules = "bencode.py:[bencode],cinemagoer:[imdb],pyoxipng:[oxipng]"
+known-modules = "cinemagoer:[imdb],pyoxipng:[oxipng]"
 max-line-length = 120
 per-file-ignores = ["pptu/uploaders/__init__.py:F401"]
 
