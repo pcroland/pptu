@@ -109,7 +109,7 @@ class PPTU:
             if self.file.is_file() or self.tracker.all_files:
                 f = self.file
             else:
-                f = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))[0]
+                f = sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")])[0]
 
             p = subprocess.run(
                 ["mediainfo", f], cwd=self.file.parent, check=True, capture_output=True, encoding="utf-8"
@@ -124,7 +124,7 @@ class PPTU:
 
     def generate_snapshots(self) -> list[Path]:
         if self.file.is_dir() or self.tracker.all_files:
-            files = list(sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")]))
+            files = sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")])
         elif self.file.is_file():
             files = [self.file]
 
@@ -170,8 +170,8 @@ class PPTU:
                 snap = self.cache_dir / "{num:02}{suffix}.png".format(
                     num=i + 1,
                     suffix=(
-                        "_all" if self.tracker.all_files else ""
-                        + "_rand" if self.tracker.random_snapshots else ""
+                        ("_all" if self.tracker.all_files else "")
+                        + ("_rand" if self.tracker.random_snapshots else "")
                     ),
                 )
 

@@ -331,7 +331,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         release_name = path.stem if path.is_file() else path.name
 
         if path.is_dir():
-            file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
+            file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
         else:
             file = path
         mediainfo_obj = MediaInfo.parse(file)

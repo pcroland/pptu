@@ -93,7 +93,9 @@ def flatten(L: Iterable) -> list:
     return [item for sublist in L for item in sublist]
 
 
-def print(text: Any = "", highlight: bool = False, file: IO = sys.stdout, flush: bool = False, **kwargs: Any) -> None:
+def print(  # noqa: A001
+    text: Any = "", highlight: bool = False, file: IO = sys.stdout, flush: bool = False, **kwargs: Any
+) -> None:
     with Console(highlight=highlight) as console:
         console.print(text, **kwargs)
         if flush:

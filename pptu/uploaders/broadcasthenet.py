@@ -259,7 +259,7 @@ class BroadcasTheNetUploader(Uploader):
             print("AutoFill complete.")
 
         if path.is_dir():
-            file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
+            file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
         else:
             file = path
         if file.suffix == ".mkv":

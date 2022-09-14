@@ -175,7 +175,7 @@ class PassThePopcornUploader(Uploader):
             self.anti_csrf_token = soup.select_one("[name='AntiCsrfToken']")["value"]
 
         if path.is_dir():
-            file = list(sorted([*path.glob("*.mkv"), *path.glob("*.mp4")]))[0]
+            file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
         else:
             file = path
         mediainfo_obj = MediaInfo.parse(file)
