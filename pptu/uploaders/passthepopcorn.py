@@ -241,6 +241,8 @@ class PassThePopcornUploader(Uploader):
             source = "Other"
         print(f"Detected source: [bold cyan]{source}[/]")
 
+        tag = (path.name if path.is_dir() else path.stem).split("-")[-1]
+
         self.data = {
             "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
             "type": type_,
@@ -250,7 +252,7 @@ class PassThePopcornUploader(Uploader):
             "image": imdb_movie.data["cover url"],
             "remaster_title": " / ".join({v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}),
             "remaster_year": "",
-            "internalrip": "on",  # TODO: Allow customizing this
+            **({"internalrip": "on"} if tag in self.config.get(self, "personal_rip_tags", []) else {}),
             "source": source,
             "other_source": "",
             "codec": "* Auto-detect",
