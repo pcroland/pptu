@@ -326,7 +326,10 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     timeout=60,
                 ).json()
                 r.raise_for_status()
-                images.append(res["imageId"])
+                if res["error"]:
+                    wprint(f"Failed to upload image: {res['error']}")
+                else:
+                    images.append(res["imageId"])
 
         release_name = path.stem if path.is_file() else path.name
 
