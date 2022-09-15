@@ -51,7 +51,9 @@ class PPTU:
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
             return False
 
-        base_torrent_path = next(iter(self.cache_dir.glob(f"{glob.escape(self.file.name)}[*].torrent")), None)
+        base_torrent_path = next(iter(
+            self.cache_dir.glob(glob.escape(f"{self.file.name}[") + "*" + glob.escape("].torrent"))
+        ), None)
         output = self.cache_dir / f"{self.file.name}[{self.tracker.abbrev}].torrent"
 
         if output.exists():
