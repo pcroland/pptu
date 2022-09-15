@@ -1093,6 +1093,22 @@ python-versions = ">=3.7, ==3.*"
 flatbencode = ">=0.2.0,<0.3.0"
 
 [[package]]
+name = "types-attrs"
+version = "19.1.0"
+description = "Typing stubs for attrs"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
+name = "types-beautifulsoup4"
+version = "4.11.6"
+description = "Typing stubs for beautifulsoup4"
+category = "dev"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "types-requests"
 version = "2.28.10"
 description = "Typing stubs for requests"
@@ -1211,7 +1227,7 @@ testing = ["func-timeout", "jaraco.itertools", "pytest (>=6)", "pytest-black (>=
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "c3bbc1b32e37b83e4a01e4255a37d3d0df8b4f1400f09a0f5a5d27e2824c0504"
+content-hash = "9f81ae7c66960f866bca626c65382e460fab53229135bc072789b4bad3fd2d5f"
 
 [metadata.files]
 anyio = [
@@ -1941,6 +1957,13 @@ tomli = [
 torf = [
     {file = "torf-4.0.3-py3-none-any.whl", hash = "sha256:fa75281a1867734df471606529e09cd63b2e4be313a2034358a7f0a202c02bf5"},
     {file = "torf-4.0.3.tar.gz", hash = "sha256:2e2c0edd16d6d2a88e90c242046915d6752a5f293dae3d6e5c5c8c565ee023a9"},
+]
+types-attrs = [
+    {file = "types_attrs-19.1.0-py2.py3-none-any.whl", hash = "sha256:d11acf7a2531a7c52a740c30fa3eb8d01d3066c10d34c01ff5e59502caac5352"},
+]
+types-beautifulsoup4 = [
+    {file = "types-beautifulsoup4-4.11.6.tar.gz", hash = "sha256:2670dd71995df464041e2941fa9bbb694795271e3dedd7262b4766649a1cbe82"},
+    {file = "types_beautifulsoup4-4.11.6-py3-none-any.whl", hash = "sha256:ac9dd1383481201ea07f27c5a43e7b1ee71caf9c720b7ae951db15d60d126e80"},
 ]
 types-requests = [
     {file = "types-requests-2.28.10.tar.gz", hash = "sha256:97d8f40aa1ffe1e58c3726c77d63c182daea9a72d9f1fa2cafdea756b2a19f2c"},
