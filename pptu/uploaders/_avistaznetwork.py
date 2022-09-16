@@ -25,6 +25,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     min_snapshots = 3
     random_snapshots = True
 
+    year_in_series_name = False
     keep_dubbed_dual_tags = False
 
     COLLECTION_MAP = {
@@ -363,6 +364,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             release_name = re.sub(r"(?i)h\.?264", "x264", release_name)
         if mediainfo_obj.video_tracks[0].encoded_library_name == "x265":
             release_name = re.sub(r"(?i)h\.?265", "x265", release_name)
+
+        if self.year_in_series_name:
+            release_name = re.sub(r"\b(S\d+)\b", fr"\1 ({year})", release_name)
 
         if not self.keep_dubbed_dual_tags:
             release_name = release_name.replace(".DUBBED.", "")
