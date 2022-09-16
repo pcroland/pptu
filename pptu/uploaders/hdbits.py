@@ -4,7 +4,7 @@ import contextlib
 import hashlib
 import re
 import time
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from guessit import guessit
 from imdb import Cinemagoer
@@ -353,7 +353,7 @@ class HDBitsUploader(Uploader):
         if not (el := soup.select_one(".js-download")):
             eprint("Failed to get torrent download URL.")
             return False
-        torrent_path = cast(str, el["href"])
+        torrent_path = el.attrs["href"]
         torrent_url = f"https://hdbits.org{torrent_path}"
         self.torrent_path.write_bytes(self.session.get(torrent_url).content)
 

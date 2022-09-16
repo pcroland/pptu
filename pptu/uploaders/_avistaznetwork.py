@@ -4,7 +4,7 @@ import re
 import time
 import uuid
 from abc import ABC
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from pymediainfo import MediaInfo
 from pyotp import TOTP
@@ -81,7 +81,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             if not (el := soup.select_one(".img-captcha")):
                 eprint("Failed to get captcha URL.")
                 return False
-            captcha_url = cast(str, el["src"])
+            captcha_url = el.attrs["src"]
 
             print("Submitting captcha to 2captcha")
             res = self.session.post(
@@ -430,7 +430,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         if not (el := soup.select_one('a[href*="/download/"]')):
             eprint("Failed to get torrent download URL.")
             return False
-        torrent_url = cast(str, el["href"])
+        torrent_url = el.attrs["href"]
 
         self.session.get(torrent_url, timeout=60)
 

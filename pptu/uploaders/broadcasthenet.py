@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from typing import TYPE_CHECKING, Optional, cast
+from typing import TYPE_CHECKING
 
 import httpx
 from guessit import guessit
@@ -138,7 +138,7 @@ class BroadcasTheNetUploader(Uploader):
         if not (el := soup.select_one("input[value$='/announce']")):
             eprint("Failed to get announce URL.")
             return None
-        return cast(str, el["value"]).split("/")[-2]
+        return el.attrs["value"].split("/")[-2]
 
     def login(self, *, auto: bool) -> bool:
         # Allow cookies from either broadcasthe.net or backup.landof.tv
@@ -245,9 +245,9 @@ class BroadcasTheNetUploader(Uploader):
         else:
             artist = title = "AutoFill Fail"
             if el := soup.select_one('[name="artist"]'):
-                artist = cast(str, el["value"])
+                artist = el.attrs["value"]
             if el := soup.select_one('[name="title"]'):
-                title = cast(str, el["value"])
+                title = el.attrs["value"]
 
         if artist == "AutoFill Fail" or title == "AutoFill Fail":
             if auto:
@@ -370,7 +370,7 @@ class BroadcasTheNetUploader(Uploader):
 
         tags = "action"
         if el := soup.select_one('[name="tags"]'):
-            tags = cast(Optional[str], el.get("value")) or tags
+            tags = el.attrs.get("value") or tags
 
         image = None
         if el := soup.select_one('[name="image"]'):
@@ -394,7 +394,7 @@ class BroadcasTheNetUploader(Uploader):
 
         resolution = "SD"
         if el := soup.select_one('[name="resolution"] [selected]'):
-            resolution = cast(Optional[str], el.get("value")) or resolution
+            resolution = el.attrs.get("value") or resolution
 
         self.data = {
             "submit": "true",

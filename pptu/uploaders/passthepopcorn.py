@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import TYPE_CHECKING, cast
+from typing import TYPE_CHECKING
 
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
@@ -60,7 +60,7 @@ class PassThePopcornUploader(Uploader):
         if not (el := soup.select_one("input[value$='/announce']")):
             eprint("Failed to get announce URL.")
             return None
-        return cast(str, el["value"]).split("/")[-2]
+        return el.attrs["value"].split("/")[-2]
 
     def login(self, *, auto: bool) -> bool:
         r = self.session.get("https://passthepopcorn.me/user.php?action=edit", allow_redirects=False)
@@ -178,7 +178,7 @@ class PassThePopcornUploader(Uploader):
             if not (el := soup.select_one("[name='AntiCsrfToken']")):
                 eprint("Failed to extract CSRF token.")
                 return False
-            self.anti_csrf_token = cast(str, el["value"])
+            self.anti_csrf_token = el.attrs["value"]
 
         if path.is_dir():
             file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
