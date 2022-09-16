@@ -394,7 +394,7 @@ class BroadcasTheNetUploader(Uploader):
 
         resolution = "SD"
         if el := soup.select_one('[name="resolution"] [selected]'):
-            resolution = resolution or cast(str, el.get("value"))
+            resolution = cast(Optional[str], el.get("value")) or resolution
 
         self.data = {
             "submit": "true",
