@@ -4,7 +4,7 @@ import contextlib
 import hashlib
 import re
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from guessit import guessit
 from imdb import Cinemagoer
@@ -119,10 +119,15 @@ class HDBitsUploader(Uploader):
 
         totp_secret = self.config.get(self, "totp_secret")
 
+        if not (el := soup.select_one("[name='csrf']")):
+            eprint("Failed to extract CSRF token.")
+            return False
+        csrf_token = el["value"]
+
         r = self.session.post(
             url="https://hdbits.org/login/doLogin",
             data={
-                "csrf": soup.select_one("[name='csrf']")["value"],
+                "csrf": csrf_token,
                 "uname": self.config.get(self, "username"),
                 "password": self.config.get(self, "password"),
                 "twostep_code": TOTP(totp_secret).now() if totp_secret else None,
@@ -138,7 +143,7 @@ class HDBitsUploader(Uploader):
             r = self.session.post(
                 url="https://hdbits.org/login/doLogin",
                 data={
-                    "csrf": soup.select_one("[name='csrf']")["value"],
+                    "csrf": csrf_token,
                     "uname": self.config.get(self, "username"),
                     "password": self.config.get(self, "password"),
                     "twostep_code": Prompt.ask("Enter 2FA code"),
@@ -149,7 +154,12 @@ class HDBitsUploader(Uploader):
 
         if "error" in r.url:
             soup = load_html(r.text)
-            error = re.sub(r"\s+", " ", soup.select_one(".embedded").text).strip()
+            if el := soup.select_one("embedded"):
+                error = re.sub(r"\s+", " ", el.text).strip()
+            else:
+                error = "Unknown error"
+                if m := re.search(r"error=(\d+)", r.url):
+                    error += f" {m[1]}"
             eprint(error)
             return False
 
@@ -340,7 +350,11 @@ class HDBitsUploader(Uploader):
             data=self.data,
         ).text
         soup = load_html(res)
-        torrent_url = f'https://hdbits.org{soup.select_one(".js-download")["href"]}'
+        if not (el := soup.select_one(".js-download")):
+            eprint("Failed to get torrent download URL.")
+            return False
+        torrent_path = cast(str, el["href"])
+        torrent_url = f"https://hdbits.org{torrent_path}"
         self.torrent_path.write_bytes(self.session.get(torrent_url).content)
 
         return True

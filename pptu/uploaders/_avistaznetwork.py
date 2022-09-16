@@ -4,7 +4,7 @@ import re
 import time
 import uuid
 from abc import ABC
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from pymediainfo import MediaInfo
 from pyotp import TOTP
@@ -72,8 +72,16 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         while True:
             r = self.session.get(f"{self.base_url}/auth/login")
             soup = load_html(r.text)
-            token = soup.select_one("input[name='_token']")["value"]
-            captcha_url = soup.select_one(".img-captcha")["src"]
+
+            if not (el := soup.select_one("input[name='_token']")):
+                eprint("Failed to get token.")
+                return False
+            token = el["value"]
+
+            if not (el := soup.select_one(".img-captcha")):
+                eprint("Failed to get captcha URL.")
+                return False
+            captcha_url = cast(str, el["src"])
 
             print("Submitting captcha to 2captcha")
             res = self.session.post(
@@ -173,10 +181,15 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     return False
                 tfa_code = Prompt.ask("Enter 2FA code")
 
+            if not (el := soup.select_one("input[name='_token']")):
+                eprint("Failed to get token.")
+                return False
+            token = el["value"]
+
             r = self.session.post(
                 url=r.url,
                 data={
-                    "_token": soup.select_one("input[name='_token']")["value"],
+                    "_token": token,
                     "twofa_code": tfa_code,
                 },
             )
@@ -193,10 +206,13 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     @property
-    def passkey(self) -> str:
+    def passkey(self) -> str | None:
         r = self.session.get(f"{self.base_url}/account")
         soup = load_html(r.text)
-        return soup.select_one(".current_pid").text
+        if not (el := soup.select_one(".current_pid")):
+            eprint("Failed to get passkey.")
+            return None
+        return el.text
 
     def prepare(  # type: ignore[override]
         self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
@@ -233,7 +249,11 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
         r = self.session.get(self.base_url)
         soup = load_html(r.text)
-        token = soup.select_one('meta[name="_token"]')["content"]
+
+        if not (el := soup.select_one('meta[name="_token"]')):
+            eprint("Failed to get token.")
+            return False
+        token = el["content"]
 
         year = None
         if m := re.search(r" (\d{4})$", title):
@@ -348,9 +368,29 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             release_name = release_name.replace(".DUBBED.", "")
             release_name = release_name.replace(".DUAL.", "")
 
+        if not (el := soup.select_one('input[name="info_hash"]')):
+            eprint("Failed to get info hash.")
+            return False
+        info_hash = el["value"]
+
+        if not (el := soup.select_one('select[name="rip_type_id"] option[selected]')):
+            eprint("Failed to get rip type.")
+            return False
+        rip_type_id = el["value"]
+
+        if not (el := soup.select_one('select[name="video_quality_id"] option[selected]')):
+            eprint("Failed to get video quality.")
+            return False
+        video_quality_id = el["value"]
+
+        if not (el := soup.select_one('input[name="video_resolution"]')):
+            eprint("Failed to get video resolution.")
+            return False
+        video_resolution = el["value"]
+
         self.data = {
             "_token": token,
-            "info_hash": soup.select_one('input[name="info_hash"]')["value"],
+            "info_hash": info_hash,
             "torrent_id": "",
             "type_id": 1 if collection == "movie" else 2,
             "task_id": self.upload_url.split("/")[-1],
@@ -366,9 +406,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "description": "",
             "qqfile": "",
             "screenshots[]": images,
-            "rip_type_id": soup.select_one('select[name="rip_type_id"] option[selected]')["value"],
-            "video_quality_id": soup.select_one('select[name="video_quality_id"] option[selected]')["value"],
-            "video_resolution": soup.select_one('input[name="video_resolution"]')["value"],
+            "rip_type_id": rip_type_id,
+            "video_quality_id": video_quality_id,
+            "video_resolution": video_resolution,
             "movie_id": movie_id,
             "tv_collection": self.COLLECTION_MAP[collection],
             "tv_season": season,
@@ -386,7 +426,12 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
         soup = load_html(r.text)
         r.raise_for_status()
-        torrent_url = soup.select_one('a[href*="/download/"]')["href"]
+
+        if not (el := soup.select_one('a[href*="/download/"]')):
+            eprint("Failed to get torrent download URL.")
+            return False
+        torrent_url = cast(str, el["href"])
+
         self.session.get(torrent_url, timeout=60)
 
         return True

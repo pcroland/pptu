@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, cast
 
 import httpx
 from guessit import guessit
@@ -132,10 +132,13 @@ class BroadcasTheNetUploader(Uploader):
     }
 
     @property
-    def passkey(self) -> str:
+    def passkey(self) -> str | None:
         res = self.session.get("https://backup.landof.tv/upload.php").text
         soup = load_html(res)
-        return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
+        if not (el := soup.select_one("input[value$='/announce']")):
+            eprint("Failed to get announce URL.")
+            return None
+        return cast(str, el["value"]).split("/")[-2]
 
     def login(self, *, auto: bool) -> bool:
         # Allow cookies from either broadcasthe.net or backup.landof.tv
@@ -240,8 +243,11 @@ class BroadcasTheNetUploader(Uploader):
             artist = gi["title"]
             title = f"Season {gi['season']} - {re.sub(r'^Special ', '', gi['episode_title'])}"
         else:
-            artist = soup.select_one('[name="artist"]').get("value")
-            title = soup.select_one('[name="title"]').get("value")
+            artist = title = "AutoFill Fail"
+            if el := soup.select_one('[name="artist"]'):
+                artist = cast(str, el["value"])
+            if el := soup.select_one('[name="title"]'):
+                title = cast(str, el["value"])
 
         if artist == "AutoFill Fail" or title == "AutoFill Fail":
             if auto:
@@ -350,26 +356,66 @@ class BroadcasTheNetUploader(Uploader):
         else:
             wprint("No imgbin API key specified, skipping snapshots")
 
+        series_id = None
+        if el := soup.select_one('[name="seriesid"]'):
+            series_id = el.get("value")
+
+        actors = None
+        if el := soup.select_one('[name="actors"]'):
+            actors = el.get("value")
+
+        year = None
+        if el := soup.select_one('[name="year"]'):
+            year = el.get("value")
+
+        tags = "action"
+        if el := soup.select_one('[name="tags"]'):
+            tags = cast(Optional[str], el.get("value")) or tags
+
+        image = None
+        if el := soup.select_one('[name="image"]'):
+            image = el.get("value")
+
+        album_desc = None
+        if el := soup.select_one('[name="album_desc"]'):
+            album_desc = el.get("value")
+
+        format_ = None
+        if el := soup.select_one('[name="format"] [selected]'):
+            format_ = el.get("value")
+
+        bitrate = None
+        if el := soup.select_one('[name="bitrate"] [selected]'):
+            bitrate = el.get("value")
+
+        media = None
+        if el := soup.select_one('[name="media"] [selected]'):
+            media = el.get("value")
+
+        resolution = "SD"
+        if el := soup.select_one('[name="resolution"] [selected]'):
+            resolution = resolution or cast(str, el.get("value"))
+
         self.data = {
             "submit": "true",
             "type": type_,
             "scenename": release_name,
-            "seriesid": (soup.select_one('[name="seriesid"]') or {}).get("value"),
+            "seriesid": series_id,
             "artist": artist,
             "title": title,
-            "actors": (soup.select_one('[name="actors"]') or {}).get("value"),
+            "actors": actors,
             "origin": "Internal" if release_name.endswith(("-BTW", "-NTb", "-TVSmash")) else "P2P",
             "foreign": None if lang.language == "en" else "on",
             "country": self.COUNTRY_MAP.get(lang.territory),
-            "year": soup.select_one('[name="year"]').get("value"),
-            "tags": soup.select_one('[name="tags"]').get("value") or "action",
-            "image": soup.select_one('[name="image"]').get("value"),
-            "album_desc": soup.select_one('[name="album_desc"]').text,
+            "year": year,
+            "tags": tags,
+            "image": image,
+            "album_desc": album_desc,
             "fasttorrent": "on" if self.config.get(self, "fasttorrent") else None,
-            "format": soup.select_one('[name="format"] [selected]').get("value"),
-            "bitrate": soup.select_one('[name="bitrate"] [selected]').get("value"),
-            "media": soup.select_one('[name="media"] [selected]').get("value"),
-            "resolution": (soup.select_one('[name="resolution"] [selected]') or {"value": "SD"}).get("value"),
+            "format": format_,
+            "bitrate": bitrate,
+            "media": media,
+            "resolution": resolution,
             "release_desc": f"{mediainfo}\n\n\n{thumbnails_str}".strip(),
             "tvdb": "autofilled",
         }

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
@@ -51,13 +51,16 @@ class PassThePopcornUploader(Uploader):
 
     def __init__(self) -> None:
         super().__init__()
-        self.anti_csrf_token = None
+        self.anti_csrf_token: str | None = None
 
     @property
-    def passkey(self) -> str:
+    def passkey(self) -> str | None:
         r = self.session.get("https://passthepopcorn.me/upload.php")
         soup = load_html(r.text)
-        return soup.select_one("input[value$='/announce']")["value"].split("/")[-2]
+        if not (el := soup.select_one("input[value$='/announce']")):
+            eprint("Failed to get announce URL.")
+            return None
+        return cast(str, el["value"]).split("/")[-2]
 
     def login(self, *, auto: bool) -> bool:
         r = self.session.get("https://passthepopcorn.me/user.php?action=edit", allow_redirects=False)
@@ -172,7 +175,10 @@ class PassThePopcornUploader(Uploader):
 
         if not self.anti_csrf_token:
             soup = load_html(r.text)
-            self.anti_csrf_token = soup.select_one("[name='AntiCsrfToken']")["value"]
+            if not (el := soup.select_one("[name='AntiCsrfToken']")):
+                eprint("Failed to extract CSRF token.")
+                return False
+            self.anti_csrf_token = cast(str, el["value"])
 
         if path.is_dir():
             file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
@@ -244,7 +250,7 @@ class PassThePopcornUploader(Uploader):
         tag = (path.name if path.is_dir() else path.stem).split("-")[-1]
 
         self.data = {
-            "AntiCsrfToken": soup.select_one("[name='AntiCsrfToken']")["value"],
+            "AntiCsrfToken": self.anti_csrf_token,
             "type": type_,
             "imdb": imdb,
             "title": torrent_info.get("title"),
