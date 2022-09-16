@@ -119,7 +119,7 @@ class HDBitsUploader(Uploader):
 
         totp_secret = self.config.get(self, "totp_secret")
 
-        if not (el := soup.select_one("[name='csrf']")):
+        if not (el := soup.select_one("[name=csrf]")):
             eprint("Failed to extract CSRF token.")
             return False
         csrf_token = el["value"]

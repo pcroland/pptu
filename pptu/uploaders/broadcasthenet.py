@@ -244,9 +244,9 @@ class BroadcasTheNetUploader(Uploader):
             title = f"Season {gi['season']} - {re.sub(r'^Special ', '', gi['episode_title'])}"
         else:
             artist = title = "AutoFill Fail"
-            if el := soup.select_one('[name="artist"]'):
+            if el := soup.select_one("[name=artist]"):
                 artist = el.attrs["value"]
-            if el := soup.select_one('[name="title"]'):
+            if el := soup.select_one("[name=title]"):
                 title = el.attrs["value"]
 
         if artist == "AutoFill Fail" or title == "AutoFill Fail":
@@ -357,43 +357,43 @@ class BroadcasTheNetUploader(Uploader):
             wprint("No imgbin API key specified, skipping snapshots")
 
         series_id = None
-        if el := soup.select_one('[name="seriesid"]'):
+        if el := soup.select_one("[name=seriesid]"):
             series_id = el.get("value")
 
         actors = None
-        if el := soup.select_one('[name="actors"]'):
+        if el := soup.select_one("[name=actors]"):
             actors = el.get("value")
 
         year = None
-        if el := soup.select_one('[name="year"]'):
+        if el := soup.select_one("[name=year]"):
             year = el.get("value")
 
         tags = "action"
-        if el := soup.select_one('[name="tags"]'):
+        if el := soup.select_one("[name=tags]"):
             tags = el.attrs.get("value") or tags
 
         image = None
-        if el := soup.select_one('[name="image"]'):
+        if el := soup.select_one("[name=image]"):
             image = el.get("value")
 
         album_desc = None
-        if el := soup.select_one('[name="album_desc"]'):
+        if el := soup.select_one("[name=album_desc]"):
             album_desc = el.get("value")
 
         format_ = None
-        if el := soup.select_one('[name="format"] [selected]'):
+        if el := soup.select_one("[name=format] [selected]"):
             format_ = el.get("value")
 
         bitrate = None
-        if el := soup.select_one('[name="bitrate"] [selected]'):
+        if el := soup.select_one("[name=bitrate] [selected]"):
             bitrate = el.get("value")
 
         media = None
-        if el := soup.select_one('[name="media"] [selected]'):
+        if el := soup.select_one("[name=media] [selected]"):
             media = el.get("value")
 
         resolution = "SD"
-        if el := soup.select_one('[name="resolution"] [selected]'):
+        if el := soup.select_one("[name=resolution] [selected]"):
             resolution = el.attrs.get("value") or resolution
 
         self.data = {

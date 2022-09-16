@@ -175,7 +175,7 @@ class PassThePopcornUploader(Uploader):
 
         if not self.anti_csrf_token:
             soup = load_html(r.text)
-            if not (el := soup.select_one("[name='AntiCsrfToken']")):
+            if not (el := soup.select_one("[name=AntiCsrfToken]")):
                 eprint("Failed to extract CSRF token.")
                 return False
             self.anti_csrf_token = el.attrs["value"]

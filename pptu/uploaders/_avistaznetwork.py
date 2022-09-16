@@ -74,7 +74,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             r = self.session.get(f"{self.base_url}/auth/login")
             soup = load_html(r.text)
 
-            if not (el := soup.select_one("input[name='_token']")):
+            if not (el := soup.select_one("input[name=_token]")):
                 eprint("Failed to get token.")
                 return False
             token = el["value"]
@@ -182,7 +182,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     return False
                 tfa_code = Prompt.ask("Enter 2FA code")
 
-            if not (el := soup.select_one("input[name='_token']")):
+            if not (el := soup.select_one("input[name=_token]")):
                 eprint("Failed to get token.")
                 return False
             token = el["value"]
@@ -251,7 +251,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         r = self.session.get(self.base_url)
         soup = load_html(r.text)
 
-        if not (el := soup.select_one('meta[name="_token"]')):
+        if not (el := soup.select_one("meta[name=_token]")):
             eprint("Failed to get token.")
             return False
         token = el["content"]
@@ -372,22 +372,22 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             release_name = release_name.replace(".DUBBED.", "")
             release_name = release_name.replace(".DUAL.", "")
 
-        if not (el := soup.select_one('input[name="info_hash"]')):
+        if not (el := soup.select_one("input[name=info_hash]")):
             eprint("Failed to get info hash.")
             return False
         info_hash = el["value"]
 
-        if not (el := soup.select_one('select[name="rip_type_id"] option[selected]')):
+        if not (el := soup.select_one("select[name=rip_type_id] option[selected]")):
             eprint("Failed to get rip type.")
             return False
         rip_type_id = el["value"]
 
-        if not (el := soup.select_one('select[name="video_quality_id"] option[selected]')):
+        if not (el := soup.select_one("select[name=video_quality_id] option[selected]")):
             eprint("Failed to get video quality.")
             return False
         video_quality_id = el["value"]
 
-        if not (el := soup.select_one('input[name="video_resolution"]')):
+        if not (el := soup.select_one("input[name=video_resolution]")):
             eprint("Failed to get video resolution.")
             return False
         video_resolution = el["value"]
@@ -417,8 +417,8 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "tv_collection": self.COLLECTION_MAP[collection],
             "tv_season": season,
             "tv_episode": episode,
-            "languages[]": [x["value"] for x in soup.select('select[name="languages[]"] option[selected]')],
-            "subtitles[]": [x["value"] for x in soup.select('select[name="subtitles[]"] option[selected]')],
+            "languages[]": [x["value"] for x in soup.select("select[name='languages[]'] option[selected]")],
+            "subtitles[]": [x["value"] for x in soup.select("select[name='subtitles[]'] option[selected]")],
             "media_info": mediainfo,
         }
 
@@ -431,7 +431,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         soup = load_html(r.text)
         r.raise_for_status()
 
-        if not (el := soup.select_one('a[href*="/download/"]')):
+        if not (el := soup.select_one("a[href*='/download/']")):
             eprint("Failed to get torrent download URL.")
             return False
         torrent_url = el.attrs["href"]
