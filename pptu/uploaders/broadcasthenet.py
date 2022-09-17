@@ -378,7 +378,7 @@ class BroadcasTheNetUploader(Uploader):
 
         album_desc = None
         if el := soup.select_one("[name=album_desc]"):
-            album_desc = el.get("value")
+            album_desc = el.text
 
         format_ = None
         if el := soup.select_one("[name=format] [selected]"):
