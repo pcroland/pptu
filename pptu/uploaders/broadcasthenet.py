@@ -426,7 +426,8 @@ class BroadcasTheNetUploader(Uploader):
         self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
     ) -> bool:
         torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
-        self.session.post(
+
+        r = self.session.post(
             url="https://backup.landof.tv/upload.php",
             data=self.data,
             files={
@@ -434,5 +435,11 @@ class BroadcasTheNetUploader(Uploader):
             },
             timeout=60,
         )
+
+        soup = load_html(r.text)
+        if el := soup.select_one("p[style*='color: red']"):
+            error = el.text
+            eprint(f"Upload failed: [cyan]{error}[/cyan]")
+            return False
 
         return True
