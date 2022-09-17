@@ -54,7 +54,8 @@ class PPTU:
             return True
 
         if base_torrent_path:
-            torrent = Torrent(base_torrent_path)
+            torrent = Torrent(self.file)
+            torrent.reuse(base_torrent_path)
             try:
                 torrent.validate()
             except torf.MetainfoError:
