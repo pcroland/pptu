@@ -12,14 +12,7 @@ import torf
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
 from pyrosimple.util.metafile import Metafile
-from rich.progress import (
-    BarColumn,
-    MofNCompleteColumn,
-    Progress,
-    TaskProgressColumn,
-    TextColumn,
-    TimeRemainingColumn,
-)
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from torf import Torrent
 from wand.image import Image
 
