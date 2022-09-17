@@ -3,6 +3,7 @@ repos:
     rev: v1.5.3
     hooks:
       - id: autoflake
+        args: [--remove-all-unused-imports, --ignore-init-module-imports]
 
   - repo: https://github.com/pycqa/flake8
     rev: 5.0.4
