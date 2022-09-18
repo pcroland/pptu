@@ -90,6 +90,7 @@ disallow_untyped_defs = true
 exclude = ["venv"]
 python_version = "3.8"
 show_error_codes = true
+warn_unused_ignores = true
 
 [[tool.mypy.overrides]]
 module = "guessit"
