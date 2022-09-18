@@ -85,12 +85,12 @@ lines_after_imports = 2
 profile = "black"
 
 [tool.mypy]
-disallow_incomplete_defs = true
-disallow_untyped_defs = true
 exclude = ["venv"]
 python_version = "3.8"
 show_error_codes = true
-warn_unused_ignores = true
+strict = true
+disallow_untyped_calls = false
+no_implicit_reexport = false
 
 [[tool.mypy.overrides]]
 module = "guessit"

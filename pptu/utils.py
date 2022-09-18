@@ -51,7 +51,7 @@ class RParse(argparse.ArgumentParser):
         kwargs.setdefault("formatter_class", lambda prog: CustomHelpFormatter(prog))
         super().__init__(*args, **kwargs)
 
-    def _print_message(self, message: str, file: IO | None = None) -> None:
+    def _print_message(self, message: str, file: IO[str] | None = None) -> None:
         if message:
             if message.startswith("usage"):
                 message = f"[bold cyan]{PROG_NAME}[/] {PROG_VERSION}\n\n{message}"
@@ -88,13 +88,13 @@ class CustomTransferSpeedColumn(ProgressColumn):
         return Text(f"{data_speed}/s", style="progress.data.speed")
 
 
-def flatten(L: Iterable) -> list:
+def flatten(L: Iterable[Any]) -> list[Any]:
     # https://stackoverflow.com/a/952952/492203
     return [item for sublist in L for item in sublist]
 
 
 def print(  # noqa: A001
-    text: Any = "", highlight: bool = False, file: IO = sys.stdout, flush: bool = False, **kwargs: Any
+    text: Any = "", highlight: bool = False, file: IO[str] = sys.stdout, flush: bool = False, **kwargs: Any
 ) -> None:
     with Console(highlight=highlight) as console:
         console.print(text, **kwargs)
