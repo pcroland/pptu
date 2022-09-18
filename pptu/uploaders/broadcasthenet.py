@@ -396,6 +396,8 @@ class BroadcasTheNetUploader(Uploader):
         if el := soup.select_one("[name=resolution] [selected]"):
             resolution = el.attrs.get("value") or resolution
 
+        # There must be two blank lines between mediainfo and snapshots per staff due to their parser scripts.
+        # The first newline here is just the line terminator for the mediainfo.
         description = f"{mediainfo}\n\n\n{thumbnails_str}"
         if note:
             description = f"[quote]{note}[/quote]\n{description}"
