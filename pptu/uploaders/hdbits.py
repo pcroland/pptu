@@ -173,7 +173,7 @@ class HDBitsUploader(Uploader):
         return None
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
@@ -317,6 +317,11 @@ class HDBitsUploader(Uploader):
             else:
                 thumbnails_str += "\n"
 
+        description = "[center]"
+        if note:
+            description += f"[quote]{note}[/quote]\n"
+        description += f"{thumbnails_str}[/center]"
+
         self.data = {
             "name": name,
             "category": self.CATEGORY_MAP[category],
@@ -336,7 +341,7 @@ class HDBitsUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         res = self.session.post(
             url="https://hdbits.org/upload/upload",

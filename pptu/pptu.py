@@ -24,9 +24,10 @@ if TYPE_CHECKING:
 
 
 class PPTU:
-    def __init__(self, file: Path, tracker: Uploader, *, auto: bool = False):
+    def __init__(self, file: Path, tracker: Uploader, *, note: str | None = None, auto: bool = False):
         self.file = file
         self.tracker = tracker
+        self.note = note
         self.auto = auto
 
         dirs = PlatformDirs(appname="pptu", appauthor=False)
@@ -201,13 +202,13 @@ class PPTU:
         return snapshots
 
     def prepare(self, mediainfo: str | list[str], snapshots: list[Path]) -> bool:
-        if not self.tracker.prepare(self.file, mediainfo, snapshots, auto=self.auto):
+        if not self.tracker.prepare(self.file, mediainfo, snapshots, note=self.note, auto=self.auto):
             eprint(f"Preparing upload to [cyan]{self.tracker.name}[/] failed.")
             return False
         return True
 
     def upload(self, mediainfo: str | list[str], snapshots: list[Path]) -> None:
-        if not self.tracker.upload(self.file, mediainfo, snapshots, auto=self.auto):
+        if not self.tracker.upload(self.file, mediainfo, snapshots, note=self.note, auto=self.auto):
             eprint(f"Upload to [cyan]{self.tracker.name}[/] failed.")
             return
 

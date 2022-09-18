@@ -51,6 +51,9 @@ def main() -> None:
     parser.add_argument("-s", "--skip-upload",
                         action="store_true",
                         help="skip upload")
+    parser.add_argument("-n", "--note",
+                        action="store_true",
+                        help="note to add to upload")
     parser.add_argument("-lt", "--list-trackers",
                         action="store_true",
                         help="list supported trackers")
@@ -123,7 +126,7 @@ def main() -> None:
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         for tracker in trackers:
-            pptu = PPTU(file, tracker, auto=args.auto)
+            pptu = PPTU(file, tracker, note=args.note, auto=args.auto)
 
             print(f"\n[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")
             pptu.create_torrent()

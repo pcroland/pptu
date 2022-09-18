@@ -192,7 +192,7 @@ class BroadcasTheNetUploader(Uploader):
         return "login.php" not in r.url
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
@@ -396,6 +396,11 @@ class BroadcasTheNetUploader(Uploader):
         if el := soup.select_one("[name=resolution] [selected]"):
             resolution = el.attrs.get("value") or resolution
 
+        description = f"{mediainfo}\n\n\n{thumbnails_str}"
+        if note:
+            description = f"[quote]{note}[/quote]\n{description}"
+        description = description.strip()
+
         self.data = {
             "submit": "true",
             "type": type_,
@@ -416,7 +421,7 @@ class BroadcasTheNetUploader(Uploader):
             "bitrate": bitrate,
             "media": media,
             "resolution": resolution,
-            "release_desc": f"{mediainfo}\n\n\n{thumbnails_str}".strip(),
+            "release_desc": description,
             "tvdb": "autofilled",
         }
 

@@ -126,7 +126,7 @@ class PassThePopcornUploader(Uploader):
         return True
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: list[str], snapshots: list[Path], *, auto: bool
+        self, path: Path, mediainfo: list[str], snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
@@ -227,6 +227,8 @@ class PassThePopcornUploader(Uploader):
                 mediainfo=mediainfo[0],
                 snapshots="\n".join(snapshot_urls),
             )
+        if note:
+            desc = f"[quote]{note}[/quote]\n{desc}"
         desc = desc.strip()
 
         if re.search(r"\b(?:b[dr]-?rip|blu-?ray)\b", str(path), flags=re.I):
@@ -277,7 +279,7 @@ class PassThePopcornUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, mediainfo: list[str], snapshots: list[str], *, auto: bool
+        self, path: Path, mediainfo: list[str], snapshots: list[str], *, note: str | None, auto: bool
     ) -> bool:
         r = self.session.post(
             url="https://passthepopcorn.me/upload.php",

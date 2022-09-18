@@ -216,7 +216,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return el.text
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
@@ -407,7 +407,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 .replace("5 1 ", "5.1 ")
             ),
             "anon_upload": "1" if self.config.get(self, "anonymous_upload", True) else "",
-            "description": "",
+            "description": note,
             "qqfile": "",
             "screenshots[]": images,
             "rip_type_id": rip_type_id,

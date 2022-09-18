@@ -74,12 +74,16 @@ class Uploader(ABC):
         return None
 
     @abstractmethod
-    def prepare(self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, auto: bool) -> bool:
+    def prepare(
+        self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, note: str | None, auto: bool
+    ) -> bool:
         """
         Do any necessary preparations for the upload.
         This is a separate stage because of --fast-upload.
         """
 
     @abstractmethod
-    def upload(self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, auto: bool) -> bool:
+    def upload(
+        self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, note: str | None, auto: bool
+    ) -> bool:
         """Perform the actual upload."""
