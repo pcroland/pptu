@@ -3,6 +3,7 @@ from __future__ import annotations
 import glob
 import random
 import re
+import shutil
 import subprocess
 from pathlib import Path
 from typing import TYPE_CHECKING
@@ -217,4 +218,6 @@ class PPTU:
             watch_dir = Path(watch_dir).expanduser()
             metafile = Metafile.from_file(torrent_path)
             metafile.add_fast_resume(self.file)
-            metafile.save(watch_dir / torrent_path.name)
+            resume_path = str(torrent_path).replace(".torrent", "-resume.torrent")
+            metafile.save(resume_path)
+            shutil.copy(resume_path, watch_dir)
