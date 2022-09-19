@@ -425,7 +425,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, auto: bool
+        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
         soup = load_html(r.text)
