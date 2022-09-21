@@ -218,6 +218,6 @@ class PPTU:
             watch_dir = Path(watch_dir).expanduser()
             metafile = Metafile.from_file(torrent_path)
             metafile.add_fast_resume(self.file)
-            resume_path = str(torrent_path).replace(".torrent", "-resume.torrent")
+            resume_path = Path(str(torrent_path).replace(".torrent", "-resume.torrent"))
             metafile.save(resume_path)
             shutil.copy(resume_path, watch_dir)
