@@ -205,7 +205,7 @@ class BroadcasTheNetUploader(Uploader):
             type_ = "Episode"
 
         release_name = path.stem if path.is_file() else path.name
-        release_name = re.sub(r"\.([a-z]+)\.?([\d.]+)\.Atmos", r"\.\1A\2", release_name, flags=re.I)
+        release_name = re.sub(r"\.([a-z]+)\.?([\d.]+)\.Atmos", r".\1A\2", release_name, flags=re.I)
         if m := re.search(r"\.(?:DV|DoVi)(?:\.HDR(?:10(?:\+|P|Plus))?)?\b", release_name, flags=re.I):
             release_name = release_name.replace(m.group(), "")
             release_name = re.sub(r"\.(\d+p)", r".DV.\1", release_name)
