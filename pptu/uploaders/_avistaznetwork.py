@@ -407,7 +407,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 .replace("5 1 ", "5.1 ")
             ),
             "anon_upload": "1" if self.config.get(self, "anonymous_upload", True) else "",
-            "description": note,
+            "description": note or "",
             "qqfile": "",
             "screenshots[]": images,
             "rip_type_id": rip_type_id,
