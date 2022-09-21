@@ -132,7 +132,9 @@ def main() -> None:
             pptu.create_torrent()
 
             print(f"\n[bold green]Generating MediaInfo ({tracker.abbrev})[/]")
-            mediainfo = pptu.get_mediainfo()
+            if not (mediainfo := pptu.get_mediainfo()):
+                eprint("Failed to generate MediaInfo")
+                continue
             print("Done!")
 
             # Generating snapshots

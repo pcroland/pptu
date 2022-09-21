@@ -107,9 +107,12 @@ class PPTU:
         if self.tracker.all_files and self.file.is_dir():
             mediainfo_path = self.cache_dir / "mediainfo_all.txt"
 
+        mediainfo = ""
+
         if mediainfo_path.exists():
-            mediainfo = mediainfo_path.read_text()
-        else:
+            mediainfo = mediainfo_path.read_text().strip()
+
+        if not mediainfo:
             if self.file.is_file() or self.tracker.all_files:
                 f = self.file
             else:
@@ -118,7 +121,7 @@ class PPTU:
             p = subprocess.run(
                 ["mediainfo", f], cwd=self.file.parent, check=True, capture_output=True, encoding="utf-8"
             )
-            mediainfo = p.stdout
+            mediainfo = p.stdout.strip()
             mediainfo_path.write_text(mediainfo)
 
         mediainfo_list = [x.strip() for x in re.split(r"\n\n(?=General)", mediainfo)]
