@@ -130,13 +130,13 @@ class PPTU:
         return mediainfo_list
 
     def generate_snapshots(self) -> list[Path]:
-        if self.file.is_dir() or self.tracker.all_files:
+        if self.file.is_dir():
             files = sorted([*self.file.glob("*.mkv"), *self.file.glob("*.mp4")])
         elif self.file.is_file():
             files = [self.file]
 
         num_snapshots = self.num_snapshots
-        if self.tracker.all_files:
+        if self.tracker.all_files and self.file.is_dir():
             num_snapshots = len(files)
 
         orig_files = files[:]
