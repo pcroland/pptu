@@ -255,8 +255,6 @@ class PassThePopcornUploader(Uploader):
             "AntiCsrfToken": self.anti_csrf_token,
             "type": type_,
             "imdb": imdb,
-            "title": torrent_info.get("title"),
-            "year": torrent_info.get("year"),
             "image": imdb_movie.data["cover url"],
             "remaster_title": " / ".join({v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}),
             "remaster_year": "",
@@ -273,7 +271,7 @@ class PassThePopcornUploader(Uploader):
             "nfo_text": "",
             "trumpable[]": [14] if no_eng_subs else [],
             "uploadtoken": "",
-            **res[0],
+            **torrent_info,
         }
 
         return True
