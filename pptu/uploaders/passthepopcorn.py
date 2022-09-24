@@ -25,7 +25,7 @@ class PassThePopcornUploader(Uploader):
     name = "PassThePopcorn"
     abbrev = "PTP"
     source = "PTP"
-    announce_url = "http://please.passthepopcorn.me:2710/{passkey}/announce"
+    announce_url = "https://please.passthepopcorn.me/{passkey}/announce"
     min_snapshots = 3
     all_files = True
 

@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"
     abbrev = "BTN"
-    announce_url = "http://landof.tv/{passkey}/announce"
+    announce_url = "https://landof.tv/{passkey}/announce"
 
     COUNTRY_MAP = {
         "AD": 65,
