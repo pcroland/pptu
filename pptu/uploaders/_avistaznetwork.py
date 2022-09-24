@@ -261,20 +261,21 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             title = title.replace(m.group(0), "")
             year = int(m.group(1))
 
-        res = self.session.get(
-            url=f"{self.base_url}/ajax/movies/{'1' if collection == 'movie' else '2'}",
-            params={
-                "term": title,
-            },
-            headers={
-                "x-requested-with": "XMLHttpRequest",
-            },
-            timeout=60,
-        ).json()
-        print(res, highlight=True)
-        r.raise_for_status()
         # TODO: Automatically add new titles
         while True:
+            res = self.session.get(
+                url=f"{self.base_url}/ajax/movies/{'1' if collection == 'movie' else '2'}",
+                params={
+                    "term": title,
+                },
+                headers={
+                    "x-requested-with": "XMLHttpRequest",
+                },
+                timeout=60,
+            ).json()
+            print(res, highlight=True)
+            r.raise_for_status()
+
             try:
                 res = next(x for x in res["data"] if x.get("release_year") == year or not year)
             except StopIteration:
