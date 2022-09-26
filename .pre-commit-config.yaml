@@ -60,6 +60,7 @@ repos:
         name: pre-commit-hooks/check-json
       - id: check-merge-conflict
         name: pre-commit-hooks/check-merge-conflict
+        args: [--assume-in-merge]
       - id: check-shebang-scripts-are-executable
         name: pre-commit-hooks/check-shebang-scripts-are-executable
       - id: check-symlinks
