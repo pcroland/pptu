@@ -55,8 +55,18 @@ class PPTU:
         if output.exists():
             return True
 
+        torrent = Torrent(
+            self.file,
+            trackers=[self.tracker.announce_url.format(passkey=passkey)],
+            private=True,
+            source=self.tracker.source,
+            created_by=None,
+            creation_time=None,
+            randomize_infohash=not self.tracker.source,
+            exclude_regexs=[r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$"],
+        )
+
         if base_torrent_path:
-            torrent = Torrent(self.file)
             torrent.reuse(base_torrent_path)
             try:
                 torrent.validate()
@@ -68,39 +78,28 @@ class PPTU:
                 torrent.source = self.tracker.source
                 torrent.private = True
                 torrent.write(output)
-                return True
+        else:
+            print()
+            with Progress(
+                BarColumn(),
+                CustomTransferSpeedColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(elapsed_when_finished=True),
+            ) as progress:
+                files = []
 
-        torrent = Torrent(
-            self.file,
-            trackers=[self.tracker.announce_url.format(passkey=passkey)],
-            private=True,
-            source=self.tracker.source,
-            created_by=None,
-            creation_time=None,
-            randomize_infohash=not self.tracker.source,
-            exclude_regexs=[r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$"],
-        )
-        print()
-        with Progress(
-            BarColumn(),
-            CustomTransferSpeedColumn(),
-            TaskProgressColumn(),
-            TimeRemainingColumn(elapsed_when_finished=True),
-        ) as progress:
-            files = []
+                def update_progress(torrent: Torrent, filepath: str, pieces_done: int, pieces_total: int) -> None:
+                    if filepath not in files:
+                        print(f"Hashing {Path(filepath).name}...")
+                        files.append(filepath)
 
-            def update_progress(torrent: Torrent, filepath: str, pieces_done: int, pieces_total: int) -> None:
-                if filepath not in files:
-                    print(f"Hashing {Path(filepath).name}...")
-                    files.append(filepath)
+                    progress.update(
+                        task, completed=pieces_done * torrent.piece_size, total=pieces_total * torrent.piece_size
+                    )
 
-                progress.update(
-                    task, completed=pieces_done * torrent.piece_size, total=pieces_total * torrent.piece_size
-                )
-
-            task = progress.add_task(description="")
-            torrent.generate(callback=update_progress, interval=1)
-            torrent.write(output)
+                task = progress.add_task(description="")
+                torrent.generate(callback=update_progress, interval=1)
+                torrent.write(output)
 
         return True
 
