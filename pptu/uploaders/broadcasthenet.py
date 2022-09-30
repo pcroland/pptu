@@ -330,7 +330,13 @@ class BroadcasTheNetUploader(Uploader):
 
             thumbnails = generate_thumbnails(snapshots, width=thumbnail_width)
 
-            with progress:
+            with Progress(
+                TextColumn("[progress.description]{task.description}[/]"),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(elapsed_when_finished=True),
+            ) as progress:
                 for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
                     with open(thumb, "rb") as fd:
                         res = httpx.post(
