@@ -61,7 +61,7 @@ class PPTU:
             private=True,
             source=self.tracker.source,
             created_by=None,
-            creation_time=None,
+            creation_date=None,
             randomize_infohash=not self.tracker.source,
             exclude_regexs=[r".*\.(ffindex|jpg|nfo|png|srt|torrent|txt)$"],
         )
