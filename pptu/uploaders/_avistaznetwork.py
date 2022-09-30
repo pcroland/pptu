@@ -6,6 +6,7 @@ import uuid
 from abc import ABC
 from typing import TYPE_CHECKING
 
+from guessit import guessit
 from pymediainfo import MediaInfo
 from pyotp import TOTP
 from rich.console import Console
@@ -354,6 +355,11 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     images.append(res["imageId"])
 
         release_name = path.stem if path.is_file() else path.name
+
+        gi = guessit(release_name)
+        if gi.get("episode_details") != "Special":
+            # Strip episode title
+            release_name = release_name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
 
         if path.is_dir():
             file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
