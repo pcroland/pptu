@@ -133,13 +133,13 @@ def load_html(text: str) -> BeautifulSoup:
     return BeautifulSoup(text, "lxml-html")
 
 
-def generate_thumbnails(snapshots: list[Path], width: int = 300) -> list[Path]:
+def generate_thumbnails(snapshots: list[Path], width: int = 300, *, progress_obj: Progress | None = None) -> list[Path]:
     width = int(width)
     print(f"Using thumbnail width: [bold cyan]{width}[/]")
 
     thumbnails = []
 
-    with Progress(
+    with progress_obj or Progress(
         TextColumn("[progress.description]{task.description}[/]"),
         BarColumn(),
         MofNCompleteColumn(),
