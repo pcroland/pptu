@@ -98,7 +98,7 @@ class PPTU:
                     )
 
                 task = progress.add_task(description="")
-                torrent.generate(callback=update_progress, interval=1)
+                torrent.generate(callback=update_progress)
                 torrent.write(output)
 
         return True
