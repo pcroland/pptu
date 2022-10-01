@@ -75,7 +75,14 @@ class Uploader(ABC):
 
     @abstractmethod
     def prepare(
-        self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, note: str | None, auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str | list[str],
+        snapshots: list[Path],
+        *,
+        note: str | None,
+        auto: bool,
     ) -> bool:
         """
         Do any necessary preparations for the upload.
@@ -84,6 +91,13 @@ class Uploader(ABC):
 
     @abstractmethod
     def upload(
-        self, path: Path, mediainfo: str | list[str], snapshots: list[Path], *, note: str | None, auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str | list[str],
+        snapshots: list[Path],
+        *,
+        note: str | None,
+        auto: bool,
     ) -> bool:
         """Perform the actual upload."""

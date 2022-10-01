@@ -217,7 +217,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return el.text
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
@@ -301,7 +301,6 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         if not auto:
             print(data, highlight=True)
 
-        torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[{self.abbrev}].torrent"
         url = f"{self.base_url}/upload/{'movie' if collection == 'movie' else 'tv'}"
         r = self.session.post(
             url=url,
@@ -432,7 +431,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
         soup = load_html(r.text)

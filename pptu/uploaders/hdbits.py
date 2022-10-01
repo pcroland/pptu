@@ -173,7 +173,7 @@ class HDBitsUploader(Uploader):
         return None
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
@@ -260,8 +260,6 @@ class HDBitsUploader(Uploader):
             return False
         print(f"Detected medium as [bold cyan]{medium}[/]")
 
-        self.torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[HDB].torrent"
-
         name = path.name
 
         tags = []
@@ -341,14 +339,14 @@ class HDBitsUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         res = self.session.post(
             url="https://hdbits.org/upload/upload",
             files={
                 "file": (
-                    self.torrent_path.name.replace("[HDB]", ""),
-                    self.torrent_path.open("rb"),
+                    torrent_path.name.replace("[HDB]", ""),
+                    torrent_path.open("rb"),
                     "application/x-bittorrent",
                 ),
             },
@@ -358,8 +356,7 @@ class HDBitsUploader(Uploader):
         if not (el := soup.select_one(".js-download")):
             eprint("Failed to get torrent download URL.")
             return False
-        torrent_path = el.attrs["href"]
-        torrent_url = f"https://hdbits.org{torrent_path}"
-        self.torrent_path.write_bytes(self.session.get(torrent_url).content)
+        torrent_url = f"https://hdbits.org{el.attrs['href']}"
+        torrent_path.write_bytes(self.session.get(torrent_url).content)
 
         return True

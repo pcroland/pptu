@@ -36,6 +36,8 @@ class PPTU:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.config = Config(dirs.user_config_path / "config.toml")
 
+        self.torrent_path = self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
+
         self.num_snapshots = max(
             self.config.get(tracker, "snapshot_columns", 2) * self.config.get(tracker, "snapshot_rows", 2),
             tracker.min_snapshots,
@@ -50,9 +52,8 @@ class PPTU:
         base_torrent_path = next(iter(
             self.cache_dir.glob(glob.escape(f"{self.path.name}[") + "*" + glob.escape("].torrent"))
         ), None)
-        output = self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
 
-        if output.exists():
+        if self.torrent_path.exists():
             return True
 
         torrent = Torrent(
@@ -77,7 +78,7 @@ class PPTU:
                 torrent.randomize_infohash = True
                 torrent.source = self.tracker.source
                 torrent.private = True
-                torrent.write(output)
+                torrent.write(self.torrent_path)
         else:
             print()
             with Progress(
@@ -99,7 +100,7 @@ class PPTU:
 
                 task = progress.add_task(description="")
                 torrent.generate(callback=update_progress)
-                torrent.write(output)
+                torrent.write(self.torrent_path)
 
         return True
 
@@ -207,13 +208,13 @@ class PPTU:
         return snapshots
 
     def prepare(self, mediainfo: str | list[str], snapshots: list[Path]) -> bool:
-        if not self.tracker.prepare(self.path, mediainfo, snapshots, note=self.note, auto=self.auto):
+        if not self.tracker.prepare(self.path, self.torrent_path, mediainfo, snapshots, note=self.note, auto=self.auto):
             eprint(f"Preparing upload to [cyan]{self.tracker.name}[/] failed.")
             return False
         return True
 
     def upload(self, mediainfo: str | list[str], snapshots: list[Path]) -> None:
-        if not self.tracker.upload(self.path, mediainfo, snapshots, note=self.note, auto=self.auto):
+        if not self.tracker.upload(self.path, self.torrent_path, mediainfo, snapshots, note=self.note, auto=self.auto):
             eprint(f"Upload to [cyan]{self.tracker.name}[/] failed.")
             return
 

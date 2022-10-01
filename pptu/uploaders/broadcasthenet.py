@@ -192,7 +192,7 @@ class BroadcasTheNetUploader(Uploader):
         return "login.php" not in r.url
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
@@ -429,10 +429,8 @@ class BroadcasTheNetUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
     ) -> bool:
-        torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[BTN].torrent"
-
         r = self.session.post(
             url="https://backup.landof.tv/upload.php",
             data=self.data,

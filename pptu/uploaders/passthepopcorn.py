@@ -126,7 +126,14 @@ class PassThePopcornUploader(Uploader):
         return True
 
     def prepare(  # type: ignore[override]
-        self, path: Path, mediainfo: list[str], snapshots: list[Path], *, note: str | None, auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: list[str],
+        snapshots: list[Path],
+        *,
+        note: str | None,
+        auto: bool,
     ) -> bool:
         imdb = None
         if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
@@ -168,8 +175,6 @@ class PassThePopcornUploader(Uploader):
         ).json()[0]
         print(torrent_info, highlight=True)
         self.groupid = torrent_info.get("groupid")
-
-        self.torrent_path = self.dirs.user_cache_path / f"{path.name}_files" / f"{path.name}[PTP].torrent"
 
         r = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": self.groupid})
 
@@ -277,7 +282,14 @@ class PassThePopcornUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, mediainfo: list[str], snapshots: list[str], *, note: str | None, auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: list[str],
+        snapshots: list[str],
+        *,
+        note: str | None,
+        auto: bool,
     ) -> bool:
         r = self.session.post(
             url="https://passthepopcorn.me/upload.php",
@@ -285,9 +297,7 @@ class PassThePopcornUploader(Uploader):
                 "groupid": self.groupid,
             },
             data=self.data,
-            files={
-                "file_input": (self.torrent_path.name, self.torrent_path.open("rb"), "application/x-bittorrent"),
-            },
+            files={"file_input": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent")},
         )
         soup = load_html(r.text)
         if error := soup.select_one(".alert--error"):
