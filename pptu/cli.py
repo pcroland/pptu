@@ -52,7 +52,6 @@ def main() -> None:
                         action="store_true",
                         help="skip upload")
     parser.add_argument("-n", "--note",
-                        action="store_true",
                         help="note to add to upload")
     parser.add_argument("-lt", "--list-trackers",
                         action="store_true",
