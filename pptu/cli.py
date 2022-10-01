@@ -21,7 +21,7 @@ dirs = PlatformDirs(appname="pptu", appauthor=False)
 
 def main() -> None:
     parser = RParse(prog=PROG_NAME)
-    parser.add_argument("file",
+    parser.add_argument("path",
                         type=Path,
                         nargs="*",
                         help="files/directories to create torrents for")
@@ -83,8 +83,8 @@ def main() -> None:
 
     if not args.trackers:
         parser.error("the following arguments are required: -t/--trackers")
-    if not args.file:
-        parser.error("the following arguments are required: file")
+    if not args.path:
+        parser.error("the following arguments are required: path")
 
     trackers = []
     for tracker_name in args.trackers:
@@ -116,16 +116,16 @@ def main() -> None:
         args.fast_upload or (config.get("default", "fast_upload", False) and args.fast_upload is not False)
     )
 
-    for file in args.file:
-        if not file.exists():
-            eprint(f"File [cyan]{file.name!r}[/] does not exist.")
+    for path in args.path:
+        if not path.exists():
+            eprint(f"File [cyan]{path.name!r}[/] does not exist.")
             continue
 
-        cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{file.name}_files"
+        cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{path.name}_files"
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         for tracker in trackers:
-            pptu = PPTU(file, tracker, note=args.note, auto=args.auto)
+            pptu = PPTU(path, tracker, note=args.note, auto=args.auto)
 
             print(f"\n[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")
             pptu.create_torrent()
