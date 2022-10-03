@@ -120,10 +120,7 @@ class PPTU:
             else:
                 f = sorted([*self.path.glob("*.mkv"), *self.path.glob("*.mp4")])[0]
 
-            p = subprocess.run(
-                ["mediainfo", f], cwd=self.path.parent, check=True, capture_output=True, encoding="utf-8"
-            )
-            mediainfo = p.stdout.strip()
+            mediainfo = MediaInfo.parse(f, output="", full=False)
             mediainfo_path.write_text(mediainfo)
 
         mediainfo_list = [x.strip() for x in re.split(r"\n\n(?=General)", mediainfo)]
