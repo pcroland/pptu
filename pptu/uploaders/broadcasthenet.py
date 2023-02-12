@@ -324,25 +324,24 @@ class BroadcasTheNetUploader(Uploader):
                         ).json()
                         snapshot_urls.append(next(iter(res.values()))["hotlink"])
 
-                thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
-                thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
-                thumbnail_urls = []
+            thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
+            thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
+            thumbnail_urls = []
+            thumbnails = generate_thumbnails(snapshots, width=thumbnail_width)
 
-                thumbnails = generate_thumbnails(snapshots, width=thumbnail_width, progress_obj=progress)
-
-                for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
-                    with open(thumb, "rb") as fd:
-                        res = httpx.post(
-                            url="https://imgbin.broadcasthe.net/upload",
-                            files={
-                                "file": fd,
-                            },
-                            headers={
-                                "Authorization": f"Bearer {imgbin_api_key}",
-                            },
-                            timeout=60,
-                        ).json()
-                        thumbnail_urls.append(next(iter(res.values()))["hotlink"])
+            for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
+                with open(thumb, "rb") as fd:
+                    res = httpx.post(
+                        url="https://imgbin.broadcasthe.net/upload",
+                        files={
+                            "file": fd,
+                        },
+                        headers={
+                            "Authorization": f"Bearer {imgbin_api_key}",
+                        },
+                        timeout=60,
+                    ).json()
+                    thumbnail_urls.append(next(iter(res.values()))["hotlink"])
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]
