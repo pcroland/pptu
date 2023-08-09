@@ -19,6 +19,15 @@ from . import Uploader
 if TYPE_CHECKING:
     from pathlib import Path
 
+def keksh(file):
+
+    files = {'file': open(file, 'rb')}
+    res = httpx.post(
+        url='https://kek.sh/api/v1/posts',
+        files=files
+    ).json()
+
+    return f"https://i.kek.sh/{res['filename']}"
 
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"
@@ -310,19 +319,7 @@ class BroadcasTheNetUploader(Uploader):
             ) as progress:
                 snapshot_urls = []
                 for snap in progress.track(snapshots, description="Uploading snapshots"):
-                    with open(snap, "rb") as fd:
-                        # requests gets blocked by Cloudflare here, have to use httpx
-                        res = httpx.post(
-                            url="https://imgbin.broadcasthe.net/upload",
-                            files={
-                                "file": fd,
-                            },
-                            headers={
-                                "Authorization": f"Bearer {imgbin_api_key}",
-                            },
-                            timeout=60,
-                        ).json()
-                        snapshot_urls.append(next(iter(res.values()))["hotlink"])
+                    snapshot_urls.append(keksh(snap))
 
             thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
             thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
@@ -330,18 +327,7 @@ class BroadcasTheNetUploader(Uploader):
             thumbnails = generate_thumbnails(snapshots, width=thumbnail_width)
 
             for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
-                with open(thumb, "rb") as fd:
-                    res = httpx.post(
-                        url="https://imgbin.broadcasthe.net/upload",
-                        files={
-                            "file": fd,
-                        },
-                        headers={
-                            "Authorization": f"Bearer {imgbin_api_key}",
-                        },
-                        timeout=60,
-                    ).json()
-                    thumbnail_urls.append(next(iter(res.values()))["hotlink"])
+                thumbnail_urls.append(keksh(thumb))
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]
