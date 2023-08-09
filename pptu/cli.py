@@ -108,6 +108,11 @@ def main() -> None:
         for cookie in tracker.session.cookies:
             tracker.cookie_jar.set_cookie(cookie)
         tracker.cookies_path.parent.mkdir(parents=True, exist_ok=True)
+        # prevent corrupted cookies file
+        try:
+            tracker.cookies_path.unlink(missing_ok=True)
+        except PermissionError:
+            pass
         tracker.cookie_jar.save(ignore_discard=True)
 
     jobs = []
