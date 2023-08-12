@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import httpx
 from guessit import guessit
@@ -372,11 +372,16 @@ class BroadcasTheNetUploader(Uploader):
         if el := soup.select_one("[name=bitrate] [selected]"):
             bitrate = el.get("value")
 
-        media = None
+        media: Optional(str) = None
         if el := soup.select_one("[name=media] [selected]"):
             media = el.get("value")
+        else:
+            source: list = ["HDTV", "PDTV", "DSR", "DVDRip", "TVRip", "VHSRip", "Bluray", "BDRip", "BRRip", "DVD5", "DVD9", "HDDVD", "WEB-DL", "WEBRip", "BD5", "BD9", "BD25", "BD50", "Mixed"]
+            media = next(iter([x for x in source if x in release_name] or []), None)
+        if not media:
+            media = "Unknown"
 
-        resolution = "SD"
+        resolution: str = "SD"
         if el := soup.select_one("[name=resolution] [selected]"):
             resolution = el.attrs.get("value") or resolution
 
@@ -387,6 +392,13 @@ class BroadcasTheNetUploader(Uploader):
             description = f"[quote]{note}[/quote]\n{description}"
         description = description.strip()
 
+        if release_name.endswith(("-BTW", "-NTb", "-TVSmash")):
+            origin: str = "Internal"
+        elif release_name.endswith(("-NOGRP")):
+            origin: str = "None"
+        else:
+            origin: str = "P2P"
+
         self.data = {
             "submit": "true",
             "type": type_,
@@ -395,7 +407,7 @@ class BroadcasTheNetUploader(Uploader):
             "artist": artist,
             "title": title,
             "actors": actors,
-            "origin": "Internal" if release_name.endswith(("-BTW", "-NTb", "-TVSmash")) else "P2P",
+            "origin": origin,
             "foreign": None if lang.language == "en" else "on",
             "country": self.COUNTRY_MAP.get(lang.territory),
             "year": year,
