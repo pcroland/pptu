@@ -19,16 +19,6 @@ from . import Uploader
 if TYPE_CHECKING:
     from pathlib import Path
 
-def keksh(file):
-
-    files = {'file': open(file, 'rb')}
-    res = httpx.post(
-        url='https://kek.sh/api/v1/posts',
-        files=files
-    ).json()
-
-    return f"https://i.kek.sh/{res['filename']}"
-
 class BroadcasTheNetUploader(Uploader):
     name = "BroadcasTheNet"
     abbrev = "BTN"
@@ -140,8 +130,19 @@ class BroadcasTheNetUploader(Uploader):
         "ZA": 26,
     }
 
+    def keksh(self, file) -> Optional[str]:
+
+        files = {'file': open(file, 'rb')}
+        res: dict = httpx.post(
+            url='https://kek.sh/api/v1/posts',
+            files=files
+        ).json()
+
+        if res.get('filename'):
+            return f"https://i.kek.sh/{res['filename']}"
+
     @property
-    def passkey(self) -> str | None:
+    def passkey(self) -> Optional[str]:
         res = self.session.get("https://backup.landof.tv/upload.php").text
         soup = load_html(res)
         if not (el := soup.select_one("input[value$='/announce']")):
@@ -201,7 +202,7 @@ class BroadcasTheNetUploader(Uploader):
         return "login.php" not in r.url
 
     def prepare(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
@@ -309,7 +310,7 @@ class BroadcasTheNetUploader(Uploader):
             release_name = release_name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
 
         thumbnails_str = ""
-        if imgbin_api_key := self.config.get(self, "imgbin_api_key"):
+        if self.config.get(self, "img_to_kek"):
             with Progress(
                 TextColumn("[progress.description]{task.description}[/]"),
                 BarColumn(),
@@ -319,7 +320,7 @@ class BroadcasTheNetUploader(Uploader):
             ) as progress:
                 snapshot_urls = []
                 for snap in progress.track(snapshots, description="Uploading snapshots"):
-                    snapshot_urls.append(keksh(snap))
+                    snapshot_urls.append(self.keksh(snap))
 
             thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
             thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
@@ -327,7 +328,7 @@ class BroadcasTheNetUploader(Uploader):
             thumbnails = generate_thumbnails(snapshots, width=thumbnail_width)
 
             for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
-                thumbnail_urls.append(keksh(thumb))
+                thumbnail_urls.append(self.keksh(thumb))
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]
@@ -426,7 +427,7 @@ class BroadcasTheNetUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
     ) -> bool:
         r = self.session.post(
             url="https://backup.landof.tv/upload.php",
