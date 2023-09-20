@@ -4,7 +4,7 @@ import re
 import time
 import uuid
 from abc import ABC
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from guessit import guessit
 from pymediainfo import MediaInfo
@@ -23,13 +23,13 @@ if TYPE_CHECKING:
 
 
 class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
-    min_snapshots = 3
-    random_snapshots = True
+    min_snapshots: int = 3
+    random_snapshots: bool = True
 
-    year_in_series_name = False
-    keep_dubbed_dual_tags = False
+    year_in_series_name: bool = False
+    keep_dubbed_dual_tags: bool = False
 
-    COLLECTION_MAP = {
+    COLLECTION_MAP: dict = {
         "movie": None,
         "episode": 1,
         "season": 2,
@@ -208,7 +208,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     @property
-    def passkey(self) -> str | None:
+    def passkey(self) -> Optional[str]:
         r = self.session.get(f"{self.base_url}/account")
         soup = load_html(r.text)
         if not (el := soup.select_one(".current_pid")):

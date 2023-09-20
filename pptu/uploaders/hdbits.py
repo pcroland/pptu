@@ -4,7 +4,7 @@ import contextlib
 import hashlib
 import re
 import time
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from guessit import guessit
 from imdb import Cinemagoer
@@ -166,14 +166,14 @@ class HDBitsUploader(Uploader):
         return True
 
     @property
-    def passkey(self) -> str | None:
+    def passkey(self) -> Optional[str]:
         res = self.session.get("https://hdbits.org/").text
         if m := re.search(r"passkey=([a-f0-9]+)", res):
             return m.group(1)
         return None
 
     def prepare(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
@@ -260,7 +260,7 @@ class HDBitsUploader(Uploader):
             return False
         print(f"Detected medium as [bold cyan]{medium}[/]")
 
-        name = path.name
+        name: str = path.name
 
         tags = []
         for pattern, tag_id in self.TAG_MAP.items():
@@ -339,7 +339,7 @@ class HDBitsUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
     ) -> bool:
         res = self.session.post(
             url="https://hdbits.org/upload/upload",

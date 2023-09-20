@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import re
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
@@ -51,10 +51,10 @@ class PassThePopcornUploader(Uploader):
 
     def __init__(self) -> None:
         super().__init__()
-        self.anti_csrf_token: str | None = None
+        self.anti_csrf_token: Optional[str] = None
 
     @property
-    def passkey(self) -> str | None:
+    def passkey(self) -> Optional[str]:
         r = self.session.get("https://passthepopcorn.me/upload.php")
         soup = load_html(r.text)
         if not (el := soup.select_one("input[value$='/announce']")):
@@ -132,7 +132,7 @@ class PassThePopcornUploader(Uploader):
         mediainfo: list[str],
         snapshots: list[Path],
         *,
-        note: str | None,
+        note: Optional[str],
         auto: bool,
     ) -> bool:
         imdb = None
@@ -288,7 +288,7 @@ class PassThePopcornUploader(Uploader):
         mediainfo: list[str],
         snapshots: list[str],
         *,
-        note: str | None,
+        note: Optional[str],
         auto: bool,
     ) -> bool:
         r = self.session.post(

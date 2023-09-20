@@ -6,7 +6,7 @@ import re
 import shutil
 import subprocess
 from pathlib import Path
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional, Union
 
 import oxipng
 import torf
@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class PPTU:
-    def __init__(self, path: Path, tracker: Uploader, *, note: str | None = None, auto: bool = False):
+    def __init__(self, path: Path, tracker: Uploader, *, note: Optional[str] = None, auto: bool = False):
         self.path = path
         self.tracker = tracker
         self.note = note
@@ -104,7 +104,7 @@ class PPTU:
 
         return True
 
-    def get_mediainfo(self) -> str | list[str]:
+    def get_mediainfo(self) -> Union[str, list[str]]:
         mediainfo_path = self.cache_dir / "mediainfo.txt"
         if self.tracker.all_files and self.path.is_dir():
             mediainfo_path = self.cache_dir / "mediainfo_all.txt"
@@ -204,13 +204,13 @@ class PPTU:
 
         return snapshots
 
-    def prepare(self, mediainfo: str | list[str], snapshots: list[Path]) -> bool:
+    def prepare(self, mediainfo: Union[str, list[str]], snapshots: list[Path]) -> bool:
         if not self.tracker.prepare(self.path, self.torrent_path, mediainfo, snapshots, note=self.note, auto=self.auto):
             eprint(f"Preparing upload to [cyan]{self.tracker.name}[/] failed.")
             return False
         return True
 
-    def upload(self, mediainfo: str | list[str], snapshots: list[Path]) -> None:
+    def upload(self, mediainfo: Union[str, list[str]], snapshots: list[Path]) -> None:
         if not self.tracker.upload(self.path, self.torrent_path, mediainfo, snapshots, note=self.note, auto=self.auto):
             eprint(f"Upload to [cyan]{self.tracker.name}[/] failed.")
             return

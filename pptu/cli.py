@@ -86,7 +86,7 @@ def main() -> None:
     if not args.path:
         parser.error("the following arguments are required: path")
 
-    trackers = []
+    trackers = list()
     for tracker_name in args.trackers:
         try:
             tracker = next(
@@ -115,7 +115,7 @@ def main() -> None:
             pass
         tracker.cookie_jar.save(ignore_discard=True)
 
-    jobs = []
+    jobs = list()
 
     fast_upload = (
         args.fast_upload or (config.get("default", "fast_upload", False) and args.fast_upload is not False)
