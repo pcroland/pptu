@@ -4,9 +4,9 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "pptu"
-version = "2022.09.01"
+version = "2023.09.20"
 description = "Python P2P Torrent Uploader"
-authors = ["nyuszika7h <nyuszika7h@gmail.com>"]
+authors = [""]
 
 [tool.poetry.dependencies]
 python = "^3.8"
