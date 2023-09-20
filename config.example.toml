@@ -21,7 +21,7 @@ username = ""
 password = ""
 totp_secret = ""
 #passkey = ""  # auto-detected
-imgbin_api_key = ""  # optional, if you want your uploads to include screenshots (imgbin.broadcasthe.net)
+img_to_kek = false  # optional, if you want your uploads to include screenshots (kek.sh)
 fasttorrent = true  # set to false if <24 Mbps upload speed
 #proxy = "http://user:pass@example.com:6060"
 
