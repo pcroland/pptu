@@ -21,7 +21,7 @@ username = ""
 password = ""
 totp_secret = ""
 #passkey = ""  # auto-detected
-img_to_kek = false  # optional, if you want your uploads to include screenshots (kek.sh)
+img_to_kek = false  # optional, if you want your uploads to include screenshots, now only for smaller images (kek.sh)
 fasttorrent = true  # set to false if <24 Mbps upload speed
 #proxy = "http://user:pass@example.com:6060"
 
