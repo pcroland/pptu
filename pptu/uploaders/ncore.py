@@ -1,14 +1,10 @@
 from __future__ import annotations
+import requests
 
 import json
 import re
 import subprocess
-from tokenize import cookie_re
-from typing import TYPE_CHECKING, Optional
-import random
-import string
-from wsgiref import headers
-from requests_toolbelt import MultipartEncoder
+from typing import Optional
 from pathlib import Path
 
 from imdb import Cinemagoer
@@ -16,10 +12,9 @@ import httpx
 from langcodes import Language
 from pyotp import TOTP
 from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
-from rich.status import Status
 from rich.prompt import Prompt
 
-from ..utils import eprint, generate_thumbnails, load_html, print, wprint
+from ..utils import eprint, generate_thumbnails, print, wprint
 from . import Uploader
 
 
@@ -30,74 +25,68 @@ class nCoreUploader(Uploader):
     name: str = "nCore"
     abbrev: str = "nC"
     announce_url: str = "http://t.ncore.sh:2710/announce"
+    min_snapshots = 9
 
     def keksh(self, file) -> Optional[str]:
-
+        """
+        Uploads a file to kek.sh and returns the URL of the uploaded file.
+        """
         files = {'file': open(file, 'rb')}
         res: dict = httpx.post(
             url='https://kek.sh/api/v1/posts',
             files=files
         ).json()
 
-        if res.get('filename'):
-            return f"https://i.kek.sh/{res['filename']}"
+        return f"https://i.kek.sh/{res['filename']}" if res.get('filename') else ""
 
     def get_unique(self) -> str:
         """
         This method sends a GET request to https://ncore.pro/ and extracts a unique ID from the response.
         The ID is returned as a string.
         """
+        data = self.session.get(url=f"https://ncore.pro/").text
+        id = re.search(
+            r'<a href="exit.php\?q=(.*)" id="menu_11" class="menu_link">', data)
 
-        data = self.session.get(
-            url=f"https://ncore.pro/",
-        ).text
-
-        id = re.search(r'<a href="exit.php\?q=(.*)" id="menu_11" class="menu_link">', data).group(1)
-
-        return id
+        return id.group(1) if id else ""
 
     def ajax_parser(self, value: str) -> str:
-        m = re.search(rf'name="{value}"*.value="(*.)"', self.imdb_ajax_data)
+        """Parses the AJAX data for a given value."""
+        m = re.findall(rf'id="{value}" value="(.*)"', self.imdb_ajax_data)
 
-        if m:
-            return m.group(1)
-        else:
-            return ""
+        return m[0] if m else ""
 
     def extract_nfo_urls(self, nfo: str) -> list[str]:
-        urls: list[str] = re.findall(
-            r"(http|https)://[a-zA-Z0-9./?=_%:-]*", nfo)
-        self.databse_urls = [x for x in urls if x in ("imdb.com", "tvmaze.com", "thetvdb.com", "port.hu", "rottentomatoes.com", "myanimelist.net", "netflix.com", "mafab.hu")]
+        """
+        Extracts URLs from an NFO file and returns a list of URLs that belong to specific databases.
+        """
+        urls: list[str] = re.findall(r"https?://[^ ░▒▓█▄▌▐─│]+" , nfo)
+        #urls: list[str] = re.findall(r"https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)", nfo)
+        self.databse_urls = [x for x in urls if any(database in x for database in ["imdb.com", "tvmaze.com", "thetvdb.com", "port.hu", "rottentomatoes.com", "myanimelist.net", "netflix.com", "mafab.hu"])]
+
         return self.databse_urls
 
     def scrape_port(self, imdb: str) -> str:
-        print('Scraping IMDb for title: ')
-        search_name_imdb = httpx.get(
-            f'https://v2.sg.media-imdb.com/suggestion/t/{imdb}.json').json().get('d', [{}])[0].get('l', '')
-        print(search_name_imdb)
-        print('Scraping port.hu for link: ')
-        port_link = httpx.get(
-            f'https://port.hu/search/suggest-list?q={search_name_imdb}').json()[0].get('url', '')
-        port_link = f'https://port.hu{port_link}'
-        print(f'port_link')
-        if not port_link:
+        search_name_imdb = requests.get(f"https://v2.sg.media-imdb.com/suggestion/t/{imdb}.json").json().get('d', [{}])[0].get('l', '')
+        print(f"Scraping IMDb for title: {search_name_imdb}")
+        port_link = requests.get(
+            url=f"https://port.hu/search/suggest-list?q={search_name_imdb.replace(' ', '+')}",
+        ).json()[0].get('url', '')
+        print(f"Scraping port.hu for link: {port_link}")
+        port_link = f"https://port.hu{port_link}"
+        if "https://port.hu" == port_link:
             wprint('port.hu scraping failed.')
             port_link = Prompt.ask('port.hu link: ')
-            return port_link
-        port_link_content = httpx.get(port_link).text
-        if imdb not in port_link_content:
-            wprint('port.hu scraping failed.')
+        port_link_content = requests.get(port_link).text
+        if str(imdb) not in str(port_link_content):
+            wprint('port.hu scraping failed2.')
             port_link = Prompt.ask('port.hu link: ')
+
         return port_link
 
     def login(self, *, auto: bool) -> bool:
-        self.session.headers["User-Agent"] = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/118.0.0.0 Safari/537.36'
-        self.session.headers["Sec-Ch-Ua"] = '"Chromium";v="118", "Brave";v="118", "Not=A?Brand";v="99"'
-        self.session.headers["Sec-Ch-Ua-Platform"] = "Windows"
-        self.session.headers["Sec-Fetch-Dest"] = "document"
 
         r = self.session.get("https://ncore.pro/")
-        print(r.url)
         if "login.php" not in r.url:
             return True
 
@@ -122,20 +111,23 @@ class nCoreUploader(Uploader):
 
         print("Logging in")
         r = self.session.post(
-            url="https://ncore.pro/login.php?2fa",
+            url="https://ncore.pro/login.php",
             data={
                 "set_lang": "hu",
                 "submitted": "1",
-                "ne_leptessen_ki": "1",
-            },
-            params={
                 "nev": username,
                 "pass": password,
                 "2factor": tfa_code,
-            }
+                "ne_leptessen_ki": "1",
+            },
         )
+        r.raise_for_status()
 
-        #r.raise_for_status()
+        r = self.session.get("https://ncore.pro/")
+        if "login.php" in r.url:
+            eprint("Failed to login.")
+            return False
+
         return True
 
     def prepare(  # type: ignore[override]
@@ -163,25 +155,30 @@ class nCoreUploader(Uploader):
             if self.nfo_file:
                 self.nfo_file = self.nfo_file[0]
                 urls = self.extract_nfo_urls(
-                    Path(self.nfo_file).read_text(encoding="ascii", errors="ignore"))
-                imdb_id = next((x.split("/")[-2]
-                               for x in urls if "imdb.com" in x), None)
+                    Path(self.nfo_file).read_text(encoding="CP437", errors="ignore"))
+                imdb_id = next((x.split("/")[-2] for x in urls if "imdb.com" in x), None)
             else:
                 self.nfo_file = Path(path/f"{release_name}.nfo")
                 with self.nfo_file.open("w", encoding="ascii") as f:
                     f.write(mediainfo)
         if not imdb_id:
             if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
-                title = re.sub(r" (\d{4})$", r" (\1)",
-                               m.group(1).replace(".", " "))
+                title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
 
                 if imdb_results := ia.search_movie(title):
                     imdb_id = imdb_results[0].movieID
 
+        if not imdb_id:
+            if auto:
+                eprint("No IMDb ID specified in config")
+                return False
+            imdb_id = Prompt.ask("Enter IMDb ID")
+            if not imdb_id:
+                eprint("No IMDb ID specified")
+                return False
+
         self.imdb_ajax_data = self.session.get(
             url=f"https://ncore.pro/ajax.php?action=imdb_movie&imdb_movie={imdb_id}",
-            cookies=self.session.cookies,
-            headers=self.session.headers,
         ).text
 
         if path.is_dir():
@@ -209,13 +206,12 @@ class nCoreUploader(Uploader):
                     type_ += "_hun"
                     break
         elif file.suffix == ".mp4":
-            eprint("MP4 is not yet supported.")  # TODO
+            eprint("MP4 is not yet supported.")  # TODO: use mediainfo
             return False
         else:
             eprint("File must be MKV or MP4.")
             return False
 
-        # lang.territory = Prompt.ask("Enter country code")
         thumbnails_str: str = ""
 
         # if name is too long
@@ -237,14 +233,14 @@ class nCoreUploader(Uploader):
         thumbnail_row_width = min(530, self.config.get(
             self, "snapshot_row_width", 530))
         thumbnail_width = (thumbnail_row_width /
-                            self.config.get(self, "snapshot_columns", 2)) - 5
+                           self.config.get(self, "snapshot_columns", 2)) - 5
         thumbnail_urls = []
-        thumbnails = generate_thumbnails(snapshots, width=thumbnail_width)
+        thumbnails = generate_thumbnails(snapshots[0:6], width=thumbnail_width)
 
         for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
             thumbnail_urls.append(self.keksh(thumb))
 
-        for i in range(len(snapshots)):
+        for i in range(len(snapshots) - 3):
             snap = snapshot_urls[i]
             thumb = thumbnail_urls[i]
             thumbnails_str += rf"[url={snap}][img]{thumb}[/img][/url]"
@@ -252,10 +248,11 @@ class nCoreUploader(Uploader):
                 thumbnails_str += " "
             else:
                 thumbnails_str += "\n"
-
-        thumbnails_str += "\n[i]  (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
+        thumbnails_str += "[i]  (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
 
         description = f"{thumbnails_str}"
+        if self.config.get(self, "port_description") and imdb_id:
+            description = f"{self.scrape_port(imdb_id)}\n{description}"
         if note:
             description = f"[quote]{note}[/quote]\n{description}"
         description = description.strip()
@@ -266,29 +263,20 @@ class nCoreUploader(Uploader):
             "infobar_site": "imdb",
             "tipus": type_,
             "torrent_nev": release_name,
-            "torrent_fajl": {
-                "filename": (str(torrent_path), torrent_path.open("rb"), "application/x-bittorrent"),
-            },
-            "nfo_fajl": {
-                "filename": (str(torrent_path), torrent_path.open("rb"), "application/octet-stream"),
-            },
             "szoveg": description,
-            "kep1": "$screenshot_1",
-            "kep2": "$screenshot_2",
-            "kep3": "$screenshot_3",
             "imdb_id": imdb_id,
-            "film_adatbazis": next(x for x in self.databse_urls if "imdb.com" not in x),
-            "infobar_picture": self.ajax_parser("infobar_picture"),
-            "infobar_rank": self.ajax_parser("infobar_rank"),
-            "infobar_genres": self.ajax_parser("infobar_genres"),
-            "megjelent": self.ajax_parser("release_date"),
-            "orszag": self.ajax_parser("country"),
-            "hossz": self.ajax_parser("runtime"),
-            "film_magyar_cim": self.ajax_parser("hun_title"),
-            "film_angol_cim":  self.ajax_parser("eng_title"),
-            "film_idegen_cim": self.ajax_parser("for_title"),
-            "rendezo": self.ajax_parser("director"),
-            "szereplok": self.ajax_parser("cast"),
+            "film_adatbazis": next(x for x in self.databse_urls + [""] if "imdb.com" not in x),
+            "infobar_picture": self.ajax_parser("movie_picture"),
+            "infobar_rank": self.ajax_parser("movie_rank"),
+            "infobar_genres": self.ajax_parser("movie_genres"),
+            "megjelent": self.ajax_parser("movie_megjelenes_eve"),
+            "orszag": self.ajax_parser("movie_orszag"),
+            "hossz": self.ajax_parser("movie_hossz"),
+            "film_magyar_cim": self.ajax_parser("movie_magyar_cim"),
+            "film_angol_cim":  self.ajax_parser("movie_angol_cim"),
+            "film_idegen_cim": self.ajax_parser("movie_magyar_cim"),
+            "rendezo": self.ajax_parser("movie_rendezo"),
+            "szereplok": self.ajax_parser("movie_szereplok"),
             "szezon": "",
             "epizod_szamok": "",
             "keresre": "nem",
@@ -305,18 +293,19 @@ class nCoreUploader(Uploader):
         self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
     ) -> bool:
 
-        boundary = '----WebKitFormBoundary' \
-            + ''.join(random.sample(string.ascii_letters + string.digits, 16))
-        m = MultipartEncoder(fields=self.data, boundary=boundary)
         r = self.session.post(
             url="https://ncore.pro/upload.php",
-            data=m,
+            files={
+                "torrent_fajl": (str(torrent_path), torrent_path.open("rb"), "application/x-bittorrent"),
+                "nfo_fajl": (str(self.nfo_file), self.nfo_file.open("r"), "application/octet-stream"),
+                "kep1": (str(snapshots[6]), snapshots[6].open("r"), "image/png"),
+                "kep2": (str(snapshots[7]), snapshots[7].open("r"), "image/png"),
+                "kep3": (str(snapshots[8]), snapshots[8].open("r"), "image/png"),
+            },
+            data=self.data,
         )
-        
-        #soup = load_html(r.text)
-        #if el := soup.select_one("p[style*='color: red']"):
-        #    error = el.text
-        #    eprint(f"Upload failed: [cyan]{error}[/cyan]")
-        #    return False
+
+        if "upload.php" in r.url:
+            return False
 
         return True
