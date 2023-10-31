@@ -7,6 +7,7 @@ import subprocess
 from typing import Optional
 from pathlib import Path
 
+from guessit import guessit
 from imdb import Cinemagoer
 import httpx
 from langcodes import Language
@@ -26,6 +27,7 @@ class nCoreUploader(Uploader):
     abbrev: str = "nC"
     announce_url: str = "http://t.ncore.sh:2710/announce"
     min_snapshots = 9
+    exclude_regexs: str = r".*\.(ffindex|jpg|png|torrent|txt)$"
 
     def keksh(self, file) -> Optional[str]:
         """
@@ -60,17 +62,17 @@ class nCoreUploader(Uploader):
         """
         Extracts URLs from an NFO file and returns a list of URLs that belong to specific databases.
         """
-        urls: list[str] = re.findall(r"https?://[^ ░▒▓█▄▌▐─│]+" , nfo)
-        #urls: list[str] = re.findall(r"https?://(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b(?:[-a-zA-Z0-9()@:%_\+.~#?&\/=]*)", nfo)
-        self.databse_urls = [x for x in urls if any(database in x for database in ["imdb.com", "tvmaze.com", "thetvdb.com", "port.hu", "rottentomatoes.com", "myanimelist.net", "netflix.com", "mafab.hu"])]
+        urls: list[str] = re.findall(r"https?://[^ ░▒▓█▄▌▐─│\n]+", nfo)
+        self.databse_urls = [x for x in urls if any(database in x for database in \
+        ["imdb.com", "tvmaze.com", "thetvdb.com", "port.hu", "rottentomatoes.com", "myanimelist.net", "netflix.com", "mafab.hu"])]
 
         return self.databse_urls
 
-    def scrape_port(self, imdb: str) -> str:
-        search_name_imdb = requests.get(f"https://v2.sg.media-imdb.com/suggestion/t/{imdb}.json").json().get('d', [{}])[0].get('l', '')
-        print(f"Scraping IMDb for title: {search_name_imdb}")
+    def scrape_port(self, imdb: str, release_name: str) -> str:
+        gi = guessit(release_name)
+        print(gi['title'])
         port_link = requests.get(
-            url=f"https://port.hu/search/suggest-list?q={search_name_imdb.replace(' ', '+')}",
+            url=f"https://port.hu/search/suggest-list?q={gi['title'].replace(' ', '+')}",
         ).json()[0].get('url', '')
         print(f"Scraping port.hu for link: {port_link}")
         port_link = f"https://port.hu{port_link}"
@@ -79,7 +81,7 @@ class nCoreUploader(Uploader):
             port_link = Prompt.ask('port.hu link: ')
         port_link_content = requests.get(port_link).text
         if str(imdb) not in str(port_link_content):
-            wprint('port.hu scraping failed2.')
+            wprint('port.hu scraping failed.')
             port_link = Prompt.ask('port.hu link: ')
 
         return port_link
@@ -156,14 +158,16 @@ class nCoreUploader(Uploader):
                 self.nfo_file = self.nfo_file[0]
                 urls = self.extract_nfo_urls(
                     Path(self.nfo_file).read_text(encoding="CP437", errors="ignore"))
-                imdb_id = next((x.split("/")[-2] for x in urls if "imdb.com" in x), None)
+                imdb_id = next((x.split("/")[-2]
+                               for x in urls if "imdb.com" in x), None)
             else:
                 self.nfo_file = Path(path/f"{release_name}.nfo")
                 with self.nfo_file.open("w", encoding="ascii") as f:
                     f.write(mediainfo)
         if not imdb_id:
             if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
-                title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
+                title = re.sub(r" (\d{4})$", r" (\1)",
+                               m.group(1).replace(".", " "))
 
                 if imdb_results := ia.search_movie(title):
                     imdb_id = imdb_results[0].movieID
@@ -252,7 +256,7 @@ class nCoreUploader(Uploader):
 
         description = f"{thumbnails_str}"
         if self.config.get(self, "port_description") and imdb_id:
-            description = f"{self.scrape_port(imdb_id)}\n{description}"
+            description = f"{self.scrape_port(imdb_id, release_name)}\n{description}"
         if note:
             description = f"[quote]{note}[/quote]\n{description}"
         description = description.strip()
@@ -297,15 +301,18 @@ class nCoreUploader(Uploader):
             url="https://ncore.pro/upload.php",
             files={
                 "torrent_fajl": (str(torrent_path), torrent_path.open("rb"), "application/x-bittorrent"),
-                "nfo_fajl": (str(self.nfo_file), self.nfo_file.open("r"), "application/octet-stream"),
-                "kep1": (str(snapshots[6]), snapshots[6].open("r"), "image/png"),
-                "kep2": (str(snapshots[7]), snapshots[7].open("r"), "image/png"),
-                "kep3": (str(snapshots[8]), snapshots[8].open("r"), "image/png"),
+                "nfo_fajl": (str(self.nfo_file), self.nfo_file.open("rb"), "application/octet-stream"),
+                "kep1": (str(snapshots[6]), snapshots[6].open("rb"), "image/png"),
+                "kep2": (str(snapshots[7]), snapshots[7].open("rb"), "image/png"),
+                "kep3": (str(snapshots[8]), snapshots[8].open("rb"), "image/png"),
             },
             data=self.data,
         )
 
-        if "upload.php" in r.url:
+        if "A feltöltött torrent már létezik" in r.text:
+            wprint("Torrent already exists.")
+            return False
+        elif "upload.php" in r.url:
             return False
 
         return True

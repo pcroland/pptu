@@ -64,7 +64,7 @@ class PPTU:
             created_by=None,
             creation_date=None,
             randomize_infohash=not self.tracker.source,
-            exclude_regexs=[r".*\.(ffindex|jpg|png|torrent|txt)$"],
+            exclude_regexs=[self.tracker.exclude_regexs],
         )
 
         if base_torrent_path:

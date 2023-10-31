@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Optional
 from guessit import guessit
 from pymediainfo import MediaInfo
 from pyotp import TOTP
+import regex
 from rich.console import Console
 from rich.markup import escape
 from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
@@ -25,6 +26,7 @@ if TYPE_CHECKING:
 class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     min_snapshots: int = 3
     random_snapshots: bool = True
+    exclude_regexs: str = r".*\.(ffindex|jpg|png|srt|nfo|torrent|txt)$"
 
     year_in_series_name: bool = False
     keep_dubbed_dual_tags: bool = False

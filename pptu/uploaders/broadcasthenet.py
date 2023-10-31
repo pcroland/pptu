@@ -20,11 +20,12 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 class BroadcasTheNetUploader(Uploader):
-    name = "BroadcasTheNet"
-    abbrev = "BTN"
-    announce_url = "https://landof.tv/{passkey}/announce"
+    name: str = "BroadcasTheNet"
+    abbrev: str = "BTN"
+    announce_url: str = "https://landof.tv/{passkey}/announce"
+    exclude_regexs: str = r".*\.(ffindex|jpg|png|srt|nfo|torrent|txt)$"
 
-    COUNTRY_MAP = {
+    COUNTRY_MAP: dict = {
         "AD": 65,
         "AF": 51,
         "AG": 86,
