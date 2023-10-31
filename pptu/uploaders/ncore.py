@@ -111,7 +111,7 @@ class nCoreUploader(Uploader):
 
         print("Logging in")
         r = self.session.post(
-            url="https://ncore.pro/login.php",
+            url="https://ncore.pro/login.php?2fa",
             data={
                 "set_lang": "hu",
                 "submitted": "1",
