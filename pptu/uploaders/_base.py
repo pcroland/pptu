@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from hashlib import sha1
 from typing import Optional, Union
 from abc import ABC, abstractmethod
 from http.cookiejar import MozillaCookieJar
@@ -30,11 +31,11 @@ class Uploader(ABC):
         self.dirs = PlatformDirs(appname="pptu", appauthor=False)
 
         self.config = Config(self.dirs.user_config_path / "config.toml")
-
-        self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.name.lower()}.txt"
+        self.cookies_path = self.dirs.user_data_path / "cookies" / \
+            f"""{self.name.lower()}_{sha1(f"{self.config.get(self, 'username')}".encode()).hexdigest()}.txt"""
         if not self.cookies_path.exists():
-            self.cookies_path = self.dirs.user_data_path / "cookies" / f"{self.abbrev.lower()}.txt"
-
+            self.cookies_path = self.dirs.user_data_path / "cookies" / \
+                f"""{self.name.lower()}_{sha1(f"{self.config.get(self, 'username')}".encode()).hexdigest()}.txt"""
         self.cookie_jar = MozillaCookieJar(self.cookies_path)
         if self.cookies_path.exists():
             self.cookie_jar.load(ignore_expires=True, ignore_discard=True)
@@ -44,7 +45,8 @@ class Uploader(ABC):
             self.session.mount(scheme, HTTPAdapter(max_retries=Retry(
                 total=5,
                 backoff_factor=1,
-                allowed_methods=["DELETE", "GET", "HEAD", "OPTIONS", "POST", "PUT", "TRACE"],
+                allowed_methods=["DELETE", "GET", "HEAD",
+                                 "OPTIONS", "POST", "PUT", "TRACE"],
                 status_forcelist=[429, 500, 502, 503, 504],
                 raise_on_status=False,
             )))
@@ -58,6 +60,11 @@ class Uploader(ABC):
     @abstractmethod
     def announce_url(self) -> str:
         """Announce URL of the tracker. May include {passkey} variable."""
+
+    @property
+    @abstractmethod
+    def exclude_regexs(self) -> str:
+        """Torrent excluded file of the tracker."""
 
     def login(self, *, auto: bool) -> bool:
         if not self.session.cookies:

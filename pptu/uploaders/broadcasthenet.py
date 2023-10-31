@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 import httpx
 from guessit import guessit
@@ -20,11 +20,12 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 class BroadcasTheNetUploader(Uploader):
-    name = "BroadcasTheNet"
-    abbrev = "BTN"
-    announce_url = "https://landof.tv/{passkey}/announce"
+    name: str = "BroadcasTheNet"
+    abbrev: str = "BTN"
+    announce_url: str = "https://landof.tv/{passkey}/announce"
+    exclude_regexs: str = r".*\.(ffindex|jpg|png|srt|nfo|torrent|txt)$"
 
-    COUNTRY_MAP = {
+    COUNTRY_MAP: dict = {
         "AD": 65,
         "AF": 51,
         "AG": 86,
@@ -373,7 +374,7 @@ class BroadcasTheNetUploader(Uploader):
         if el := soup.select_one("[name=bitrate] [selected]"):
             bitrate = el.get("value")
 
-        media: Optional(str) = None
+        media: Optional[Union[str, list[str]]] = None
         if el := soup.select_one("[name=media] [selected]"):
             media = el.get("value")
         else:

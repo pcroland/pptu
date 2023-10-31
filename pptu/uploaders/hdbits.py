@@ -24,11 +24,12 @@ ia = Cinemagoer()
 
 
 class HDBitsUploader(Uploader):
-    name = "HDBits"
-    abbrev = "HDB"
-    source = "HDBits"
-    announce_url = "https://tracker.hdbits.org/announce.php"
+    name: str = "HDBits"
+    abbrev: str = "HDB"
+    source: str = "HDBits"
+    announce_url: str = "https://tracker.hdbits.org/announce.php"
     min_snapshots = 4  # 2 for movies and single episodes
+    exclude_regexs: str = r".*\.(ffindex|jpg|png|srt|nfo|torrent|txt)$"
 
     CAPTCHA_MAP = {
         "efe8518424149278ddfaaf609b6a0b1a4749f61b61ef28824da67d68fb333af3": "bug",
