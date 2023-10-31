@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING, Optional, Union
 
 import httpx
 from guessit import guessit
@@ -374,7 +374,7 @@ class BroadcasTheNetUploader(Uploader):
         if el := soup.select_one("[name=bitrate] [selected]"):
             bitrate = el.get("value")
 
-        media: Optional(str) = None
+        media: Optional[Union[str, list[str]]] = None
         if el := soup.select_one("[name=media] [selected]"):
             media = el.get("value")
         else:

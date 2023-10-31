@@ -9,7 +9,6 @@ from pathlib import Path
 
 from guessit import guessit
 from imdb import Cinemagoer
-import httpx
 from langcodes import Language
 from pyotp import TOTP
 from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
@@ -34,7 +33,7 @@ class nCoreUploader(Uploader):
         Uploads a file to kek.sh and returns the URL of the uploaded file.
         """
         files = {'file': open(file, 'rb')}
-        res: dict = httpx.post(
+        res: dict = requests.post(
             url='https://kek.sh/api/v1/posts',
             files=files
         ).json()
