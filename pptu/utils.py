@@ -133,7 +133,26 @@ def load_html(text: str) -> BeautifulSoup:
     return BeautifulSoup(text, "lxml-html")
 
 
-def generate_thumbnails(snapshots: list[Path], width: int = 300, *, progress_obj: Progress | None = None) -> list[Path]:
+def first_or_else(iterable, default):
+    item = next(iter(iterable or []), None)
+    if item is None:
+        return default
+    return item
+
+
+def first_or_none(iterable):
+    return first_or_else(iterable, None)
+
+
+def find(pattern, string, group=None, flags=0):
+    if group:
+        if m := re.search(pattern, string, flags=flags):
+            return m.group(group)
+    else:
+        return first_or_none(re.findall(pattern, string, flags=flags))
+
+
+def generate_thumbnails(snapshots: list[Path], width: int = 300, file_type: str = "png", *, progress_obj: Progress | None = None) -> list[Path]:
     width = int(width)
     print(f"Using thumbnail width: [bold cyan]{width}[/]")
 
@@ -147,13 +166,14 @@ def generate_thumbnails(snapshots: list[Path], width: int = 300, *, progress_obj
         TimeRemainingColumn(elapsed_when_finished=True),
     ) as progress:
         for snap in progress.track(snapshots, description="Generating thumbnails"):
-            thumb = snap.with_name(f"{snap.stem}_thumb_{width}.png")
+            thumb = snap.with_name(f"{snap.stem}_thumb_{width}.{file_type}")
             if not thumb.exists():
                 with Image(filename=snap) as img:
                     img.resize(width, round(img.height / (img.width / width)))
                     img.depth = 8
                     img.save(filename=thumb)
-                oxipng.optimize(thumb)
+                if file_type == "png":
+                    oxipng.optimize(thumb)
             thumbnails.append(thumb)
 
     return thumbnails
