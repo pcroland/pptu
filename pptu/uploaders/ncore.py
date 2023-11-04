@@ -321,12 +321,11 @@ class nCoreUploader(Uploader):
         for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
             thumbnail_urls.append(self.keksh(thumb))
 
-        for i in range(len(snapshots) - 3, start=1):
-            print(i)
+        for i in range(len(snapshots) - 3):
             snap = snapshot_urls[i]
             thumb = thumbnail_urls[i]
             thumbnails_str += f"[url={snap}][img]{thumb}[/img][/url]"
-            if i % self.config.get(self, "snapshot_columns", 3) == 0:
+            if i+1 % self.config.get(self, "snapshot_columns", 3) == 0:
                 thumbnails_str += "\n"
         thumbnails_str += "[i] (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
 
@@ -405,6 +404,6 @@ class nCoreUploader(Uploader):
         elif "upload.php" in r.url:
             return False
 
-        print(f"Download link: {r.url}", True)
+        print(f"nCore link: {r.url}", True)
 
         return True
