@@ -4,7 +4,8 @@ import json
 import re
 import httpx
 import subprocess
-from typing import Optional
+from langcodes import Language
+from typing import Optional, Union
 from pathlib import Path
 
 from guessit import guessit
@@ -24,7 +25,7 @@ class nCoreUploader(Uploader):
     name: str = "nCore"
     abbrev: str = "nC"
     announce_url: str = "http://t.ncore.sh:2710/announce"
-    min_snapshots = 9
+    min_snapshots: int = 3
     exclude_regexs: str = r".*\.(ffindex|jpg|png|torrent|txt)$"
 
     def keksh(self, file) -> Optional[str]:
@@ -52,7 +53,7 @@ class nCoreUploader(Uploader):
 
     def ajax_parser(self, value: str) -> str:
         """Parses the AJAX data for a given value."""
-        m = find(rf'id="{value}" value="(.*)"', self.imdb_ajax_data)
+        m = find(rf'id="{value}" value="(.*)">', self.imdb_ajax_data)
 
         return m if m else ""
 
@@ -64,40 +65,46 @@ class nCoreUploader(Uploader):
         self.databse_urls = [
             x for x in urls if any(
                 database in x for database in
-                ["imdb.com", "tvmaze.com", "thetvdb.com", "port.hu", "rottentomatoes.com", "myanimelist.net", "netflix.com", "mafab.hu"]
+                {"imdb.com", "tvmaze.com", "thetvdb.com", "port.hu", "rottentomatoes.com", "myanimelist.net", "netflix.com", "mafab.hu"}
             )
         ]
 
         return self.databse_urls
 
     def get_mafab_link(self, imdb: str, gi: dict, urls: list) -> str:
-        urls.append("")
-        mafab_link = first_or_none(x for x in urls if "mafab.hu" in x) or ""
+            """
+            If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Mafab.hu and returns the link.
+            """
+            urls.append("")
+            mafab_link = first_or_none(x for x in urls if "mafab.hu" in x) or ""
 
-        if not mafab_link:
-            try:
-                mafab_site: str = self.session_.get(
-                    url=f"https://www.mafab.hu/js/autocomplete.php?v=20&term={gi['title'].replace(' ', '+')}",
-                    headers={
-                        "X-Requested-With": "XMLHttpRequest",
-                    }
-                ).json()
-                for x in mafab_site:
-                    if x["cat"] == "movie":
-                        if str(imdb) in self.session_.get(x["id"]).text:
-                            mafab_link = x["id"]
-                            break
-            except Exception as e:
-                wprint(f'error: {e}.')
+            if not mafab_link:
+                try:
+                    mafab_site: str = self.session_.get(
+                        url=f"https://www.mafab.hu/js/autocomplete.php?v=20&term={gi['title'].replace(' ', '+')}",
+                        headers={
+                            "X-Requested-With": "XMLHttpRequest",
+                        }
+                    ).json()
+                    for x in mafab_site:
+                        if x["cat"] == "movie":
+                            if str(imdb) in self.session_.get(x["id"]).text:
+                                mafab_link = x["id"]
+                                break
+                except Exception as e:
+                    wprint(f'error: {e}.')
 
-        if not mafab_link:
-            wprint('mafab.hu scraping failed.')
-            mafab_link = Prompt.ask('port.hu link: ')
-        print(f"mafab.hu link: [link={mafab_link}]{mafab_link}[/link]", True)
+            if not mafab_link:
+                wprint('mafab.hu scraping failed.')
+                mafab_link = Prompt.ask('mafab.hu link: ')
+            print(f"mafab.hu link: [link={mafab_link}]{mafab_link}[/link]", True)
 
-        return mafab_link
+            return mafab_link
 
     def get_port_link(self, imdb: str, gi: dict, urls: list) -> str:
+        """
+        If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Port.hu and returns the link.
+        """
         urls.append("")
         port_link = first_or_none(x for x in urls if "port.hu" in x) or ""
 
@@ -107,8 +114,8 @@ class nCoreUploader(Uploader):
                     url=f"https://port.hu/search/suggest-list?q={gi['title'].replace(' ', '+')}",
                 ).json()
                 for x in port_site:
-                    if str(imdb) in self.session_.get(x["url"]).text:
-                        port_link = x["url"]
+                    if str(imdb) in self.session_.get(x.get("url")).text:
+                        port_link = x.get("url")
                         break
             except Exception as e:
                 wprint(f'error: {e}.')
@@ -121,6 +128,9 @@ class nCoreUploader(Uploader):
         return port_link
 
     def get_mafab_des(self, link: str) -> Optional[str]:
+        """
+        Extracts the description of a movie from Mafab.hu.
+        """
         res = self.session_.get(link).text
         soup = load_html(res)
         div_element = soup.find('div', class_='bio-content biotab_0')
@@ -128,6 +138,9 @@ class nCoreUploader(Uploader):
             return span_element.text
        
     def get_port_des(self, link: str) -> Optional[str]:
+        """
+        Extracts the description of a movie from Port.hu.
+        """
         res = self.session_.get(link).text
         soup = load_html(res)
         script = soup.find('script', type='application/ld+json')
@@ -137,6 +150,9 @@ class nCoreUploader(Uploader):
                 return des
 
     def login(self, *, auto: bool) -> bool:
+        # set snapshots number from config
+        self.min_snapshots += self.config.get(self, "snapshot_columns", 2) \
+                               * self.config.get(self, "snapshot_rows", 3)
 
         r = self.session.get("https://ncore.pro/")
         if "login.php" not in r.url:
@@ -241,7 +257,7 @@ class nCoreUploader(Uploader):
                 return False
 
         self.imdb_ajax_data = self.session.get(
-            url=f"https://ncore.pro/ajax.php?action=imdb_movie&imdb_movie={imdb_id}",
+            url=f"https://ncore.pro/ajax.php?action=imdb_movie&imdb_movie={imdb_id.strip('tt')}",
         ).text
 
         if path.is_dir():
@@ -265,7 +281,10 @@ class nCoreUploader(Uploader):
                     eprint(
                         f"Unable to determine {num} audio language.", exit_code=0)
                     continue
-                if "Hungarian" in lang and release_name in (".HUN.", ".HUN-"):
+                lang = Language.get(lang)
+                if not lang.language:
+                    eprint("Primary audio track has no language set.")
+                if "hu" in str(lang).lower() and (".HUN." in release_name or ".HUN-" in release_name):
                     type_ += "_hun"
                     break
         elif file.suffix == ".mp4":
@@ -277,9 +296,9 @@ class nCoreUploader(Uploader):
 
         thumbnails_str: str = ""
 
-        # if name is too long
+        # if name is too long, put it in the description
         if len(release_name) > 83:
-            thumbnails_str += f"[center][highlight][size=10pt]{release_name}[/size][/highlight][/center]\n\n"
+            thumbnails_str += f"[center][highlight][size=10pt]{release_name}[/size][/highlight][/center]\n\n\n"
 
         thumbnails_str += "[spoiler=Screenshots][center]"
         with Progress(
@@ -293,10 +312,8 @@ class nCoreUploader(Uploader):
             for snap in progress.track(snapshots[0:-3], description="Uploading snapshots"):
                 snapshot_urls.append(self.keksh(snap))
 
-        thumbnail_row_width = min(530, self.config.get(
-            self, "snapshot_row_width", 530))
-        thumbnail_width = (thumbnail_row_width /
-                           self.config.get(self, "snapshot_columns", 2)) - 5
+        thumbnail_row_width = min(660, self.config.get(self, "snapshot_row_width", 660))
+        thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_row", 3))
         thumbnail_urls = []
         thumbnails = generate_thumbnails(
             snapshots[0:-3], width=thumbnail_width, file_type="jpg")
@@ -308,25 +325,29 @@ class nCoreUploader(Uploader):
             snap = snapshot_urls[i]
             thumb = thumbnail_urls[i]
             thumbnails_str += rf"[url={snap}][img]{thumb}[/img][/url]"
-            if i % self.config.get(self, "snapshot_columns", 3) == 0:
-                thumbnails_str += " "
-            else:
+            if i % self.config.get(self, "snapshot_columns", 3) != 0:
                 thumbnails_str += "\n"
         thumbnails_str += "[i]  (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
 
         description = f"{thumbnails_str}"
+        mafab_link: str = ""
+        port_link: str = ""
+        database: str = ""
         if note:
-            description = f"[quote]{note}[/quote]\n{description}"
-
-        if self.config.get(self, "mafab_description"):
-            mafab_link = self.get_mafab_link(imdb_id, gi, urls)
-            if des := self.get_mafab_des(mafab_link):
-                description = f"[url={mafab_link}]{des}[/url]\n{description}"
-
-        if self.config.get(self, "port_description") or not self.config.get(self, "mafab_description") and "mafab" not in description:
-            port_link = self.get_port_link(imdb_id, gi, urls)
-            if des := self.get_port_des(port_link):
-                description = f"[url={port_link}]{des}[/url]\n{description}"
+            description = f"[quote]{note}[/quote]\n\n{description}"
+        if config := self.config.get(self, "description"):  
+            if config == "mafab" or config is True:
+                mafab_link = self.get_mafab_link(imdb_id, gi, urls)
+                if des := self.get_mafab_des(mafab_link):
+                    description = f"{des} [url={mafab_link}]link[/url]\n\n{description}"
+                if mafab_link:
+                    database = mafab_link
+            elif config == "port" or config is True and "mafab.hu" not in description:
+                mafab_link = self.get_port_link(imdb_id, gi, urls)
+                if des := self.get_port_des(mafab_link):
+                    description = f"{des} [url={port_link}]link[/url]\n\n{description}"
+                if port_link:
+                    database = port_link
         description = description.strip()
 
         self.data = {
@@ -337,7 +358,7 @@ class nCoreUploader(Uploader):
             "torrent_nev": release_name,
             "szoveg": description,
             "imdb_id": imdb_id,
-            "film_adatbazis": next(x for x in self.databse_urls + [""] if "imdb.com" not in x),
+            "film_adatbazis": next(x for x in self.databse_urls + [""] if "imdb.com" not in x) or database,
             "infobar_picture": self.ajax_parser("movie_picture"),
             "infobar_rank": self.ajax_parser("movie_rank"),
             "infobar_genres": self.ajax_parser("movie_genres"),
@@ -352,8 +373,8 @@ class nCoreUploader(Uploader):
             "szezon": "",
             "epizod_szamok": "",
             "keresre": "nem",
-            # "keres_kodja": "$request_id",
-            "anonymous": self.config.get(self, "anonymous_upload"),
+            # "keres_kodja": "$request_id", # TODO: implement
+            "anonymous": self.config.get(self, "anonymous_upload", False),
             "elrejt": "nem",
             "mindent_tud1": "szabalyzat",
             "mindent_tud3": "seedeles",
