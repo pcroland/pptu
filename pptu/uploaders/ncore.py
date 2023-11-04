@@ -32,14 +32,14 @@ class nCoreUploader(Uploader):
         """
         Uploads a file to kek.sh and returns the URL of the uploaded file.
         """
-        files = {'file': open(file, 'rb')}
         res: dict = self.session_.post(
             url='https://kek.sh/api/v1/posts',
-            files=files
+            files={'file': open(file, 'rb')}
         ).json()
 
         return f"https://i.kek.sh/{res['filename']}" if res.get('filename') else ""
 
+    @property
     def get_unique(self) -> str:
         """
         This method sends a GET request to https://ncore.pro/ and extracts a unique ID from the response.
@@ -321,13 +321,14 @@ class nCoreUploader(Uploader):
         for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
             thumbnail_urls.append(self.keksh(thumb))
 
-        for i in range(len(snapshots) - 3):
+        for i in range(len(snapshots) - 3, start=1):
+            print(i)
             snap = snapshot_urls[i]
             thumb = thumbnail_urls[i]
-            thumbnails_str += rf"[url={snap}][img]{thumb}[/img][/url]"
-            if i % self.config.get(self, "snapshot_columns", 3) != 0:
+            thumbnails_str += f"[url={snap}][img]{thumb}[/img][/url]"
+            if i % self.config.get(self, "snapshot_columns", 3) == 0:
                 thumbnails_str += "\n"
-        thumbnails_str += "[i]  (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
+        thumbnails_str += "[i] (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
 
         description = f"{thumbnails_str}"
         mafab_link: str = ""
@@ -339,19 +340,19 @@ class nCoreUploader(Uploader):
             if config == "mafab" or config is True:
                 mafab_link = self.get_mafab_link(imdb_id, gi, urls)
                 if des := self.get_mafab_des(mafab_link):
-                    description = f"{des} [url={mafab_link}]link[/url]\n\n{description}"
+                    description = f"Mafab.hu: [url={mafab_link}]link[/url]\n{des}\n\n{description}"
                 if mafab_link:
                     database = mafab_link
-            elif config == "port" or config is True and "mafab.hu" not in description:
+            elif config == "port" or config is True and "mafab" not in description:
                 mafab_link = self.get_port_link(imdb_id, gi, urls)
                 if des := self.get_port_des(mafab_link):
-                    description = f"{des} [url={port_link}]link[/url]\n\n{description}"
+                    description = f"PORT.hu: [url={mafab_link}]link[/url]\n{des}\n\n{description}"
                 if port_link:
                     database = port_link
         description = description.strip()
 
         self.data = {
-            "getUnique": self.get_unique(),
+            "getUnique": self.get_unique,
             "eredeti": "igen",
             "infobar_site": "imdb",
             "tipus": type_,
@@ -403,5 +404,7 @@ class nCoreUploader(Uploader):
             return False
         elif "upload.php" in r.url:
             return False
+
+        print(f"Download link: {r.url}", True)
 
         return True
