@@ -43,7 +43,10 @@ ptpimg_api_key = ""  # required
 [ncore]
 username = ""
 password = ""
-port_description = false
+description = true # port, mafab, true, false
+snapshot_row_width = 1000 
 totp_secret = ""
+snapshot_columns = 2
+snapshot_rows = 3
 anonymous_upload = false  # default is true
 #proxy = "http://user:pass@example.com:6060"
