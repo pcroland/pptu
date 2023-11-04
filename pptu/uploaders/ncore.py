@@ -339,13 +339,13 @@ class nCoreUploader(Uploader):
             if config == "mafab" or config is True:
                 mafab_link = self.get_mafab_link(imdb_id, gi, urls)
                 if des := self.get_mafab_des(mafab_link):
-                    description = f"Mafab.hu: [url={mafab_link}]link[/url]\n{des}\n\n{description}"
+                    description = f"[url={mafab_link}]Mafab.hu[/url]: {des}\n\n{description}"
                 if mafab_link:
                     database = mafab_link
             elif config == "port" or config is True and "mafab" not in description:
                 mafab_link = self.get_port_link(imdb_id, gi, urls)
                 if des := self.get_port_des(mafab_link):
-                    description = f"PORT.hu: [url={mafab_link}]link[/url]\n{des}\n\n{description}"
+                    description = f"[url={port_link}]PORT.hu[/url]: {des}\n\n{description}"
                 if port_link:
                     database = port_link
         description = description.strip()
