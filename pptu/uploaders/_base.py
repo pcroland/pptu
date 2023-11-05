@@ -23,9 +23,9 @@ class Uploader(ABC):
 
     source: Optional[str] = None  # Source tag to use in created torrent files
 
-    all_files = False  # Whether to generate MediaInfo and snapshots for all files
-    min_snapshots = 0
-    random_snapshots = False
+    all_files: bool = False  # Whether to generate MediaInfo and snapshots for all files
+    min_snapshots: int = 0
+    random_snapshots: bool = False
 
     def __init__(self) -> None:
         self.dirs = PlatformDirs(appname="pptu", appauthor=False)

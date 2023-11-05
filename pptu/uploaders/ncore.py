@@ -28,17 +28,6 @@ class nCoreUploader(Uploader):
     min_snapshots: int = 3
     exclude_regexs: str = r".*\.(ffindex|jpg|png|torrent|txt)$"
 
-    def keksh(self, file) -> Optional[str]:
-        """
-        Uploads a file to kek.sh and returns the URL of the uploaded file.
-        """
-        res: dict = self.session_.post(
-            url='https://kek.sh/api/v1/posts',
-            files={'file': open(file, 'rb')}
-        ).json()
-
-        return f"https://i.kek.sh/{res['filename']}" if res.get('filename') else ""
-
     @property
     def get_unique(self) -> str:
         """
@@ -50,6 +39,42 @@ class nCoreUploader(Uploader):
             r'<a href="exit.php\?q=(.*)" id="menu_11" class="menu_link">', data)
 
         return id if id else ""
+
+    def keksh(self, file) -> Optional[str]:
+        """
+        Uploads a file to kek.sh and returns the URL of the uploaded file.
+        """
+        res: dict = self.session_.post(
+            url='https://kek.sh/api/v1/posts',
+            headers={
+                "x-kek-auth": "WOJCS1sFhuBbqejq.oc5ylmAowdXbD8Bvz,gxFA3Gpqs5laWoRMQZ"
+            },
+            files={
+                'file': open(file, 'rb')
+            }
+        ).json()
+
+        return f"https://i.kek.sh/{res['filename']}" if res.get('filename') else ""
+
+    def link_shortener(self, url: Union[str, None]) -> Optional[str]:
+        if url:
+            url = url.replace("www.", "").replace("http://", "https://")
+
+            if not url.startswith("https://"): url = f"https://{url}"
+
+            if "imdb.com" in url:
+                url = re.sub(r"(.+tt\d+)(.+)", r"\1", url)
+                return url
+
+            if "port.hu" in url:
+                url = re.sub(r"(film/tv/)(.+?)(/)", r"\1x\3", url)
+                return url
+
+            if "mafab.hu" in url:
+                url = re.sub(r"(/movies/)(.+?)(-[\d]+).+", r"\1x\3", url)
+                return url
+
+        return url
 
     def ajax_parser(self, value: str) -> str:
         """Parses the AJAX data for a given value."""
@@ -206,6 +231,7 @@ class nCoreUploader(Uploader):
     ) -> bool:
         type_: str = ""
         urls = list()
+        self.databse_urls = list()
         imdb_id: Optional[str] = None
         release_name = path.stem if path.is_file() else path.name
         gi: dict = guessit(path.name)
@@ -358,7 +384,7 @@ class nCoreUploader(Uploader):
             "torrent_nev": release_name,
             "szoveg": description,
             "imdb_id": imdb_id,
-            "film_adatbazis": next(x for x in self.databse_urls + [""] if "imdb.com" not in x) or database,
+            "film_adatbazis": self.link_shortener(next(x for x in self.databse_urls + [""] if "imdb.com" not in x) or database),
             "infobar_picture": self.ajax_parser("movie_picture"),
             "infobar_rank": self.ajax_parser("movie_rank"),
             "infobar_genres": self.ajax_parser("movie_genres"),
@@ -379,7 +405,7 @@ class nCoreUploader(Uploader):
             "mindent_tud1": "szabalyzat",
             "mindent_tud3": "seedeles",
         }
-
+        print(self.data)
         return True
 
     def upload(  # type: ignore[override]
@@ -404,6 +430,6 @@ class nCoreUploader(Uploader):
         elif "upload.php" in r.url:
             return False
 
-        print(f"nCore link: {r.url}", True)
+        print(f"nCore link: {r.url.replace('/torrents.php?action=details&id=', '/t/')}", True)
 
         return True
