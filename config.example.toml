@@ -43,10 +43,11 @@ ptpimg_api_key = ""  # required
 [ncore]
 username = ""
 password = ""
-description = true # port, mafab, true, false
-snapshot_row_width = 1000 
 totp_secret = ""
-snapshot_columns = 2
-snapshot_rows = 3
-anonymous_upload = false  # default is true
+description = true # port, mafab, true, false
+snapshots = true # false to disable images in description
+snapshot_row_width = 1000 
+snapshot_columns = 2 # default is 2
+snapshot_rows = 3 # default is 3 suggested to not use more
+anonymous_upload = false # default is false
 #proxy = "http://user:pass@example.com:6060"
