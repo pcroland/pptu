@@ -48,6 +48,9 @@ def main() -> None:
     parser.add_argument("-a", "--auto",
                         action="store_true",
                         help="never prompt for user input")
+    parser.add_argument("-ds", "--disable-snapshots",
+                        action="store_true",
+                        help="disable creating snapshots to description")    
     parser.add_argument("-s", "--skip-upload",
                         action="store_true",
                         help="skip upload")

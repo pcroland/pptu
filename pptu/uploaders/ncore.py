@@ -47,7 +47,7 @@ class nCoreUploader(Uploader):
         res: dict = self.session_.post(
             url='https://kek.sh/api/v1/posts',
             headers={
-                "x-kek-auth": "WOJCS1sFhuBbqejq.oc5ylmAowdXbD8Bvz,gxFA3Gpqs5laWoRMQZ"
+                #"x-kek-auth": "WOJCS1sFhuBbqejq.oc5ylmAowdXbD8Bvz,gxFA3Gpqs5laWoRMQZ"
             },
             files={
                 'file': open(file, 'rb')
@@ -120,9 +120,9 @@ class nCoreUploader(Uploader):
                     wprint(f'error: {e}.')
 
             if not mafab_link:
-                wprint('mafab.hu scraping failed.')
-                mafab_link = Prompt.ask('mafab.hu link: ')
-            print(f"mafab.hu link: [link={mafab_link}]{mafab_link}[/link]", True)
+                wprint('Mafab.hu scraping failed.')
+                mafab_link = Prompt.ask('Mafab.hu link: ')
+            print(f"Mafab.hu link: [link={mafab_link}]{mafab_link}[/link]", True)
 
             return mafab_link
 
@@ -146,9 +146,9 @@ class nCoreUploader(Uploader):
                 wprint(f'error: {e}.')
 
         if not port_link:
-            wprint('port.hu scraping failed.')
-            port_link = Prompt.ask('port.hu link: ')
-        print(f"port.hu link: [link={port_link}]{port_link}[/link]", True)
+            wprint('PORT.hu scraping failed.')
+            port_link = Prompt.ask('PORT.hu link: ')
+        print(f"PORT.hu link: [link={port_link}]{port_link}[/link]", True)
 
         return port_link
 
@@ -218,8 +218,7 @@ class nCoreUploader(Uploader):
 
         r = self.session.get("https://ncore.pro/")
         if "login.php" in r.url:
-            eprint("Failed to login.")
-            return False
+            eprint("Failed to login.", exit_code=1)
 
         return True
 
@@ -327,35 +326,36 @@ class nCoreUploader(Uploader):
             thumbnails_str += f"[center][highlight][size=10pt]{release_name}[/size][/highlight][/center]\n\n\n"
 
         thumbnails_str += "[spoiler=Screenshots][center]"
-        with Progress(
-            TextColumn("[progress.description]{task.description}[/]"),
-            BarColumn(),
-            MofNCompleteColumn(),
-            TaskProgressColumn(),
-            TimeRemainingColumn(elapsed_when_finished=True),
-        ) as progress:
-            snapshot_urls = []
-            for snap in progress.track(snapshots[0:-3], description="Uploading snapshots"):
-                snapshot_urls.append(self.keksh(snap))
+        if snapshots[0:-3]:
+            with Progress(
+                TextColumn("[progress.description]{task.description}[/]"),
+                BarColumn(),
+                MofNCompleteColumn(),
+                TaskProgressColumn(),
+                TimeRemainingColumn(elapsed_when_finished=True),
+            ) as progress:
+                snapshot_urls = []
+                for snap in progress.track(snapshots[0:-3], description="Uploading snapshots"):
+                    snapshot_urls.append(self.keksh(snap))
 
-        thumbnail_row_width = min(660, self.config.get(self, "snapshot_row_width", 660))
-        thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_row", 3))
-        thumbnail_urls = []
-        thumbnails = generate_thumbnails(
-            snapshots[0:-3], width=thumbnail_width, file_type="jpg")
+            thumbnail_row_width = min(660, self.config.get(self, "snapshot_row_width", 660))
+            thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_row", 3))
+            thumbnail_urls = []
+            thumbnails = generate_thumbnails(
+                snapshots[0:-3], width=thumbnail_width, file_type="jpg")
 
-        for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
-            thumbnail_urls.append(self.keksh(thumb))
+            for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
+                thumbnail_urls.append(self.keksh(thumb))
 
-        for i in range(len(snapshots) - 3):
-            snap = snapshot_urls[i]
-            thumb = thumbnail_urls[i]
-            thumbnails_str += f"[url={snap}][img]{thumb}[/img][/url]"
-            if i+1 % self.config.get(self, "snapshot_columns", 3) == 0:
-                thumbnails_str += "\n"
-        thumbnails_str += "[i] (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
+            for i in range(len(snapshots) - 3):
+                snap = snapshot_urls[i]
+                thumb = thumbnail_urls[i]
+                thumbnails_str += f"[url={snap}][img]{thumb}[/img][/url]"
+                if i+1 % self.config.get(self, "snapshot_columns", 3) == 0:
+                    thumbnails_str += "\n"
+            thumbnails_str += "[i] (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
 
-        description = f"{thumbnails_str}"
+        description = f"{thumbnails_str or ''}"
         mafab_link: str = ""
         port_link: str = ""
         database: str = ""
@@ -405,7 +405,7 @@ class nCoreUploader(Uploader):
             "mindent_tud1": "szabalyzat",
             "mindent_tud3": "seedeles",
         }
-        print(self.data)
+
         return True
 
     def upload(  # type: ignore[override]
