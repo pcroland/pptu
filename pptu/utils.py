@@ -3,11 +3,15 @@ from __future__ import annotations
 import argparse
 import re
 import sys
-from typing import TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload
+import shutil
+from typing import (
+    TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload
+)
 
 import humanize
 import oxipng
 import toml
+from pathlib import Path
 from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
 from rich.console import Console
@@ -27,8 +31,6 @@ from .constants import PROG_NAME, PROG_VERSION
 
 
 if TYPE_CHECKING:
-    from pathlib import Path
-
     from rich.progress import Task
 
     from .uploaders import Uploader
@@ -36,7 +38,14 @@ if TYPE_CHECKING:
 
 class Config:
     def __init__(self, file: Path):
-        self._config = CaseInsensitiveDict(toml.load(file))
+        try:
+            self._config = CaseInsensitiveDict(toml.load(file))
+        except FileNotFoundError:
+            shutil.copy(
+                Path(__file__).resolve().parent.with_name('config.example.toml'), file
+            )
+            eprint(
+                f"Config file doesn't exist, created to: [cyan]{file}[/]", fatal=True)  # noqa: E501
 
     def get(self, tracker: Uploader | Literal["default"], key: str, default: Any = None) -> Any:
         value = None
