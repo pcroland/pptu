@@ -3,18 +3,28 @@ from __future__ import annotations
 import json
 import re
 import httpx
-import subprocess
 from langcodes import Language
 from typing import Optional, Union
 from pathlib import Path
 
 from guessit import guessit
+from pymediainfo import MediaInfo
 from imdb import Cinemagoer
 from pyotp import TOTP
-from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn
+)
 from rich.prompt import Prompt
+from rich.status import Status
 
-from ..utils import eprint, generate_thumbnails, print, wprint, load_html, find, first_or_none
+from ..utils import (
+    eprint, generate_thumbnails, print, wprint, load_html, find, first_or_none
+)
 from . import Uploader
 
 
@@ -161,7 +171,7 @@ class nCoreUploader(Uploader):
         div_element = soup.find('div', class_='bio-content biotab_0')
         if div_element and (span_element := div_element.find('span')):
             return span_element.text
-       
+
     def get_port_des(self, link: str) -> Optional[str]:
         """
         Extracts the description of a movie from Port.hu.
@@ -289,35 +299,32 @@ class nCoreUploader(Uploader):
             file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
         else:
             file = path
-        if file.suffix == ".mkv":
-            info = json.loads(subprocess.run(
-                ["mkvmerge", "-J", file], capture_output=True, encoding="utf-8").stdout)
-            video = next(x for x in info["tracks"] if x["type"] == "video")
-            if q := video["properties"]["display_dimensions"].split("x"):
-                if int(q[0]) < 720:
-                    type_ = "xvid" + type_
-                else:
-                    type_ = "hd" + type_
-            audios = (x for x in info["tracks"] if x["type"] == "audio")
-            for num, audio in enumerate(audios, 1):
-                lang = audio["properties"].get(
-                    "language_ietf") or audio["properties"].get("language")
-                if not lang:
-                    eprint(
-                        f"Unable to determine {num} audio language.", exit_code=0)
-                    continue
-                lang = Language.get(lang)
-                if not lang.language:
-                    eprint("Primary audio track has no language set.")
-                if "hu" in str(lang).lower() and (".HUN." in release_name or ".HUN-" in release_name):
-                    type_ += "_hun"
-                    break
-        elif file.suffix == ".mp4":
-            eprint("MP4 is not yet supported.")  # TODO: use mediainfo
-            return False
+        with Status("[bold magenta]Parsing for info scraping...") as _:
+            m_info_temp: str = MediaInfo.parse(file, output="JSON", full=True)
+            if m_info_temp:
+                mediainfo_: dict = json.loads(m_info_temp)["media"]["track"]
+            else:
+                eprint("MediaInfo parsing failed.", exit_code=1)
+
+        video = first_or_none(x for x in mediainfo_ if x["@type"] == "Video")
+        if video and (int(video["Height"]) < 720):
+            type_ = "xvid" + type_
         else:
-            eprint("File must be MKV or MP4.")
-            return False
+            type_ = "hd" + type_
+
+        audios: set = (x for x in mediainfo_ if x["@type"] == "Audio")
+        for num, audio in enumerate(audios, 1):
+            lang = audio["Language"]
+            if not lang:
+                eprint(
+                    f"Unable to determine {num} audio language.", exit_code=0)
+                continue
+            lang = Language.get(lang)
+            if not lang.language:
+                eprint("Primary audio track has no language set.")
+            if "hu" in str(lang).lower() and (".HUN." in release_name or ".HUN-" in release_name):
+                type_ += "_hun"
+                break
 
         thumbnails_str: str = ""
 

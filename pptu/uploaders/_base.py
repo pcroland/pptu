@@ -26,6 +26,7 @@ class Uploader(ABC):
     all_files: bool = False  # Whether to generate MediaInfo and snapshots for all files
     min_snapshots: int = 0
     random_snapshots: bool = False
+    mediainfo: bool = True
 
     def __init__(self) -> None:
         self.dirs = PlatformDirs(appname="pptu", appauthor=False)
