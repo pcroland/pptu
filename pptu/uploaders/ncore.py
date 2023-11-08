@@ -107,34 +107,34 @@ class nCoreUploader(Uploader):
         return self.databse_urls
 
     def get_mafab_link(self, imdb: str, gi: dict, urls: list) -> str:
-            """
-            If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Mafab.hu and returns the link.
-            """
-            urls.append("")
-            mafab_link = first_or_none(x for x in urls if "mafab.hu" in x) or ""
+        """
+        If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Mafab.hu and returns the link.
+        """
+        urls.append("")
+        mafab_link = first_or_none(x for x in urls if "mafab.hu" in x) or ""
 
-            if not mafab_link:
-                try:
-                    mafab_site: str = self.session_.get(
-                        url=f"https://www.mafab.hu/js/autocomplete.php?v=20&term={gi['title'].replace(' ', '+')}",
-                        headers={
-                            "X-Requested-With": "XMLHttpRequest",
-                        }
-                    ).json()
-                    for x in mafab_site:
-                        if x["cat"] == "movie":
-                            if str(imdb) in self.session_.get(x["id"]).text:
-                                mafab_link = x["id"]
-                                break
-                except Exception as e:
-                    wprint(f'error: {e}.')
+        if not mafab_link:
+            try:
+                mafab_site: str = self.session_.get(
+                    url=f"https://www.mafab.hu/js/autocomplete.php?v=20&term={gi['title'].replace(' ', '+')}",
+                    headers={
+                        "X-Requested-With": "XMLHttpRequest",
+                    }
+                ).json()
+                for x in mafab_site:
+                    if x["cat"] == "movie":
+                        if str(imdb) in self.session_.get(x["id"]).text:
+                            mafab_link = x["id"]
+                            break
+            except Exception as e:
+                wprint(f'error: {e}.')
 
-            if not mafab_link:
-                wprint('Mafab.hu scraping failed.')
-                mafab_link = Prompt.ask('Mafab.hu link: ')
-            print(f"Mafab.hu link: [link={mafab_link}]{mafab_link}[/link]", True)
+        if not mafab_link:
+            wprint('Mafab.hu scraping failed.')
+            mafab_link = Prompt.ask('Mafab.hu link: ')
+        print(f"Mafab.hu link: [link={mafab_link}]{mafab_link}[/link]", True)
 
-            return mafab_link
+        return mafab_link
 
     def get_port_link(self, imdb: str, gi: dict, urls: list) -> str:
         """
@@ -368,7 +368,7 @@ class nCoreUploader(Uploader):
         database: str = ""
         if note:
             description = f"[quote]{note}[/quote]\n\n{description}"
-        if config := self.config.get(self, "description"):  
+        if config := self.config.get(self, "description"):
             if config == "mafab" or config is True:
                 mafab_link = self.get_mafab_link(imdb_id, gi, urls)
                 if des := self.get_mafab_des(mafab_link):

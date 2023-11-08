@@ -2,6 +2,7 @@
 proxy = ""
 watch_dir = "~/rtorrent/watch/start"
 fast_upload = false
+snapshots = true
 snapshot_columns = 2
 snapshot_rows = 2
 snapshot_row_width = 1000  # will be lowered if it's higher than the site's width for the torrent page
@@ -45,9 +46,6 @@ username = ""
 password = ""
 totp_secret = ""
 description = true # port, mafab, true, false
-snapshots = true # false to disable images in description
-snapshot_row_width = 1000 
-snapshot_columns = 2 # default is 2
 snapshot_rows = 3 # default is 3 suggested to not use more
 anonymous_upload = false # default is false
 #proxy = "http://user:pass@example.com:6060"

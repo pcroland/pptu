@@ -25,7 +25,7 @@ if TYPE_CHECKING:
 
 
 class PPTU:
-    def __init__(self, path: Path, tracker: Uploader, *, note: Optional[str] = None, auto: bool = False):
+    def __init__(self, path: Path, tracker: Uploader, *, note: Optional[str] = None, auto: bool = False, snapshots: bool = False):
         self.path = path
         self.tracker = tracker
         self.note = note
@@ -37,7 +37,7 @@ class PPTU:
         self.config = Config(dirs.user_config_path / "config.toml")
 
         self.torrent_path = self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
-        if self.config.get(tracker, "snapshots"):
+        if not snapshots and self.config.get(tracker, "snapshots"):
             self.num_snapshots = max(
                 self.config.get(tracker, "snapshot_columns", 2) * self.config.get(tracker, "snapshot_rows", 2),
                 tracker.min_snapshots,
