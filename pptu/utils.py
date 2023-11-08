@@ -186,3 +186,9 @@ def generate_thumbnails(snapshots: list[Path], width: int = 300, file_type: str 
             thumbnails.append(thumb)
 
     return thumbnails
+
+
+def pluralize(count, singular, plural=None, include_count=True):
+    plural = plural or f"{singular}s"
+    form = singular if count == 1 else plural
+    return f"{count} {form}" if include_count else form
