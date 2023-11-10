@@ -47,7 +47,7 @@ class PPTU:
 
     def create_torrent(self) -> bool:
         passkey = self.config.get(self.tracker, "passkey") or self.tracker.passkey
-        if not passkey and "{passkey}" in self.tracker.announce_url:
+        if not passkey and any("{passkey}" in x for x in self.tracker.announce_url):
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
             return False
 
@@ -57,10 +57,14 @@ class PPTU:
 
         if self.torrent_path.exists():
             return True
+        if isinstance(self.tracker.announce_url, list):
+            announce_url = [x.format(passkey=passkey) for x in self.tracker.announce_url]
+        else:
+            announce_url = [self.tracker.announce_url.format(passkey=passkey)]
 
         torrent = Torrent(
             self.path,
-            trackers=[self.tracker.announce_url.format(passkey=passkey)],
+            trackers=announce_url,
             private=True,
             source=self.tracker.source,
             created_by=None,
