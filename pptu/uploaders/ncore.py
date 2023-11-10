@@ -2,11 +2,12 @@ from __future__ import annotations
 
 import json
 import re
-import httpx
-from langcodes import Language
 from typing import Optional, Union
 from pathlib import Path
+import sys
 
+import httpx
+from langcodes import Language
 from guessit import guessit
 from pymediainfo import MediaInfo
 from imdb import Cinemagoer
@@ -44,7 +45,7 @@ class nCoreUploader(Uploader):
         This method sends a GET request to https://ncore.pro/ and extracts a unique ID from the response.
         The ID is returned as a string.
         """
-        data = self.session.get(url=f"https://ncore.pro/").text
+        data = self.session.get(url="https://ncore.pro/").text
         id = find(
             r'<a href="exit.php\?q=(.*)" id="menu_11" class="menu_link">', data)
 
@@ -57,7 +58,7 @@ class nCoreUploader(Uploader):
         res: dict = self.session_.post(
             url='https://kek.sh/api/v1/posts',
             headers={
-                #"x-kek-auth": "WOJCS1sFhuBbqejq.oc5ylmAowdXbD8Bvz,gxFA3Gpqs5laWoRMQZ"
+                "x-kek-auth": "WOJCS1sFhuBbqejq.oc5ylmAowdXbD8Bvz,gxFA3Gpqs5laWoRMQZ"
             },
             files={
                 'file': open(file, 'rb')
@@ -115,7 +116,7 @@ class nCoreUploader(Uploader):
 
         if not mafab_link:
             try:
-                mafab_site: str = self.session_.get(
+                mafab_site: dict = self.session_.get(
                     url=f"https://www.mafab.hu/js/autocomplete.php?v=20&term={gi['title'].replace(' ', '+')}",
                     headers={
                         "X-Requested-With": "XMLHttpRequest",
@@ -145,12 +146,12 @@ class nCoreUploader(Uploader):
 
         if not port_link:
             try:
-                port_site: str = self.session_.get(
+                port_site: dict = self.session_.get(
                     url=f"https://port.hu/search/suggest-list?q={gi['title'].replace(' ', '+')}",
                 ).json()
                 for x in port_site:
-                    if str(imdb) in self.session_.get(x.get("url")).text:
-                        port_link = x.get("url")
+                    if str(imdb) in self.session_.get(x["url"]).text:
+                        port_link = x["url"]
                         break
             except Exception as e:
                 wprint(f'error: {e}.')
@@ -274,10 +275,8 @@ class nCoreUploader(Uploader):
                 with self.nfo_file.open("w", encoding="ascii") as f:
                     f.write(mediainfo)
         if not imdb_id:
-            if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) \
-                or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
-                title = re.sub(r" (\d{4})$", r" (\1)",
-                            m.group(1).replace(".", " "))
+            if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
+                title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
 
                 if imdb_results := ia.search_movie(title):
                     imdb_id = imdb_results[0].movieID
@@ -361,6 +360,9 @@ class nCoreUploader(Uploader):
                 if i+1 % self.config.get(self, "snapshot_columns", 3) == 0:
                     thumbnails_str += "\n"
             thumbnails_str += "[i] (Kattints a képekre a teljes felbontásban való megtekintéshez.)[/i][/center][/spoiler]"
+
+        if imdb_id and not "tt" not in imdb_id:
+            imdb_id = f"tt{imdb_id}"
 
         description = f"{thumbnails_str or ''}"
         mafab_link: str = ""
