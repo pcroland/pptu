@@ -46,8 +46,11 @@ class PPTU:
             self.num_snapshots = tracker.min_snapshots or 0
 
     def create_torrent(self) -> bool:
+        announce_url = list()
+        announce_url.extend(self.tracker.announce_url)
+
         passkey = self.config.get(self.tracker, "passkey") or self.tracker.passkey
-        if not passkey and any("{passkey}" in x for x in self.tracker.announce_url):
+        if not passkey and any("{passkey}" in x for x in announce_url):
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
             return False
 
@@ -57,14 +60,10 @@ class PPTU:
 
         if self.torrent_path.exists():
             return True
-        if isinstance(self.tracker.announce_url, list):
-            announce_url = [x.format(passkey=passkey) for x in self.tracker.announce_url]
-        else:
-            announce_url = [self.tracker.announce_url.format(passkey=passkey)]
 
         torrent = Torrent(
             self.path,
-            trackers=announce_url,
+            trackers=[x.format(passkey=passkey) for x in announce_url],
             private=True,
             source=self.tracker.source,
             created_by=None,

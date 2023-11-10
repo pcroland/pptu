@@ -22,15 +22,15 @@ ia = Cinemagoer()
 
 
 class PassThePopcornUploader(Uploader):
-    name = "PassThePopcorn"
-    abbrev = "PTP"
-    source = "PTP"
-    announce_url = "http://please.passthepopcorn.me:2710/{passkey}/announce"  # HTTPS tracker cert is expired
-    min_snapshots = 3
-    all_files = True
+    name: str = "PassThePopcorn"
+    abbrev: str = "PTP"
+    source: str = "PTP"
+    announce_url: str = "http://please.passthepopcorn.me:2710/{passkey}/announce"  # HTTPS tracker cert is expired
+    min_snapshots: int = 3
+    all_files: bool = True
 
     # TODO: Some of these have potential for false positives if they're in the movie name
-    EDITION_MAP = {
+    EDITION_MAP: dict = {
         r"\.DC\.": "Director's Cut",
         r"(?i)\.extended\.": "Extended Edition",
         r"\.TC\.": "Theatrical Cut",
