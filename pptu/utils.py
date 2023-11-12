@@ -52,7 +52,13 @@ class Config:
         if tracker != "default":
             value = self._config.get(tracker.name, {}).get(key) or self._config.get(tracker.abbrev, {}).get(key)
 
-        return value or self._config.get("default", {}).get(key) or default
+        if value is False:
+            return value
+        defa = self._config.get("default", {}).get(key)
+        if not value and defa is False:
+            return defa
+
+        return value or defa or default
 
 
 class RParse(argparse.ArgumentParser):
@@ -159,6 +165,10 @@ def find(pattern, string, group=None, flags=0):
             return m.group(group)
     else:
         return first_or_none(re.findall(pattern, string, flags=flags))
+
+
+def first(iterable):
+    return next(iter(iterable))
 
 
 def generate_thumbnails(snapshots: list[Path], width: int = 300, file_type: str = "png", *, progress_obj: Progress | None = None) -> list[Path]:
