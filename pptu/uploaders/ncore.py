@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import json
 import re
-from traceback import print_tb
 from typing import Optional, Union
 from pathlib import Path
 import requests
@@ -23,7 +22,6 @@ from rich.progress import (
 )
 from rich.prompt import Prompt
 from rich.status import Status
-from sqlalchemy import true
 
 from ..utils import (
     eprint, generate_thumbnails, print, wprint, load_html, find, first_or_none, first
