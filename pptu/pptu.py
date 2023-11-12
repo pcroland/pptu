@@ -39,7 +39,7 @@ class PPTU:
         self.torrent_path = self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
         if snapshots and self.config.get(tracker, "snapshots", True):
             self.num_snapshots = max(
-                self.config.get(tracker, "snapshot_columns", 2) * self.config.get(tracker, "snapshot_rows", 2),
+                (self.config.get(tracker, "snapshot_columns", 2) * self.config.get(tracker, "snapshot_rows", 2) + tracker.snapshots_plus),
                 tracker.min_snapshots,
             )
         else:

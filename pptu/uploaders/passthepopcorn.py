@@ -26,7 +26,6 @@ class PassThePopcornUploader(Uploader):
     abbrev: str = "PTP"
     source: str = "PTP"
     announce_url: str = "http://please.passthepopcorn.me:2710/{passkey}/announce"  # HTTPS tracker cert is expired
-    min_snapshots: int = 3
     all_files: bool = True
 
     # TODO: Some of these have potential for false positives if they're in the movie name

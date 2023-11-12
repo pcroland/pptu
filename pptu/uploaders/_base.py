@@ -25,6 +25,7 @@ class Uploader(ABC):
 
     all_files: bool = False  # Whether to generate MediaInfo and snapshots for all files
     min_snapshots: int = 0
+    snapshots_plus: int = 0 # Number of extra snapshots to generate
     random_snapshots: bool = False
     mediainfo: bool = True
 

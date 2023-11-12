@@ -1,4 +1,5 @@
 from __future__ import annotations
+from ast import arg
 
 import json
 import re
@@ -18,7 +19,7 @@ from rich.progress import (
     Progress,
     TaskProgressColumn,
     TextColumn,
-    TimeRemainingColumn
+    TimeRemainingColumn,
 )
 from rich.prompt import Prompt
 from rich.status import Status
@@ -37,7 +38,9 @@ class nCoreUploader(Uploader):
     abbrev: str = "nC"
     announce_url: list[str] = ["https://t.ncore.sh:2810/{passkey}/announce", "https://t.ncore.pro:2810/{passkey}/announce"]
     min_snapshots: int = 3
+    snapshots_plus: int = 3
     exclude_regexs: str = r".*\.(ffindex|jpg|png|torrent|txt)$"
+    source: Optional[str] = "ncore.pro"
 
     @property
     def passkey(self) -> Optional[str]:
@@ -118,7 +121,7 @@ class nCoreUploader(Uploader):
 
         return self.databse_urls
 
-    def mafab_scraper(self, imdb: str, gi: dict, urls: list) -> dict[str, Union[str, list[str]]]:
+    def mafab_scraper(self, imdb: str, gi: dict, urls: list, auto: bool) -> dict[str, Union[str, list[str]]]:
         """
         If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Mafab.hu and returns the link.
         """
@@ -146,7 +149,8 @@ class nCoreUploader(Uploader):
 
         if not mafab_link:
             wprint("Mafab.hu scraping failed.")
-            mafab_link = Prompt.ask("Mafab.hu link: ")
+            if not auto:
+                mafab_link = Prompt.ask("Mafab.hu link: ")
             from_sec = True
         else:
             print(f"Mafab.hu link: {mafab_link}", True)
@@ -158,7 +162,7 @@ class nCoreUploader(Uploader):
             **data
         }
 
-    def port_scraper(self, imdb: str, gi: dict, urls: list) -> dict[str, Union[str, list[str]]]:
+    def port_scraper(self, imdb: str, gi: dict, urls: list, auto: bool) -> dict[str, Union[str, list[str]]]:
         """
         If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Port.hu and returns the link.
         """
@@ -186,7 +190,8 @@ class nCoreUploader(Uploader):
 
         if not port_link:
             wprint("PORT.hu scraping failed.")
-            port_link = Prompt.ask("PORT.hu link: ")
+            if not auto:
+                port_link = Prompt.ask("PORT.hu link: ")
             from_sec = True
         else:
             print(f"PORT.hu link: {port_link}", True)
@@ -208,8 +213,8 @@ class nCoreUploader(Uploader):
         name = soup.find('meta', itemprop='name')
         if name and (name_ := find(r'<meta content="(.*)" itemprop="name"/>', str(name))):
             return_data["name"] = name_.strip()
-        info = soup.find('div', class_='bio-content biotab_0')
-        if info and (info_ := info.find('span')):
+        info = soup.find('div', class_='biobox_full_0') or soup.find('div', class_='bio-content biotab_0')
+        if info and (info_ := info.find('p') or info.find('span')):
             return_data["info"] = info_.text
         point = soup.find('div', class_='mafab-votes filminfo-section-details-detail')     
         if point and (point_ := point.find('span', class_='dcontent bold')):
@@ -398,8 +403,8 @@ class nCoreUploader(Uploader):
         if len(release_name) > 83:
             thumbnails_str += f"[center][highlight][size=10pt]{release_name}[/size][/highlight][/center]\n\n\n"
 
-        thumbnails_str += "[spoiler=Screenshots][center]"
         if snapshots[0:-3]:
+            thumbnails_str += "[spoiler=Screenshots][center]"
             with Progress(
                 TextColumn("[progress.description]{task.description}[/]"),
                 BarColumn(),
@@ -436,14 +441,14 @@ class nCoreUploader(Uploader):
             description = f"[quote]{note}[/quote]\n\n{description}"
         if config := self.config.get(self, "description"):
             if config == "mafab" or config is True:
-                mafab: dict = self.mafab_scraper(imdb_id, gi, urls)
+                mafab: dict = self.mafab_scraper(imdb_id, gi, urls, auto)
                 if (link := mafab.get("link")) and (info := mafab.get("info")):
                     description = f"[url={link}]Mafab.hu[/url]: {info}\n\n{description}"
                     database = link
                 hun_name = mafab.get("name", "")
                 year = mafab.get("year", "")
             elif config == "port" or config is True and "mafab" not in description:
-                port: dict = self.port_scraper(imdb_id, gi, urls)
+                port: dict = self.port_scraper(imdb_id, gi, urls, auto)
                 if (link := port.get("link")) and (info := port.get("info")):
                     description = f"[url={link}]PORT.hu[/url]: {info}\n\n{description}"
                     database = link
