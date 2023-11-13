@@ -17,7 +17,7 @@ from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressC
 from torf import Torrent
 from wand.image import Image
 
-from .utils import Config, CustomTransferSpeedColumn, eprint, flatten, wprint
+from .utils import Config, CustomTransferSpeedColumn, eprint, flatten, wprint, as_list
 
 
 if TYPE_CHECKING:
@@ -46,8 +46,7 @@ class PPTU:
             self.num_snapshots = tracker.min_snapshots or 0
 
     def create_torrent(self) -> bool:
-        announce_url = list()
-        announce_url.extend(self.tracker.announce_url)
+        announce_url: list = as_list(self.tracker.announce_url)
 
         passkey = self.config.get(self.tracker, "passkey") or self.tracker.passkey
         if not passkey and any("{passkey}" in x for x in announce_url):

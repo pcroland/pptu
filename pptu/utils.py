@@ -4,6 +4,7 @@ import argparse
 import re
 import sys
 import shutil
+import itertools
 from typing import (
     TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload
 )
@@ -202,3 +203,22 @@ def pluralize(count, singular, plural=None, include_count=True):
     plural = plural or f"{singular}s"
     form = singular if count == 1 else plural
     return f"{count} {form}" if include_count else form
+
+
+def as_lists(*args):
+    """Convert any input objects to list objects."""
+    for item in args:
+        yield item if isinstance(item, list) else [item]
+
+
+def as_list(*args):
+    """
+    Convert any input objects to a single merged list object.
+
+    Example:
+    >>> as_list('foo', ['buzz', 'bizz'], 'bazz', 'bozz', ['bar'], ['bur'])
+    ['foo', 'buzz', 'bizz', 'bazz', 'bozz', 'bar', 'bur']
+    """
+    if args == (None,):
+        return []
+    return list(itertools.chain.from_iterable(as_lists(*args)))
