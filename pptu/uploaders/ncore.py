@@ -444,8 +444,7 @@ class nCoreUploader(Uploader):
             type_ = "xvid" + type_
         else:
             type_ = "hd" + type_
-
-        audios = set(x for x in mediainfo_ if x["@type"] == "Audio")
+        audios = (x for x in mediainfo_ if x["@type"] == "Audio")
         for num, audio in enumerate(audios, 1):
             lang = audio["Language"]
             if not lang:
