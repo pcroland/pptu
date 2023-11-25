@@ -133,7 +133,6 @@ def main() -> None:
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         for tracker in trackers:
-            print(args.disable_snapshots)
             pptu = PPTU(path, tracker, note=args.note, auto=args.auto, snapshots=not args.disable_snapshots)
 
             print(f"\n[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")

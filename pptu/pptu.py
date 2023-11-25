@@ -25,7 +25,14 @@ if TYPE_CHECKING:
 
 
 class PPTU:
-    def __init__(self, path: Path, tracker: Uploader, *, note: Optional[str] = None, auto: bool = False, snapshots: bool = False):
+    def __init__(
+        self, path: Path,
+        tracker: Uploader,
+        *,
+        note: Optional[str] = None,
+        auto: bool = False,
+        snapshots: bool = False
+    ):
         self.path = path
         self.tracker = tracker
         self.note = note
