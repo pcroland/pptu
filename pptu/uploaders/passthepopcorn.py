@@ -26,6 +26,7 @@ class PassThePopcornUploader(Uploader):
     abbrev: str = "PTP"
     source: str = "PTP"
     announce_url: str = "http://please.passthepopcorn.me:2710/{passkey}/announce"  # HTTPS tracker cert is expired
+    exclude_regexs: str = r".*\.(ffindex|jpg|png|srt|nfo|torrent|txt)$"
     all_files: bool = True
 
     # TODO: Some of these have potential for false positives if they're in the movie name
@@ -62,7 +63,9 @@ class PassThePopcornUploader(Uploader):
         return el.attrs["value"].split("/")[-2]
 
     def login(self, *, auto: bool) -> bool:
-        r = self.session.get("https://passthepopcorn.me/user.php?action=edit", allow_redirects=False)
+        r = self.session.get(
+            "https://passthepopcorn.me/user.php?action=edit", allow_redirects=False
+        )
         if r.status_code == 200:
             return True
 
@@ -91,10 +94,14 @@ class PassThePopcornUploader(Uploader):
                 "passkey": passkey,
                 "WhatsYourSecret": "Hacker! Do you really have nothing better to do than this?",
                 "keeplogged": "1",
-                **({
-                    "TfaType": "normal",
-                    "TfaCode": TOTP(totp_secret).now(),
-                } if totp_secret else {}),
+                **(
+                    {
+                        "TfaType": "normal",
+                        "TfaCode": TOTP(totp_secret).now(),
+                    }
+                    if totp_secret
+                    else {}
+                ),
             },
         ).json()
 
@@ -135,7 +142,9 @@ class PassThePopcornUploader(Uploader):
         auto: bool,
     ) -> bool:
         imdb = None
-        if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
+        if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (
+            m := re.search(r"(.+?\.\d{4})\.", path.name)
+        ):
             title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
             print(f"Detected title: [bold cyan]{title}[/]")
 
@@ -172,10 +181,14 @@ class PassThePopcornUploader(Uploader):
                 "fast": "1",
             },
         ).json()[0]
-        print(torrent_info, highlight=True)
+        print("Info to ptp:")
+        for key, value in torrent_info.items():
+            print(f"{key}: [cyan][bold]{value}[/]")
         self.groupid = torrent_info.get("groupid")
 
-        r = self.session.get("https://passthepopcorn.me/upload.php", params={"groupid": self.groupid})
+        r = self.session.get(
+            "https://passthepopcorn.me/upload.php", params={"groupid": self.groupid}
+        )
 
         if not self.anti_csrf_token:
             soup = load_html(r.text)
@@ -189,10 +202,9 @@ class PassThePopcornUploader(Uploader):
         else:
             file = path
         mediainfo_obj = MediaInfo.parse(file)
-        no_eng_subs = (
-            all(not x.language.startswith("en") for x in mediainfo_obj.audio_tracks)
-            and all(not x.language.startswith("en") for x in mediainfo_obj.text_tracks)
-        )
+        no_eng_subs = all(
+            not x.language.startswith("en") for x in mediainfo_obj.audio_tracks
+        ) and all(not x.language.startswith("en") for x in mediainfo_obj.text_tracks)
 
         snapshot_urls = []
         for snap in snapshots:
@@ -203,7 +215,8 @@ class PassThePopcornUploader(Uploader):
                         "file-upload[]": fd,
                     },
                     data={
-                        "api_key": self.config.get(self, "ptpimg_api_key") or os.environ.get("PTPIMG_API_KEY"),
+                        "api_key": self.config.get(self, "ptpimg_api_key")
+                        or os.environ.get("PTPIMG_API_KEY"),
                     },
                     headers={
                         "Referer": "https://ptpimg.me/index.php",
@@ -212,7 +225,9 @@ class PassThePopcornUploader(Uploader):
                 )
                 r.raise_for_status()
                 res = r.json()
-                snapshot_urls.append(f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}')
+                snapshot_urls.append(
+                    f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}'
+                )
 
         if re.search(r"\.S\d+\.", str(path)):
             print("Detected series")
@@ -260,9 +275,15 @@ class PassThePopcornUploader(Uploader):
             "type": type_,
             "imdb": imdb,
             "image": imdb_movie.data["cover url"],
-            "remaster_title": " / ".join({v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}),
+            "remaster_title": " / ".join(
+                {v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}
+            ),
             "remaster_year": "",
-            **({"internalrip": "on"} if tag in self.config.get(self, "personal_rip_tags", []) else {}),
+            **(
+                {"internalrip": "on"}
+                if tag in self.config.get(self, "personal_rip_tags", [])
+                else {}
+            ),
             "source": source,
             "other_source": "",
             "codec": "* Auto-detect",
@@ -296,7 +317,13 @@ class PassThePopcornUploader(Uploader):
                 "groupid": self.groupid,
             },
             data=self.data,
-            files={"file_input": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent")},
+            files={
+                "file_input": (
+                    torrent_path.name,
+                    torrent_path.open("rb"),
+                    "application/x-bittorrent",
+                )
+            },
         )
         soup = load_html(r.text)
         if error := soup.select_one(".alert--error"):
