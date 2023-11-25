@@ -78,7 +78,7 @@ class nCoreUploader(Uploader):
         headers = dict()
         if self.config.get(self, "use_kek_api_key", True):
             headers = {
-                # "x-kek-auth": "WOJCS1sFhuBbqejq.oc5ylmAowdXbD8Bvz,gxFA3Gpqs5laWoRMQZ"
+                "x-kek-auth": "WOJCS1sFhuBbqejq.oc5ylmAowdXbD8Bvz,gxFA3Gpqs5laWoRMQZ"
             }
 
         res = self.client.post(
