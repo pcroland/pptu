@@ -89,24 +89,21 @@ class nCoreUploader(Uploader):
 
         return f"https://i.kek.sh/{res['filename']}" if res.get("filename") else ""
 
+
     def link_shortener(self, url: Union[str, None]) -> Optional[str]:
-        if url:
-            url = url.replace("www.", "").replace("http://", "https://")
+        url = url.replace("www.", "").replace("http://", "https://")
 
-            if not url.startswith("https://"):
-                url = f"https://{url}"
+        if not url.startswith("https://"):
+            url = f"https://{url}"
 
-            if "imdb.com" in url:
-                url = re.sub(r"(.+tt\d+)(.+)", r"\1", url)
-                return url
+        if "imdb.com" in url:
+            return re.sub(r"(.+tt\d+)(.+)?", r"\1", url)
 
-            if "port.hu" in url:
-                url = re.sub(r"(film/tv/)(.+?)(/)", r"\1x\3", url)
-                return url
+        if "port.hu" in url:
+            return re.sub(r"(film/tv/)(.+?)(/)", r"\1x\3", url)
 
-            if "mafab.hu" in url:
-                url = re.sub(r"(/movies/)(.+?)(-[\d]+).+", r"\1x\3", url)
-                return url
+        if "mafab.hu" in url:
+            return re.sub(r"(/movies/)(.+?)(-[\d]+)(.+)?", r"\1x\3", url)
 
         return url
 
@@ -248,7 +245,6 @@ class nCoreUploader(Uploader):
             return_data["info"] = info_.text.strip()
         if link and not return_data.get("description"):
             id: str = link.split("-")[-1].strip(".html")
-            print(id)
             res = self.client.post(
                 url="https://www.mafab.hu/includes/jquery/movies_ajax.php",
                 data={
@@ -374,20 +370,23 @@ class nCoreUploader(Uploader):
             transport=httpx.HTTPTransport(
                 retries=5, proxy=self.config.get(self, "proxy")
             ),
+            follow_redirects = True
         )
-
+        typ = ""
         if (
             re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path))
             or gi["type"] == "episode"
         ):
-            print("Detected episode")
+            typ = "episode"
             type_ = "ser"
         elif re.search(r"\.S\d+\.", str(path)) or gi["type"] == "season":
-            print("Detected season")
+            typ = "season"
             type_ = "ser"
         else:
-            print("Detected movie")
+            typ = "movie"
             type_ = ""
+
+        print(f"Detected: [bold cyan]{typ}[/]")
 
         if path.is_dir():
             self.nfo_file = sorted([*path.glob("*.nfo")])
@@ -396,9 +395,12 @@ class nCoreUploader(Uploader):
                 urls = self.extract_nfo_urls(
                     Path(self.nfo_file).read_text(encoding="CP437", errors="ignore")
                 )
-                imdb_id = next(
-                    (x.split("/")[-2] for x in urls if "imdb.com" in x), None
+                imdb_id: Optional[str] = None
+                imdb_url = next(
+                    (x for x in urls if "imdb.com" in x), None
                 )
+                if imdb_url:
+                    imdb_id = find(r"title/tt(\d+)", imdb_url)
             else:
                 self.nfo_file = Path(path / f"{release_name}.nfo")
                 with self.nfo_file.open("w", encoding="ascii") as f:
@@ -423,6 +425,8 @@ class nCoreUploader(Uploader):
 
         if imdb_id and "tt" not in imdb_id:
             imdb_id = f"tt{imdb_id}"
+            
+        print(f"IMDb ID: [bold cyan]{imdb_id}[/]")
 
         self.imdb_ajax_data = self.session.get(
             url=f"https://ncore.pro/ajax.php?action=imdb_movie&imdb_movie={imdb_id.strip('tt')}",
@@ -440,10 +444,16 @@ class nCoreUploader(Uploader):
                 eprint("MediaInfo parsing failed.", exit_code=1)
 
         video = first_or_none(x for x in mediainfo_ if x["@type"] == "Video")
-        if video and (int(video["Height"]) < 720):
-            type_ = "xvid" + type_
+        if size := (gi.get("screen_size") or video and video["Height"]):
+            if int(size.strip("p")) < 720:
+                type_ = "xvid" + type_
+            else:
+                type_ = "hd" + type_
         else:
-            type_ = "hd" + type_
+            print("Unable to determine video resolution.")
+            return False
+        print(f"Type: [bold cyan]{type_}[/]")
+
         audios = (x for x in mediainfo_ if x["@type"] == "Audio")
         for num, audio in enumerate(audios, 1):
             lang = audio["Language"]
@@ -520,7 +530,7 @@ class nCoreUploader(Uploader):
         description = description.strip()
 
         # if name is too long, put it in the description
-        if len(release_name) > 83:
+        if len(release_name) > 84:
             description = f"[center][highlight][size=10pt]{release_name}[/size][/highlight][/center]\n\n\n{description}"
 
         self.data = {
