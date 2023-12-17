@@ -38,6 +38,14 @@
     <td><img src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png" width="14" /> Yes, if IP whitelisted in profile or 2FA enabled</td>
   </tr>
   <tr>
+    <th>nCore</th>
+    <td align="center"><code>nC</code></td>
+    <td align="center">Credentials/<br />Cookies</td>
+    <td align="center"><img src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png" width="14" /> No</td>
+    <td align="center"><img src="https://github.githubassets.com/images/icons/emoji/unicode/274c.png" width="14" /> No</td>
+    <td><img src="https://github.githubassets.com/images/icons/emoji/unicode/2714.png" width="14" /> Yes</td>
+  </tr>
+    <tr>
     <th>PassThePopcorn</th>
     <td align="center"><code>PTP</code></td>
     <td align="center">Credentials/<br />Cookies</td>
@@ -96,19 +104,23 @@ For cookie-based auth, place cookies in `~/.local/share/pptu/cookies/TRACKER.txt
 ## Usage
 ```
 ❯ pptu -h
-pptu 2022.09.01
+pptu 2023.11.06
 
-USAGE: pptu [-h] [-v] -t ABBREV [-f] [-nf] [-a] [-s] file
+USAGE: pptu [-h] [-v] [-t ABBREV] [-f] [-nf] [-c] [-a] [-ds] [-s] [-n NOTE] [-lt]
 
 POSITIONAL ARGUMENTS:
-  file                   files/directories to create torrents for
+  path                      files/directories to create torrents for
 
 FLAGS:
-  -h, --help             show this help message and exit
-  -v, --version          show version and exit
-  -t, --trackers ABBREV  tracker(s) to upload torrents to (required)
-  -f, --fast-upload      only upload when every step is done for every input
-  -nf, --no-fast-upload  disable fast upload even if enabled in config
-  -a, --auto             upload without confirmation
-  -s, --skip-upload      skip upload
+  -h, --help                show this help message and exit
+  -v, --version             show version and exit
+  -t, --trackers ABBREV     tracker(s) to upload torrents to (required)
+  -f, --fast-upload         only upload when every step is done for every input
+  -nf, --no-fast-upload     disable fast upload even if enabled in config
+  -c, --confirm             ask for confirmation before uploading
+  -a, --auto                never prompt for user input
+  -ds, --disable-snapshots  disable creating snapshots to description
+  -s, --skip-upload         skip upload
+  -n, --note NOTE           note to add to upload
+  -lt, --list-trackers      list supported trackers
 ```
