@@ -46,6 +46,7 @@ username = ""
 password = ""
 #passkey = ""  # auto-detected
 use_kek_api_key = true  # true if upload to shared account
+kek_api_key = ""
 totp_secret = ""
 description = true # port, mafab, true, false
 snapshot_rows = 3 # default is 3 suggested to not use more
