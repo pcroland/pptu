@@ -244,7 +244,7 @@ class nCoreUploader(Uploader):
         if info and (info_ := info.find("p") or info.find("span")):
             return_data["info"] = info_.text.strip()
         if link and not return_data.get("description"):
-            id: str = link.split("-")[-1].strip(".html")
+            id: str = link.split("-")[-1].rstrip(".html")
             res = self.client.post(
                 url="https://www.mafab.hu/includes/jquery/movies_ajax.php",
                 data={
@@ -445,7 +445,7 @@ class nCoreUploader(Uploader):
 
         video = first_or_none(x for x in mediainfo_ if x["@type"] == "Video")
         if size := (gi.get("screen_size") or video and video["Height"]):
-            if int(size.strip("p")) < 720:
+            if int(size.strip("ip")) < 720:
                 type_ = "xvid" + type_
             else:
                 type_ = "hd" + type_
@@ -533,6 +533,8 @@ class nCoreUploader(Uploader):
         if len(release_name) > 84:
             description = f"[center][highlight][size=10pt]{release_name}[/size][/highlight][/center]\n\n\n{description}"
 
+        en_title = self.ajax_parser("movie_angol_cim")
+
         self.data = {
             "getUnique": self.get_unique,
             "eredeti": "igen",
@@ -551,9 +553,9 @@ class nCoreUploader(Uploader):
             "megjelent": self.ajax_parser("movie_megjelenes_eve") or year,
             "orszag": self.ajax_parser("movie_orszag"),
             "hossz": self.ajax_parser("movie_hossz"),
-            "film_magyar_cim": self.ajax_parser("movie_magyar_cim") or hun_name,
-            "film_angol_cim": self.ajax_parser("movie_angol_cim"),
-            "film_idegen_cim": self.ajax_parser("movie_magyar_cim") or hun_name,
+            "film_magyar_cim": self.ajax_parser("movie_magyar_cim") or hun_name if en_title != hun_name else "",
+            "film_angol_cim": en_title,
+            "film_idegen_cim": self.ajax_parser("movie_magyar_cim") or hun_name if en_title != hun_name else "",
             "rendezo": self.ajax_parser("movie_rendezo"),
             "szereplok": self.ajax_parser("movie_szereplok"),
             "szezon": "",
