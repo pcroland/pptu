@@ -7,20 +7,23 @@ snapshot_columns = 2
 snapshot_rows = 2
 snapshot_row_width = 1000 # will be lowered if it's higher than the site's width for the torrent page
 
-# Credentials below are required unless you save cookies instead.
+[img_uploaders]
+kek_api_key = "" # will be used if provided for higher image size
+ptpimg_api_key = "" # required if uploader is "ptpimg"
 
+# Credentials below are required unless you save cookies instead.
 [avistaz]
 username = ""
 password = ""
 totp_secret = ""
+anonymous_upload = true
 # proxy = "http://user:pass@example.com:6060"
-# anonymous_upload = true # default is true
 
 [broadcasthenet]
 username = ""
 password = ""
 totp_secret = ""
-img_to_kek = false # optional, if you want your uploads to include screenshots, now only for smaller images (kek.sh)
+img_uploader = "kek"
 fasttorrent = true # set to false if <24 Mbps upload speed
 # proxy = "http://user:pass@example.com:6060"
 
@@ -34,15 +37,14 @@ totp_secret = ""
 username = ""
 password = ""
 passkey = "" # required for credential auth, auto-detected when using cookies
-ptpimg_api_key = "" # required
-# proxy = "http://user:pass@example.com:6060"
+img_uploader = "ptpimg"
 # personal_rip_tags = ["MYGRP"]
+# proxy = "http://user:pass@example.com:6060"
 
 [ncore]
 username = ""
 password = ""
-use_kek_api_key = true # true if upload to shared account
-kek_api_key = ""
+img_uploader = "kek"
 totp_secret = ""
 description = true # port, mafab, true, false
 snapshot_rows = 3 # default is 3 suggested to not use more
