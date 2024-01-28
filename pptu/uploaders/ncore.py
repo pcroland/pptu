@@ -32,6 +32,7 @@ from ..utils import (
     find,
     first_or_none,
     first,
+    Img,
 )
 from . import Uploader
 
@@ -70,25 +71,6 @@ class nCoreUploader(Uploader):
         id = find(r'<a href="exit.php\?q=(.*)" id="menu_11" class="menu_link">', data)
 
         return id if id else ""
-
-    def keksh(self, file) -> Optional[str]:
-        """
-        Uploads a file to kek.sh and returns the URL of the uploaded file.
-        """
-        headers = dict()
-        if self.config.get(self, "use_kek_api_key", True):
-            headers = {
-                "x-kek-auth": self.config.get(self, "kek_api_key")
-            }
-
-        res = self.client.post(
-            url="https://kek.sh/api/v1/posts",
-            headers=headers,
-            files={"file": open(file, "rb")},
-        ).json()
-
-        return f"https://i.kek.sh/{res['filename']}" if res.get("filename") else ""
-
 
     def link_shortener(self, url: Union[str, None]) -> Optional[str]:
         url = url.replace("www.", "").replace("http://", "https://")
@@ -470,6 +452,7 @@ class nCoreUploader(Uploader):
         thumbnails_str: str = ""
 
         if snapshots[0:-3]:
+            uploader = Img(self)
             thumbnails_str += "[spoiler=Screenshots][center]"
             with Progress(
                 TextColumn("[progress.description]{task.description}[/]"),
@@ -482,7 +465,8 @@ class nCoreUploader(Uploader):
                 for snap in progress.track(
                     snapshots[0:-3], description="Uploading snapshots"
                 ):
-                    snapshot_urls.append(self.keksh(snap))
+                    res = uploader.upload(snap)
+                    snapshot_urls.append(f"https://i.kek.sh/{res['filename']}" if res.get("filename") else "")
 
             thumbnail_row_width = min(
                 660, self.config.get(self, "snapshot_row_width", 660)
@@ -496,7 +480,8 @@ class nCoreUploader(Uploader):
             )
 
             for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
-                thumbnail_urls.append(self.keksh(thumb))
+                res = uploader.upload(thumb)
+                thumbnail_urls.append(f"https://i.kek.sh/{res['filename']}" if res.get("filename") else "")
 
             for i in range(len(snapshots) - 3):
                 snap = snapshot_urls[i]

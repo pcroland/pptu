@@ -9,7 +9,7 @@ snapshot_row_width = 1000 # will be lowered if it's higher than the site's width
 
 # Image uploaders
 [img_uploaders]
-kek_api_key = "" # will be used if provided for higher image size
+keksh_api_key = "" # will be used if provided for higher image size
 ptpimg_api_key = "" # required if uploader is "ptpimg"
 
 # Site credentials and settings
@@ -25,7 +25,7 @@ anonymous_upload = true
 username = ""
 password = ""
 totp_secret = ""
-img_uploader = "kek"
+img_uploader = "keksh"
 fasttorrent = true # set to false if <24 Mbps upload speed
 # proxy = "http://user:pass@example.com:6060"
 
@@ -46,7 +46,7 @@ img_uploader = "ptpimg"
 [ncore]
 username = ""
 password = ""
-img_uploader = "kek"
+img_uploader = "keksh"
 totp_secret = ""
 description = true # port, mafab, true, false
 snapshot_rows = 3 # default is 3 suggested to not use more

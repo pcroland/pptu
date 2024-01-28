@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import re
+import os
 import sys
 import shutil
 import itertools
@@ -48,9 +49,11 @@ class Config:
             eprint(
                 f"Config file doesn't exist, created to: [cyan]{file}[/]", fatal=True)  # noqa: E501
 
-    def get(self, tracker: Uploader | Literal["default"], key: str, default: Any = None) -> Any:
+    def get(self, tracker: Uploader | Literal["default"] | str, key: str, default: Any = None) -> Any:
         value = None
-        if tracker != "default":
+        if isinstance(tracker, str) and tracker != "default":
+            value = self._config.get(tracker, {}).get(key)
+        elif tracker != "default":
             value = self._config.get(tracker.name, {}).get(key) or self._config.get(tracker.abbrev, {}).get(key)
 
         if value is False:
@@ -104,6 +107,61 @@ class CustomTransferSpeedColumn(ProgressColumn):
         return Text(f"{data_speed}/s", style="progress.data.speed")
 
 
+class Img:
+    def __init__(self, tracker: Uploader):
+        self.tracker = tracker
+        self.uploader = tracker.config.get(tracker, "img_uploader")
+        key_ = f"{self.uploader}_api_key"
+        self.api_key = tracker.config.get("img_uploaders", key_, None) or os.environ.get(key_.upper()) or None
+
+    def keksh(self, file: str | Path) -> dict[Any, Any] | None:
+        with open(file, "rb") as fd:
+            headers = dict()
+            if self.api_key:
+                headers = {
+                    "x-kek-auth": self.api_key
+                }
+
+            r = self.tracker.session.post(
+                url="https://kek.sh/api/v1/posts",
+                headers=headers,
+                files={
+                    "file": fd
+                },
+                timeout=60,
+            )
+            r.raise_for_status()
+
+            return r.json()
+
+    def ptpimg(self, file: str | Path) -> dict[Any, Any] | None:
+        with open(file, "rb") as fd:
+            r = self.tracker.session.post(
+                url="https://ptpimg.me/upload.php",
+                files={
+                    "file-upload[]": fd,
+                },
+                data={
+                    "api_key": self.api_key,
+                },
+                headers={
+                    "Referer": "https://ptpimg.me/index.php",
+                },
+                timeout=60,
+            )
+            r.raise_for_status()
+
+            return r.json()
+
+    def upload(self, file: str | Path) -> dict[Any, Any]:
+        if self.uploader == "keksh":
+            return self.keksh(file)
+        elif self.uploader == "ptpimg":
+            return self.ptpimg(file)
+        else:
+            return {}
+
+
 def flatten(L: Iterable[Any]) -> list[Any]:
     # https://stackoverflow.com/a/952952/492203
     return [item for sublist in L for item in sublist]
@@ -149,18 +207,18 @@ def load_html(text: str) -> BeautifulSoup:
     return BeautifulSoup(text, "lxml-html")
 
 
-def first_or_else(iterable, default):
+def first_or_else(iterable, default) -> str | None:
     item = next(iter(iterable or []), None)
     if item is None:
         return default
     return item
 
 
-def first_or_none(iterable):
+def first_or_none(iterable) -> Any | None:
     return first_or_else(iterable, None)
 
 
-def find(pattern, string, group=None, flags=0):
+def find(pattern, string, group=None, flags=0) -> str | None:
     if group:
         if m := re.search(pattern, string, flags=flags):
             return m.group(group)
@@ -168,7 +226,7 @@ def find(pattern, string, group=None, flags=0):
         return first_or_none(re.findall(pattern, string, flags=flags))
 
 
-def first(iterable):
+def first(iterable) -> Any:
     return next(iter(iterable))
 
 
@@ -199,19 +257,19 @@ def generate_thumbnails(snapshots: list[Path], width: int = 300, file_type: str 
     return thumbnails
 
 
-def pluralize(count, singular, plural=None, include_count=True):
+def pluralize(count: int, singular: int, plural=None, include_count=True) -> str | Any:
     plural = plural or f"{singular}s"
     form = singular if count == 1 else plural
     return f"{count} {form}" if include_count else form
 
 
-def as_lists(*args):
+def as_lists(*args: Any) -> Any:
     """Convert any input objects to list objects."""
     for item in args:
         yield item if isinstance(item, list) else [item]
 
 
-def as_list(*args):
+def as_list(*args: Any) -> list[Any]:
     """
     Convert any input objects to a single merged list object.
 

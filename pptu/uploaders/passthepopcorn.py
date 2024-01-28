@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import os
 import re
 from typing import TYPE_CHECKING, Optional
 
@@ -10,7 +9,7 @@ from pyotp import TOTP
 from rich.markup import escape
 from rich.prompt import Prompt
 
-from ..utils import eprint, load_html, print, wprint
+from ..utils import eprint, load_html, print, wprint, Img
 from . import Uploader
 
 
@@ -47,6 +46,7 @@ class PassThePopcornUploader(Uploader):
         r"\bHDR": "HDR10",
         r"(?i)\bHDR10(?:\+|P(?:lus)?)\b": "HDR10+",
         r"(?i)\.remux\.": "Remux",
+        r"(?i)\.Hybrid\.": "Hybrid",
     }
 
     def __init__(self) -> None:
@@ -207,27 +207,12 @@ class PassThePopcornUploader(Uploader):
         ) and all(not x.language.startswith("en") for x in mediainfo_obj.text_tracks)
 
         snapshot_urls = []
+        uploader = Img(self)
         for snap in snapshots:
-            with open(snap, "rb") as fd:
-                r = self.session.post(
-                    url="https://ptpimg.me/upload.php",
-                    files={
-                        "file-upload[]": fd,
-                    },
-                    data={
-                        "api_key": self.config.get(self, "ptpimg_api_key")
-                        or os.environ.get("PTPIMG_API_KEY"),
-                    },
-                    headers={
-                        "Referer": "https://ptpimg.me/index.php",
-                    },
-                    timeout=60,
-                )
-                r.raise_for_status()
-                res = r.json()
-                snapshot_urls.append(
-                    f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}'
-                )
+            res = uploader.upload(snap)
+            snapshot_urls.append(
+                f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}'
+            )
 
         if re.search(r"\.S\d+\.", str(path)):
             print("Detected series")
