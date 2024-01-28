@@ -3,15 +3,17 @@ proxy = ""
 watch_dir = "~/rtorrent/watch/start"
 fast_upload = false
 snapshots = true
-snapshot_columns = 2
+snapshot_columns = 3
 snapshot_rows = 2
 snapshot_row_width = 1000 # will be lowered if it's higher than the site's width for the torrent page
 
+# Image uploaders
 [img_uploaders]
 kek_api_key = "" # will be used if provided for higher image size
 ptpimg_api_key = "" # required if uploader is "ptpimg"
 
-# Credentials below are required unless you save cookies instead.
+# Site credentials and settings
+# Credentials below are required unless you uses cookies instead.
 [avistaz]
 username = ""
 password = ""
