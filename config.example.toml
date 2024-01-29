@@ -33,6 +33,7 @@ fasttorrent = true # set to false if <24 Mbps upload speed
 username = ""
 password = ""
 totp_secret = ""
+img_uploader = "hdbimg"
 # proxy = "http://user:pass@example.com:6060"
 
 [passthepopcorn]
