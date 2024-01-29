@@ -207,16 +207,14 @@ class Img:
         return res
 
     def upload(self, files: list[Path], thumbnail_width: int | None = None, name: str | None = None) ->  list[Any | dict[Any, Any] | None] | None:
-            if self.uploader == "keksh":
-                return self.keksh(files)
-            elif self.uploader == "ptpimg":
-                return self.ptpimg(files)
-            elif self.uploader == "hdbimg":
-                return self.hdbimg(files, thumbnail_width, name)
-            else:
-                return []
-
-        return []
+        if self.uploader == "keksh":
+            return self.keksh(files)
+        elif self.uploader == "ptpimg":
+            return self.ptpimg(files)
+        elif self.uploader == "hdbimg":
+            return self.hdbimg(files, thumbnail_width, name)
+        else:
+            return []
 
 
 def flatten(L: Iterable[Any]) -> list[Any]:
