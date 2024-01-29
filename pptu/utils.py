@@ -158,18 +158,17 @@ class Img:
             for snap in progress.track(
                 files, description="Uploading snapshots"
             ):
-                r = self.tracker.session.post(
-                    url="https://kek.sh/api/v1/posts",
-                    headers=headers,
-                    files={
-                        "file": stack.enter_context(  # type: ignore[misc]
-                            snap.open("rb")
-                        )
-                    },
-                    timeout=60,
-                )
-                r.raise_for_status()
-                res.append(r.json())
+                with open(snap, "rb") as fd:
+                    r = self.tracker.session.post(
+                        url="https://kek.sh/api/v1/posts",
+                        headers=headers,
+                        files={
+                            "file": fd,
+                        },
+                        timeout=60,
+                    )
+                    r.raise_for_status()
+                    res.append(r.json())
 
         return res
 
@@ -186,23 +185,22 @@ class Img:
             for snap in progress.track(
                 files, description="Uploading snapshots"
             ):
-                r = self.tracker.session.post(
-                    url="https://ptpimg.me/upload.php",
-                    files={
-                        "file-upload[]": stack.enter_context(  # type: ignore[misc]
-                            snap.open("rb")
-                        ),
-                    },
-                    data={
-                        "api_key": self.api_key,
-                    },
-                    headers={
-                        "Referer": "https://ptpimg.me/index.php",
-                    },
-                    timeout=60,
-                )
-                r.raise_for_status()
-                res.append(r.json())
+                with open(snap, "rb") as fd:
+                    r = self.tracker.session.post(
+                        url="https://ptpimg.me/upload.php",
+                        files={
+                            "file-upload[]": fd,
+                        },
+                        data={
+                            "api_key": self.api_key,
+                        },
+                        headers={
+                            "Referer": "https://ptpimg.me/index.php",
+                        },
+                        timeout=60,
+                    )
+                    r.raise_for_status()
+                    res.append(r.json())
 
         return res
 
