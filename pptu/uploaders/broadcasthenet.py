@@ -311,25 +311,18 @@ class BroadcasTheNetUploader(Uploader):
             release_name = release_name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
 
         thumbnails_str = ""
-        if self.config.get(self, "img_to_kek"):
-            with Progress(
-                TextColumn("[progress.description]{task.description}[/]"),
-                BarColumn(),
-                MofNCompleteColumn(),
-                TaskProgressColumn(),
-                TimeRemainingColumn(elapsed_when_finished=True),
-            ) as progress:
-                snapshot_urls = []
-                for snap in progress.track(snapshots, description="Uploading snapshots"):
-                    snapshot_urls.append(self.keksh(snap))
+        if self.config.get(self, "img_uploader"):
+            snapshot_urls = []
+            for snap in uploader.upload(snapshots):
+                snapshot_urls.append(f"https://i.kek.sh/{snap['filename']}" if snap.get("filename") else "")
 
             thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
             thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
             thumbnail_urls = []
-            thumbnails = generate_thumbnails(snapshots, width=thumbnail_width)
+            thumbnails = generate_thumbnails(snapshots, file_type="jpg", width=thumbnail_width)
 
-            for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
-                thumbnail_urls.append(self.keksh(thumb))
+            for thumb in uploader.upload(thumbnails):
+                thumbnail_urls.append(f"https://i.kek.sh/{thumb['filename']}" if thumb.get("filename") else "")
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]
