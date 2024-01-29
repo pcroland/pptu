@@ -12,7 +12,7 @@ from pyotp import TOTP
 from rich.console import Console
 from rich.prompt import Prompt
 
-from ..utils import eprint, load_html, print, wprint
+from ..utils import eprint, load_html, print, wprint, Img
 from . import Uploader
 
 
@@ -289,27 +289,8 @@ class HDBitsUploader(Uploader):
         thumbnail_width = max(x for x in allowed_widths if x <= thumbnail_width)
 
         thumbnails_str = ""
-        with Console().status("Uploading snapshots..."), contextlib.ExitStack() as stack:
-            r = self.session.post(
-                url="https://img.hdbits.org/upload_api.php",
-                files={
-                    **{
-                        f"images_files[{i}]": stack.enter_context(  # type: ignore[misc]
-                            snap.open("rb")
-                        ) for i, snap in enumerate(snapshots)
-                    },
-                    "thumbsize": f"w{thumbnail_width}",
-                    "galleryoption": "1",
-                    "galleryname": name,
-                },
-                timeout=60,
-            )
-        res = r.text
-        if res.startswith("error"):
-            error = re.sub(r"^error: ", "", res)
-            eprint(f"Snapshot upload failed: [cyan]{error}[/cyan]")
-            return False
-        for i, url in enumerate(res.split()):
+        uploader = Img(self)
+        for i, url in enumerate(uploader.upload(self, thumbnail_width, name)):
             thumbnails_str += url
             if i % self.config.get(self, "snapshot_columns", 2) == 0:
                 thumbnails_str += " "
@@ -327,7 +308,7 @@ class HDBitsUploader(Uploader):
             "codec": self.CODEC_MAP[codec],
             "medium": self.MEDIUM_MAP[medium],
             "origin": 0,  # TODO: Support internal
-            "descr": description,
+            "descr": description if thumbnails_str else "",
             "techinfo": mediainfo,
             "tags[]": tags,
             "imdb": imdb,

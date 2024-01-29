@@ -208,10 +208,9 @@ class PassThePopcornUploader(Uploader):
 
         snapshot_urls = []
         uploader = Img(self)
-        for snap in snapshots:
-            res = uploader.upload(snap)
+        for snap in uploader.upload(snapshots):
             snapshot_urls.append(
-                f'https://ptpimg.me/{res[0]["code"]}.{res[0]["ext"]}'
+                f'https://ptpimg.me/{snap[0]["code"]}.{snap[0]["ext"]}'
             )
 
         if re.search(r"\.S\d+\.", str(path)):

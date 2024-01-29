@@ -454,19 +454,9 @@ class nCoreUploader(Uploader):
         if snapshots[0:-3]:
             uploader = Img(self)
             thumbnails_str += "[spoiler=Screenshots][center]"
-            with Progress(
-                TextColumn("[progress.description]{task.description}[/]"),
-                BarColumn(),
-                MofNCompleteColumn(),
-                TaskProgressColumn(),
-                TimeRemainingColumn(elapsed_when_finished=True),
-            ) as progress:
-                snapshot_urls = []
-                for snap in progress.track(
-                    snapshots[0:-3], description="Uploading snapshots"
-                ):
-                    res = uploader.upload(snap)
-                    snapshot_urls.append(f"https://i.kek.sh/{res['filename']}" if res.get("filename") else "")
+            snapshot_urls = []
+            for snap in uploader.upload(snapshots[0:-3]):
+                snapshot_urls.append(f"https://i.kek.sh/{snap['filename']}" if snap.get("filename") else "")
 
             thumbnail_row_width = min(
                 660, self.config.get(self, "snapshot_row_width", 660)
@@ -478,10 +468,9 @@ class nCoreUploader(Uploader):
             thumbnails = generate_thumbnails(
                 snapshots[0:-3], width=thumbnail_width, file_type="jpg"
             )
-
-            for thumb in progress.track(thumbnails, description="Uploading thumbnails"):
-                res = uploader.upload(thumb)
-                thumbnail_urls.append(f"https://i.kek.sh/{res['filename']}" if res.get("filename") else "")
+            snapshot_urls = []
+            for thumb in thumbnails:
+                snapshot_urls.append(f"https://i.kek.sh/{thumb['filename']}" if thumb.get("filename") else "")
 
             for i in range(len(snapshots) - 3):
                 snap = snapshot_urls[i]

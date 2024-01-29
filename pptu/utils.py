@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import argparse
+import contextlib
 import re
 import os
 import sys
 import shutil
 import itertools
+from contextlib import ExitStack
 from typing import (
-    TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload
+    TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload, Pattern
 )
 
 import humanize
@@ -114,32 +116,62 @@ class Img:
         key_ = f"{self.uploader}_api_key"
         self.api_key = tracker.config.get("img_uploaders", key_, None) or os.environ.get(key_.upper()) or None
 
-    def keksh(self, file: str | Path) -> dict[Any, Any] | None:
-        with open(file, "rb") as fd:
-            headers = dict()
-            if self.api_key:
-                headers = {
-                    "x-kek-auth": self.api_key
-                }
+    def hdbimg(self, files: list[Path], stack: ExitStack, thumbnail_width: int = 220, name: str = "") -> list[Any | None] | None:
+        r = self.tracker.session.post(
+            url="https://img.hdbits.org/upload_api.php",
+            files={
+                **{
+                    f"images_files[{i}]": stack.enter_context(  # type: ignore[misc]
+                        snap.open("rb")
+                    ) for i, snap in enumerate(files)
+                },
+                "thumbsize": f"w{thumbnail_width}",
+                "galleryoption": "1",
+                "galleryname": name,
+            },
+            timeout=60,
+        )
+        res = r.text
+        if res.startswith("error"):
+            error = re.sub(r"^error: ", "", res)
+            eprint(f"Snapshot upload failed: [cyan]{error}[/cyan]")
+            return []
 
+        return res.split()
+
+    def keksh(self, files: list[Path], stack: ExitStack) -> list[dict[Any, Any] | None] | None:
+        res = []
+        headers = dict()
+        if self.api_key:
+            headers = {
+                "x-kek-auth": self.api_key
+            }
+
+        for snap in files:
             r = self.tracker.session.post(
                 url="https://kek.sh/api/v1/posts",
                 headers=headers,
                 files={
-                    "file": fd
+                    "file": stack.enter_context(  # type: ignore[misc]
+                        snap.open("rb")
+                    )
                 },
                 timeout=60,
             )
             r.raise_for_status()
+            res.append(r.json())
 
-            return r.json()
+        return res
 
-    def ptpimg(self, file: str | Path) -> dict[Any, Any] | None:
-        with open(file, "rb") as fd:
+    def ptpimg(self, files: list[Path], stack: ExitStack) -> list[dict[Any, Any] | None] | None:
+        res = []
+        for snap in files:
             r = self.tracker.session.post(
                 url="https://ptpimg.me/upload.php",
                 files={
-                    "file-upload[]": fd,
+                    "file-upload[]": stack.enter_context(  # type: ignore[misc]
+                        snap.open("rb")
+                    ),
                 },
                 data={
                     "api_key": self.api_key,
@@ -150,16 +182,22 @@ class Img:
                 timeout=60,
             )
             r.raise_for_status()
+            res.append(r.json())
 
-            return r.json()
+        return res
 
-    def upload(self, file: str | Path) -> dict[Any, Any]:
-        if self.uploader == "keksh":
-            return self.keksh(file)
-        elif self.uploader == "ptpimg":
-            return self.ptpimg(file)
-        else:
-            return {}
+    def upload(self, files: list[Path], thumbnail_width: int | None = None, name: str | None = None) ->  list[Any | dict[Any, Any] | None] | None:
+        with Console().status("Uploading snapshots..."), contextlib.ExitStack() as stack:
+            if self.uploader == "keksh":
+                return self.keksh(files, stack)
+            elif self.uploader == "ptpimg":
+                return self.ptpimg(files, stack)
+            elif self.uploader == "hdbimg":
+                return self.hdbimg(files, stack, thumbnail_width, name)
+            else:
+                return []
+
+        return []
 
 
 def flatten(L: Iterable[Any]) -> list[Any]:
@@ -207,18 +245,18 @@ def load_html(text: str) -> BeautifulSoup:
     return BeautifulSoup(text, "lxml-html")
 
 
-def first_or_else(iterable, default) -> str | None:
+def first_or_else(iterable: Iterable[Any], default: Any) -> Any | None:
     item = next(iter(iterable or []), None)
     if item is None:
         return default
     return item
 
 
-def first_or_none(iterable) -> Any | None:
+def first_or_none(iterable: Iterable[Any]) -> Any | None:
     return first_or_else(iterable, None)
 
 
-def find(pattern, string, group=None, flags=0) -> str | None:
+def find(pattern: Pattern, string: str, group: int | None = None, flags: Any = 0) -> str | None:
     if group:
         if m := re.search(pattern, string, flags=flags):
             return m.group(group)
@@ -226,7 +264,7 @@ def find(pattern, string, group=None, flags=0) -> str | None:
         return first_or_none(re.findall(pattern, string, flags=flags))
 
 
-def first(iterable) -> Any:
+def first(iterable: Iterable[Any]) -> Any:
     return next(iter(iterable))
 
 
