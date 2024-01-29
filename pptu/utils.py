@@ -7,7 +7,6 @@ import os
 import sys
 import shutil
 import itertools
-from contextlib import ExitStack
 from typing import (
     TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload, Pattern
 )
@@ -116,21 +115,22 @@ class Img:
         key_ = f"{self.uploader}_api_key"
         self.api_key = tracker.config.get("img_uploaders", key_, None) or os.environ.get(key_.upper()) or None
 
-    def hdbimg(self, files: list[Path], stack: ExitStack, thumbnail_width: int = 220, name: str = "") -> list[Any | None] | None:
-        r = self.tracker.session.post(
-            url="https://img.hdbits.org/upload_api.php",
-            files={
-                **{
-                    f"images_files[{i}]": stack.enter_context(  # type: ignore[misc]
-                        snap.open("rb")
-                    ) for i, snap in enumerate(files)
+    def hdbimg(self, files: list[Path], thumbnail_width: int = 220, name: str = "") -> list[Any | None] | None:
+        with Console().status("Uploading snapshots..."), contextlib.ExitStack() as stack:
+            r = self.tracker.session.post(
+                url="https://img.hdbits.org/upload_api.php",
+                files={
+                    **{
+                        f"images_files[{i}]": stack.enter_context(  # type: ignore[misc]
+                            snap.open("rb")
+                        ) for i, snap in enumerate(files)
+                    },
+                    "thumbsize": f"w{thumbnail_width}",
+                    "galleryoption": "1",
+                    "galleryname": name,
                 },
-                "thumbsize": f"w{thumbnail_width}",
-                "galleryoption": "1",
-                "galleryname": name,
-            },
-            timeout=60,
-        )
+                timeout=60,
+            )
         res = r.text
         if res.startswith("error"):
             error = re.sub(r"^error: ", "", res)
@@ -139,61 +139,80 @@ class Img:
 
         return res.split()
 
-    def keksh(self, files: list[Path], stack: ExitStack) -> list[dict[Any, Any] | None] | None:
+    def keksh(self, files: list[Path]) -> list[dict[Any, Any] | None] | None:
         res = []
         headers = dict()
+
         if self.api_key:
             headers = {
                 "x-kek-auth": self.api_key
             }
 
-        for snap in files:
-            r = self.tracker.session.post(
-                url="https://kek.sh/api/v1/posts",
-                headers=headers,
-                files={
-                    "file": stack.enter_context(  # type: ignore[misc]
-                        snap.open("rb")
-                    )
-                },
-                timeout=60,
-            )
-            r.raise_for_status()
-            res.append(r.json())
+        with Progress(
+            TextColumn("[progress.description]{task.description}[/]"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(elapsed_when_finished=True),
+        ) as progress:
+            for snap in progress.track(
+                files, description="Uploading snapshots"
+            ):
+                r = self.tracker.session.post(
+                    url="https://kek.sh/api/v1/posts",
+                    headers=headers,
+                    files={
+                        "file": stack.enter_context(  # type: ignore[misc]
+                            snap.open("rb")
+                        )
+                    },
+                    timeout=60,
+                )
+                r.raise_for_status()
+                res.append(r.json())
 
         return res
 
-    def ptpimg(self, files: list[Path], stack: ExitStack) -> list[dict[Any, Any] | None] | None:
+    def ptpimg(self, files: list[Path]) -> list[dict[Any, Any] | None] | None:
         res = []
-        for snap in files:
-            r = self.tracker.session.post(
-                url="https://ptpimg.me/upload.php",
-                files={
-                    "file-upload[]": stack.enter_context(  # type: ignore[misc]
-                        snap.open("rb")
-                    ),
-                },
-                data={
-                    "api_key": self.api_key,
-                },
-                headers={
-                    "Referer": "https://ptpimg.me/index.php",
-                },
-                timeout=60,
-            )
-            r.raise_for_status()
-            res.append(r.json())
+
+        with Progress(
+            TextColumn("[progress.description]{task.description}[/]"),
+            BarColumn(),
+            MofNCompleteColumn(),
+            TaskProgressColumn(),
+            TimeRemainingColumn(elapsed_when_finished=True),
+        ) as progress:
+            for snap in progress.track(
+                files, description="Uploading snapshots"
+            ):
+                r = self.tracker.session.post(
+                    url="https://ptpimg.me/upload.php",
+                    files={
+                        "file-upload[]": stack.enter_context(  # type: ignore[misc]
+                            snap.open("rb")
+                        ),
+                    },
+                    data={
+                        "api_key": self.api_key,
+                    },
+                    headers={
+                        "Referer": "https://ptpimg.me/index.php",
+                    },
+                    timeout=60,
+                )
+                r.raise_for_status()
+                res.append(r.json())
 
         return res
 
     def upload(self, files: list[Path], thumbnail_width: int | None = None, name: str | None = None) ->  list[Any | dict[Any, Any] | None] | None:
-        with Console().status("Uploading snapshots..."), contextlib.ExitStack() as stack:
             if self.uploader == "keksh":
-                return self.keksh(files, stack)
+                return self.keksh(files)
             elif self.uploader == "ptpimg":
-                return self.ptpimg(files, stack)
+                return self.ptpimg(files)
             elif self.uploader == "hdbimg":
-                return self.hdbimg(files, stack, thumbnail_width, name)
+                return self.hdbimg(files, thumbnail_width, name)
             else:
                 return []
 

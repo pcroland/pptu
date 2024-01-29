@@ -12,14 +12,6 @@ from guessit import guessit
 from pymediainfo import MediaInfo
 from imdb import Cinemagoer
 from pyotp import TOTP
-from rich.progress import (
-    BarColumn,
-    MofNCompleteColumn,
-    Progress,
-    TaskProgressColumn,
-    TextColumn,
-    TimeRemainingColumn,
-)
 from rich.prompt import Prompt
 from rich.status import Status
 
@@ -470,7 +462,7 @@ class nCoreUploader(Uploader):
             )
             snapshot_urls = []
             for thumb in uploader.upload(thumbnails):
-                snapshot_urls.append(f"https://i.kek.sh/{thumb['filename']}" if thumb.get("filename") else "")
+                thumbnail_urls.append(f"https://i.kek.sh/{thumb['filename']}" if thumb.get("filename") else "")
 
             for i in range(len(snapshots) - 3):
                 snap = snapshot_urls[i]
