@@ -469,7 +469,7 @@ class nCoreUploader(Uploader):
                 snapshots[0:-3], width=thumbnail_width, file_type="jpg"
             )
             snapshot_urls = []
-            for thumb in thumbnails:
+            for thumb in uploader.upload(thumbnails):
                 snapshot_urls.append(f"https://i.kek.sh/{thumb['filename']}" if thumb.get("filename") else "")
 
             for i in range(len(snapshots) - 3):
