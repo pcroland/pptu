@@ -12,7 +12,7 @@ from pyotp import TOTP
 from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from rich.prompt import Prompt
 
-from ..utils import eprint, generate_thumbnails, load_html, print, wprint
+from ..utils import eprint, generate_thumbnails, load_html, print, wprint, Img
 from . import Uploader
 
 
@@ -312,6 +312,7 @@ class BroadcasTheNetUploader(Uploader):
 
         thumbnails_str = ""
         if self.config.get(self, "img_uploader"):
+            uploader = Img(self)
             snapshot_urls = []
             for snap in uploader.upload(snapshots):
                 snapshot_urls.append(f"https://i.kek.sh/{snap['filename']}" if snap.get("filename") else "")
