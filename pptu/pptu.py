@@ -13,7 +13,14 @@ import torf
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
 from pyrosimple.util.metafile import Metafile
-from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+)
 from torf import Torrent
 from wand.image import Image
 
@@ -26,12 +33,13 @@ if TYPE_CHECKING:
 
 class PPTU:
     def __init__(
-        self, path: Path,
+        self,
+        path: Path,
         tracker: Uploader,
         *,
         note: Optional[str] = None,
         auto: bool = False,
-        snapshots: bool = False
+        snapshots: bool = False,
     ):
         self.path = path
         self.tracker = tracker
@@ -43,10 +51,16 @@ class PPTU:
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         self.config = Config(dirs.user_config_path / "config.toml")
 
-        self.torrent_path = self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
+        self.torrent_path = (
+            self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
+        )
         if snapshots and self.config.get(tracker, "snapshots", True):
             self.num_snapshots = max(
-                (self.config.get(tracker, "snapshot_columns", 2) * self.config.get(tracker, "snapshot_rows", 2) + tracker.snapshots_plus),
+                (
+                    self.config.get(tracker, "snapshot_columns", 2)
+                    * self.config.get(tracker, "snapshot_rows", 2)
+                    + tracker.snapshots_plus
+                ),
                 tracker.min_snapshots,
             )
         else:
@@ -60,9 +74,14 @@ class PPTU:
             eprint(f"Passkey not found for tracker [cyan]{self.tracker.name}[cyan].")
             return False
 
-        base_torrent_path = next(iter(
-            self.cache_dir.glob(glob.escape(f"{self.path.name}[") + "*" + glob.escape("].torrent"))
-        ), None)
+        base_torrent_path = next(
+            iter(
+                self.cache_dir.glob(
+                    glob.escape(f"{self.path.name}[") + "*" + glob.escape("].torrent")
+                )
+            ),
+            None,
+        )
 
         if self.torrent_path.exists():
             return True
@@ -100,13 +119,17 @@ class PPTU:
             ) as progress:
                 files = []
 
-                def update_progress(torrent: Torrent, filepath: str, pieces_done: int, pieces_total: int) -> None:
+                def update_progress(
+                    torrent: Torrent, filepath: str, pieces_done: int, pieces_total: int
+                ) -> None:
                     if filepath not in files:
                         print(f"Hashing {Path(filepath).name}...")
                         files.append(filepath)
 
                     progress.update(
-                        task, completed=pieces_done * torrent.piece_size, total=pieces_total * torrent.piece_size
+                        task,
+                        completed=pieces_done * torrent.piece_size,
+                        total=pieces_total * torrent.piece_size,
                     )
 
                 task = progress.add_task(description="")
@@ -167,7 +190,8 @@ class PPTU:
                 TimeRemainingColumn(elapsed_when_finished=True),
             ) as progress:
                 for i in progress.track(
-                    range(num_snapshots), description=f"[bold green]Generating snapshots ({self.tracker.abbrev})[/]"
+                    range(num_snapshots),
+                    description=f"[bold green]Generating snapshots ({self.tracker.abbrev})[/]",
                 ):
                     mediainfo_obj = MediaInfo.parse(files[i])
                     if not mediainfo_obj.video_tracks:
@@ -193,20 +217,32 @@ class PPTU:
                     )
 
                     if not snap.exists():
-                        subprocess.run([
-                            "ffmpeg",
-                            "-y",
-                            "-v", "error",
-                            "-ss", str(
-                                random.randint(round(interval * 10), round(interval * 10 * num_snapshots)) / 10
-                                if self.tracker.random_snapshots
-                                else str(interval * (j + 1))
-                            ),
-                            "-i", files[i],
-                            "-vf", "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
-                            "-frames:v", "1",
-                            snap,
-                        ], check=True)
+                        subprocess.run(
+                            [
+                                "ffmpeg",
+                                "-y",
+                                "-v",
+                                "error",
+                                "-ss",
+                                str(
+                                    random.randint(
+                                        round(interval * 10),
+                                        round(interval * 10 * num_snapshots),
+                                    )
+                                    / 10
+                                    if self.tracker.random_snapshots
+                                    else str(interval * (j + 1))
+                                ),
+                                "-i",
+                                files[i],
+                                "-vf",
+                                "scale='max(sar,1)*iw':'max(1/sar,1)*ih'",
+                                "-frames:v",
+                                "1",
+                                snap,
+                            ],
+                            check=True,
+                        )
                         with Image(filename=snap) as img:
                             img.depth = 8
                             img.save(filename=snap)
@@ -216,17 +252,33 @@ class PPTU:
         return snapshots
 
     def prepare(self, mediainfo: Union[str, list[str]], snapshots: list[Path]) -> bool:
-        if not self.tracker.prepare(self.path, self.torrent_path, mediainfo, snapshots, note=self.note, auto=self.auto):
+        if not self.tracker.prepare(
+            self.path,
+            self.torrent_path,
+            mediainfo,
+            snapshots,
+            note=self.note,
+            auto=self.auto,
+        ):
             eprint(f"Preparing upload to [cyan]{self.tracker.name}[/] failed.")
             return False
         return True
 
     def upload(self, mediainfo: Union[str, list[str]], snapshots: list[Path]) -> None:
-        if not self.tracker.upload(self.path, self.torrent_path, mediainfo, snapshots, note=self.note, auto=self.auto):
+        if not self.tracker.upload(
+            self.path,
+            self.torrent_path,
+            mediainfo,
+            snapshots,
+            note=self.note,
+            auto=self.auto,
+        ):
             eprint(f"Upload to [cyan]{self.tracker.name}[/] failed.")
             return
 
-        torrent_path = self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
+        torrent_path = (
+            self.cache_dir / f"{self.path.name}[{self.tracker.abbrev}].torrent"
+        )
         if watch_dir := self.config.get(self.tracker, "watch_dir"):
             watch_dir = Path(watch_dir).expanduser()
             metafile = Metafile.from_file(torrent_path)

@@ -344,7 +344,7 @@ class nCoreUploader(Uploader):
             transport=httpx.HTTPTransport(
                 retries=5, proxy=self.config.get(self, "proxy")
             ),
-            follow_redirects = True
+            follow_redirects=True,
         )
         typ = ""
         if (
@@ -370,9 +370,7 @@ class nCoreUploader(Uploader):
                     Path(self.nfo_file).read_text(encoding="CP437", errors="ignore")
                 )
                 imdb_id: Optional[str] = None
-                imdb_url = next(
-                    (x for x in urls if "imdb.com" in x), None
-                )
+                imdb_url = next((x for x in urls if "imdb.com" in x), None)
                 if imdb_url:
                     imdb_id = find(r"title/tt(\d+)", imdb_url)
             else:
@@ -399,7 +397,7 @@ class nCoreUploader(Uploader):
 
         if imdb_id and "tt" not in imdb_id:
             imdb_id = f"tt{imdb_id}"
-            
+
         print(f"IMDb ID: [bold cyan]{imdb_id}[/]")
 
         self.imdb_ajax_data = self.session.get(
@@ -448,7 +446,11 @@ class nCoreUploader(Uploader):
             thumbnails_str += "[spoiler=Screenshots][center]"
             snapshot_urls = []
             for snap in uploader.upload(snapshots[0:-3]):
-                snapshot_urls.append(f"https://i.kek.sh/{snap['filename']}" if snap.get("filename") else "")
+                snapshot_urls.append(
+                    f"https://i.kek.sh/{snap['filename']}"
+                    if snap.get("filename")
+                    else ""
+                )
 
             thumbnail_row_width = min(
                 660, self.config.get(self, "snapshot_row_width", 660)
@@ -461,7 +463,11 @@ class nCoreUploader(Uploader):
                 snapshots[0:-3], width=thumbnail_width, file_type="jpg"
             )
             for thumb in uploader.upload(thumbnails):
-                thumbnail_urls.append(f"https://i.kek.sh/{thumb['filename']}" if thumb.get("filename") else "")
+                thumbnail_urls.append(
+                    f"https://i.kek.sh/{thumb['filename']}"
+                    if thumb.get("filename")
+                    else ""
+                )
 
             for i in range(len(snapshots) - 3):
                 snap = snapshot_urls[i]
@@ -518,9 +524,13 @@ class nCoreUploader(Uploader):
             "megjelent": self.ajax_parser("movie_megjelenes_eve") or year,
             "orszag": self.ajax_parser("movie_orszag"),
             "hossz": self.ajax_parser("movie_hossz"),
-            "film_magyar_cim": self.ajax_parser("movie_magyar_cim") or hun_name if en_title != hun_name else "",
+            "film_magyar_cim": self.ajax_parser("movie_magyar_cim") or hun_name
+            if en_title != hun_name
+            else "",
             "film_angol_cim": en_title,
-            "film_idegen_cim": self.ajax_parser("movie_magyar_cim") or hun_name if en_title != hun_name else "",
+            "film_idegen_cim": self.ajax_parser("movie_magyar_cim") or hun_name
+            if en_title != hun_name
+            else "",
             "rendezo": self.ajax_parser("movie_rendezo"),
             "szereplok": self.ajax_parser("movie_szereplok"),
             "szezon": "",

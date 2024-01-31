@@ -12,7 +12,14 @@ from pyotp import TOTP
 import regex
 from rich.console import Console
 from rich.markup import escape
-from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
+from rich.progress import (
+    BarColumn,
+    MofNCompleteColumn,
+    Progress,
+    TaskProgressColumn,
+    TextColumn,
+    TimeRemainingColumn,
+)
 from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, print, wprint
@@ -31,7 +38,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
     year_in_series_name: bool = False
     keep_dubbed_dual_tags: bool = False
 
-    COLLECTION_MAP: dict = {
+    COLLECTION_MAP = {
         "movie": None,
         "episode": 1,
         "season": 2,
@@ -52,7 +59,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
 
     def login(self, *, auto: bool) -> bool:
         with Console().status("Checking cookie validity..."):
-            r = self.session.get(f"{self.base_url}/account", allow_redirects=False, timeout=60)
+            r = self.session.get(
+                f"{self.base_url}/account", allow_redirects=False, timeout=60
+            )
             if r.status_code == 200:
                 return True
 
@@ -95,7 +104,11 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                     "json": "1",
                 },
                 files={
-                    "file": ("captcha.jpg", self.session.get(captcha_url).content, "image/jpeg"),
+                    "file": (
+                        "captcha.jpg",
+                        self.session.get(captcha_url).content,
+                        "image/jpeg",
+                    ),
                 },
                 headers={
                     "User-Agent": "pptu/0.1.0",  # TODO: Get version dynamically
@@ -139,7 +152,10 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
                 },
             )
 
-            if "/captcha" in r.url or "Verification failed. You might be a robot!" in r.text:
+            if (
+                "/captcha" in r.url
+                or "Verification failed. You might be a robot!" in r.text
+            ):
                 self.session.post(
                     url="https://2captcha.com/res.php",
                     params={
@@ -219,7 +235,14 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return el.text
 
     def prepare(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str,
+        snapshots: list[Path],
+        *,
+        note: str | None,
+        auto: bool,
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)+\.", str(path)):
             print("Detected episode")
@@ -232,7 +255,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         else:
             collection = "movie"
 
-        if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
+        if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (
+            m := re.search(r"(.+?\.\d{4})\.", path.name)
+        ):
             title = m.group(1).replace(".", " ")
             print(f"Detected title: [bold cyan]{title}[/]")
         else:
@@ -280,7 +305,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             r.raise_for_status()
 
             try:
-                res = next(x for x in res["data"] if x.get("release_year") == year or not year)
+                res = next(
+                    x for x in res["data"] if x.get("release_year") == year or not year
+                )
             except StopIteration:
                 err = "Title not found on site, please add it manually and try again."
                 if auto:
@@ -293,7 +320,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             else:
                 break
         movie_id = res["id"]
-        print(f"Found title: [bold cyan]{res['title']}[/] ([bold green]{res['release_year']}[/])")
+        print(
+            f"Found title: [bold cyan]{res['title']}[/] ([bold green]{res['release_year']}[/])"
+        )
         data = {
             "_token": token,
             "type_id": 1 if collection == "movie" else 2,
@@ -308,7 +337,11 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             url=url,
             data=data,
             files={
-                "torrent_file": (torrent_path.name, torrent_path.open("rb"), "application/x-bittorrent"),
+                "torrent_file": (
+                    torrent_path.name,
+                    torrent_path.open("rb"),
+                    "application/x-bittorrent",
+                ),
             },
             headers={
                 "Referer": url,
@@ -360,7 +393,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         gi = guessit(release_name)
         if gi.get("episode_details") != "Special":
             # Strip episode title
-            release_name = release_name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
+            release_name = release_name.replace(
+                gi.get("episode_title", "").replace(" ", "."), ""
+            ).replace("..", ".")
 
         if path.is_dir():
             file = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])[0]
@@ -374,7 +409,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             release_name = re.sub(r"(?i)h\.?265", "x265", release_name)
 
         if self.year_in_series_name:
-            release_name = re.sub(r"\b(S\d+)\b", fr"\1 ({year})", release_name)
+            release_name = re.sub(r"\b(S\d+)\b", rf"\1 ({year})", release_name)
 
         if not self.keep_dubbed_dual_tags:
             release_name = release_name.replace(".DUBBED.", "")
@@ -390,7 +425,9 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             return False
         rip_type_id = el["value"]
 
-        if not (el := soup.select_one("select[name=video_quality_id] option[selected]")):
+        if not (
+            el := soup.select_one("select[name=video_quality_id] option[selected]")
+        ):
             eprint("Failed to get video quality.")
             return False
         video_quality_id = el["value"]
@@ -407,14 +444,15 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "type_id": 1 if collection == "movie" else 2,
             "task_id": self.upload_url.split("/")[-1],
             "file_name": (
-                release_name
-                .replace(".", " ")
+                release_name.replace(".", " ")
                 .replace("H 264", "H.264")
                 .replace("H 265", "H.265")
                 .replace("2 0 ", "2.0 ")
                 .replace("5 1 ", "5.1 ")
             ),
-            "anon_upload": "1" if self.config.get(self, "anonymous_upload", True) else "",
+            "anon_upload": "1"
+            if self.config.get(self, "anonymous_upload", True)
+            else "",
             "description": note or "",
             "qqfile": "",
             "screenshots[]": images,
@@ -425,15 +463,28 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
             "tv_collection": self.COLLECTION_MAP[collection],
             "tv_season": season,
             "tv_episode": episode,
-            "languages[]": [x["value"] for x in soup.select("select[name='languages[]'] option[selected]")],
-            "subtitles[]": [x["value"] for x in soup.select("select[name='subtitles[]'] option[selected]")],
+            "languages[]": [
+                x["value"]
+                for x in soup.select("select[name='languages[]'] option[selected]")
+            ],
+            "subtitles[]": [
+                x["value"]
+                for x in soup.select("select[name='subtitles[]'] option[selected]")
+            ],
             "media_info": mediainfo,
         }
 
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: str | None, auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str,
+        snapshots: list[Path],
+        *,
+        note: str | None,
+        auto: bool,
     ) -> bool:
         r = self.session.post(url=self.upload_url, data=self.data, timeout=60)
         soup = load_html(r.text)

@@ -21,48 +21,64 @@ dirs = PlatformDirs(appname="pptu", appauthor=False)
 
 def main() -> None:
     parser = RParse(prog=PROG_NAME)
-    parser.add_argument("path",
-                        type=Path,
-                        nargs="*",
-                        help="files/directories to create torrents for")
-    parser.add_argument("-v", "--version",
-                        action="version",
-                        version=f"[bold cyan]{PROG_NAME}[/] [not bold white]{PROG_VERSION}[/]",
-                        help="show version and exit")
-    parser.add_argument("-t", "--trackers",
-                        metavar="ABBREV",
-                        type=lambda x: x.split(","),
-                        help="tracker(s) to upload torrents to (required)")
-    parser.add_argument("-f", "--fast-upload",
-                        action="store_true",
-                        default=None,
-                        help="only upload when every step is done for every input")
-    parser.add_argument("-nf", "--no-fast-upload",
-                        dest="fast_upload",
-                        action="store_false",
-                        default=None,
-                        help="disable fast upload even if enabled in config")
-    parser.add_argument("-c", "--confirm",
-                        action="store_true",
-                        help="ask for confirmation before uploading")
-    parser.add_argument("-a", "--auto",
-                        action="store_true",
-                        help="never prompt for user input")
-    parser.add_argument("-ds", "--disable-snapshots",
-                        action="store_true",
-                        help="disable creating snapshots to description")
-    parser.add_argument("-s", "--skip-upload",
-                        action="store_true",
-                        help="skip upload")
-    parser.add_argument("-n", "--note",
-                        help="note to add to upload")
-    parser.add_argument("-lt", "--list-trackers",
-                        action="store_true",
-                        help="list supported trackers")
+    parser.add_argument(
+        "path", type=Path, nargs="*", help="files/directories to create torrents for"
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        action="version",
+        version=f"[bold cyan]{PROG_NAME}[/] [not bold white]{PROG_VERSION}[/]",
+        help="show version and exit",
+    )
+    parser.add_argument(
+        "-t",
+        "--trackers",
+        metavar="ABBREV",
+        type=lambda x: x.split(","),
+        help="tracker(s) to upload torrents to (required)",
+    )
+    parser.add_argument(
+        "-f",
+        "--fast-upload",
+        action="store_true",
+        default=None,
+        help="only upload when every step is done for every input",
+    )
+    parser.add_argument(
+        "-nf",
+        "--no-fast-upload",
+        dest="fast_upload",
+        action="store_false",
+        default=None,
+        help="disable fast upload even if enabled in config",
+    )
+    parser.add_argument(
+        "-c",
+        "--confirm",
+        action="store_true",
+        help="ask for confirmation before uploading",
+    )
+    parser.add_argument(
+        "-a", "--auto", action="store_true", help="never prompt for user input"
+    )
+    parser.add_argument(
+        "-ds",
+        "--disable-snapshots",
+        action="store_true",
+        help="disable creating snapshots to description",
+    )
+    parser.add_argument("-s", "--skip-upload", action="store_true", help="skip upload")
+    parser.add_argument("-n", "--note", help="note to add to upload")
+    parser.add_argument(
+        "-lt", "--list-trackers", action="store_true", help="list supported trackers"
+    )
     if len(sys.argv) == 1:
         parser.print_help(sys.stderr)
         if getattr(sys, "frozen", False):
-            wprint("\nPlease use PPTU from the command line if you double-clicked the standalone build.")
+            wprint(
+                "\nPlease use PPTU from the command line if you double-clicked the standalone build."
+            )
             time.sleep(10)
         sys.exit(1)
     args = parser.parse_args()
@@ -70,12 +86,15 @@ def main() -> None:
     config = Config(dirs.user_config_path / "config.toml")
 
     all_trackers = [
-        x for x in vars(uploaders).values()
+        x
+        for x in vars(uploaders).values()
         if isinstance(x, type) and x != Uploader and issubclass(x, Uploader)
     ]
 
     if args.list_trackers:
-        supported_trackers = Table(title="Supported trackers", title_style="not italic bold magenta")
+        supported_trackers = Table(
+            title="Supported trackers", title_style="not italic bold magenta"
+        )
         supported_trackers.add_column("Site", style="cyan")
         supported_trackers.add_column("Abbreviation", style="bold green")
         for tracker_cls in all_trackers:
@@ -93,8 +112,12 @@ def main() -> None:
     for tracker_name in args.trackers:
         try:
             tracker = next(
-                x for x in all_trackers
-                if (x.name.casefold() == tracker_name.casefold() or x.abbrev.casefold() == tracker_name.casefold())
+                x
+                for x in all_trackers
+                if (
+                    x.name.casefold() == tracker_name.casefold()
+                    or x.abbrev.casefold() == tracker_name.casefold()
+                )
             )()
         except StopIteration:
             eprint(f"Tracker [cyan]{tracker_name}[/] not found.")
@@ -120,8 +143,8 @@ def main() -> None:
 
     jobs = list()
 
-    fast_upload = (
-        args.fast_upload or (config.get("default", "fast_upload", False) and args.fast_upload is not False)
+    fast_upload = args.fast_upload or (
+        config.get("default", "fast_upload", False) and args.fast_upload is not False
     )
 
     for path in args.path:
@@ -129,13 +152,24 @@ def main() -> None:
             eprint(f"File [cyan]{path.name!r}[/] does not exist.")
             continue
 
-        cache_dir = PlatformDirs(appname="pptu", appauthor=False).user_cache_path / f"{path.name}_files"
+        cache_dir = (
+            PlatformDirs(appname="pptu", appauthor=False).user_cache_path
+            / f"{path.name}_files"
+        )
         cache_dir.mkdir(parents=True, exist_ok=True)
 
         for tracker in trackers:
-            pptu = PPTU(path, tracker, note=args.note, auto=args.auto, snapshots=not args.disable_snapshots)
+            pptu = PPTU(
+                path,
+                tracker,
+                note=args.note,
+                auto=args.auto,
+                snapshots=not args.disable_snapshots,
+            )
 
-            print(f"\n[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]")
+            print(
+                f"\n[bold green]Creating torrent file for tracker ({tracker.abbrev})[/]"
+            )
             pptu.create_torrent()
 
             if tracker.mediainfo:
@@ -158,7 +192,9 @@ def main() -> None:
                 print(f"\n[bold green]Uploading ({tracker.abbrev})[/]")
                 if args.confirm and pptu.tracker.data:
                     print(pptu.tracker.data, highlight=True)
-                if args.skip_upload or (args.confirm and not Confirm.ask("Upload torrent?")):
+                if args.skip_upload or (
+                    args.confirm and not Confirm.ask("Upload torrent?")
+                ):
                     print("Skipping upload")
                     continue
                 pptu.upload(mediainfo, snapshots)
@@ -168,7 +204,9 @@ def main() -> None:
             print(f"\n[bold green]Uploading ({pptu.tracker.abbrev})[/]")
             if args.confirm and pptu.tracker.data:
                 print(pptu.tracker.data, highlight=True)
-            if args.skip_upload or (args.confirm and not Confirm.ask("Upload torrent?")):
+            if args.skip_upload or (
+                args.confirm and not Confirm.ask("Upload torrent?")
+            ):
                 print("Skipping upload")
                 continue
             pptu.upload(mediainfo, snapshots)

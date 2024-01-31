@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Optional
 from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
-from rich.console import Console
 from rich.prompt import Prompt
 
 from ..utils import eprint, load_html, print, wprint, Img
@@ -103,13 +102,22 @@ class HDBitsUploader(Uploader):
 
         wprint("Cookies missing or expired, logging in...")
 
-        captcha = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"numImages": "5"}).json()
+        captcha = self.session.get(
+            "https://hdbits.org/simpleCaptcha.php", params={"numImages": "5"}
+        ).json()
         correct_hash = None
         for image in captcha["images"]:
-            r = self.session.get("https://hdbits.org/simpleCaptcha.php", params={"hash": image})
-            if self.CAPTCHA_MAP.get(hashlib.sha256(r.content).hexdigest()) == captcha["text"]:
+            r = self.session.get(
+                "https://hdbits.org/simpleCaptcha.php", params={"hash": image}
+            )
+            if (
+                self.CAPTCHA_MAP.get(hashlib.sha256(r.content).hexdigest())
+                == captcha["text"]
+            ):
                 correct_hash = image
-                print(f"Found captcha solution: [bold cyan]{captcha['text']}[/] ([cyan]{correct_hash}[/])")
+                print(
+                    f"Found captcha solution: [bold cyan]{captcha['text']}[/] ([cyan]{correct_hash}[/])"
+                )
                 break
         if not correct_hash:
             eprint("Unable to solve captcha, perhaps it has new images?")
@@ -174,7 +182,14 @@ class HDBitsUploader(Uploader):
         return None
 
     def prepare(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str,
+        snapshots: list[Path],
+        *,
+        note: Optional[str],
+        auto: bool,
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
             print("Detected series")
@@ -216,7 +231,9 @@ class HDBitsUploader(Uploader):
             episode = res["episode"]
         else:
             imdb = None
-            if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (m := re.search(r"(.+?\.\d{4})\.", path.name)):
+            if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (
+                m := re.search(r"(.+?\.\d{4})\.", path.name)
+            ):
                 title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
                 print(f"Detected title: [bold cyan]{title}[/]")
 
@@ -250,7 +267,9 @@ class HDBitsUploader(Uploader):
             medium = "Blu-ray/HD-DVD"
         elif re.search(r"\b[ph]dtv\b|\.ts$", str(path), flags=re.I):
             medium = "Capture"
-        elif re.search(r"\bweb-?rip\b", str(path), flags=re.I):  # TODO: Detect more encodes
+        elif re.search(
+            r"\bweb-?rip\b", str(path), flags=re.I
+        ):  # TODO: Detect more encodes
             medium = "Encode"
         elif re.search(r"\bremux\b", str(path), flags=re.I):
             medium = "Remux"
@@ -271,7 +290,9 @@ class HDBitsUploader(Uploader):
         gi = guessit(path.name)
         if gi.get("episode_details") != "Special":
             # Strip episode title
-            name = name.replace(gi.get("episode_title", "").replace(" ", "."), "").replace("..", ".")
+            name = name.replace(
+                gi.get("episode_title", "").replace(" ", "."), ""
+            ).replace("..", ".")
         # Strip streaming service
         name = re.sub(r"(\d+p)\.[a-z0-9]+\.(web)", r"\1.\2", name, flags=re.IGNORECASE)
         # Strip Atmos
@@ -285,7 +306,9 @@ class HDBitsUploader(Uploader):
 
         thumbnail_row_width = min(900, self.config.get(self, "snapshot_row_width", 900))
         allowed_widths = [100, 150, 200, 250, 300, 350]
-        thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
+        thumbnail_width = (
+            thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)
+        ) - 5
         thumbnail_width = max(x for x in allowed_widths if x <= thumbnail_width)
 
         thumbnails_str = ""
@@ -321,7 +344,14 @@ class HDBitsUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str,
+        snapshots: list[Path],
+        *,
+        note: Optional[str],
+        auto: bool,
     ) -> bool:
         res = self.session.post(
             url="https://hdbits.org/upload/upload",

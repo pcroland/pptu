@@ -9,7 +9,6 @@ import httpx
 from guessit import guessit
 from langcodes import Language
 from pyotp import TOTP
-from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from rich.prompt import Prompt
 
 from ..utils import eprint, generate_thumbnails, load_html, print, wprint, Img
@@ -18,6 +17,7 @@ from . import Uploader
 
 if TYPE_CHECKING:
     from pathlib import Path
+
 
 class BroadcasTheNetUploader(Uploader):
     name: str = "BroadcasTheNet"
@@ -132,14 +132,10 @@ class BroadcasTheNetUploader(Uploader):
     }
 
     def keksh(self, file) -> Optional[str]:
+        files = {"file": open(file, "rb")}
+        res: dict = httpx.post(url="https://kek.sh/api/v1/posts", files=files).json()
 
-        files = {'file': open(file, 'rb')}
-        res: dict = httpx.post(
-            url='https://kek.sh/api/v1/posts',
-            files=files
-        ).json()
-
-        if res.get('filename'):
+        if res.get("filename"):
             return f"https://i.kek.sh/{res['filename']}"
 
     @property
@@ -203,7 +199,14 @@ class BroadcasTheNetUploader(Uploader):
         return "login.php" not in r.url
 
     def prepare(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str,
+        snapshots: list[Path],
+        *,
+        note: Optional[str],
+        auto: bool,
     ) -> bool:
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
             print("Detected episode")
@@ -216,11 +219,17 @@ class BroadcasTheNetUploader(Uploader):
             type_ = "Episode"
 
         release_name = path.stem if path.is_file() else path.name
-        release_name = re.sub(r"\.([a-z]+)\.?([\d.]+)\.Atmos", r".\1A\2", release_name, flags=re.I)
-        if m := re.search(r"\.(?:DV|DoVi)(?:\.HDR(?:10(?:\+|P|Plus))?)?\b", release_name, flags=re.I):
+        release_name = re.sub(
+            r"\.([a-z]+)\.?([\d.]+)\.Atmos", r".\1A\2", release_name, flags=re.I
+        )
+        if m := re.search(
+            r"\.(?:DV|DoVi)(?:\.HDR(?:10(?:\+|P|Plus))?)?\b", release_name, flags=re.I
+        ):
             release_name = release_name.replace(m.group(), "")
             release_name = re.sub(r"\.(\d+p)", r".DV.\1", release_name)
-        elif m := re.search(r"\.(?:\.HDR(?:10(?:\+|P|Plus)))\b", release_name, flags=re.I):
+        elif m := re.search(
+            r"\.(?:\.HDR(?:10(?:\+|P|Plus)))\b", release_name, flags=re.I
+        ):
             release_name = release_name.replace(m.group(), "")
             release_name = re.sub(r"\.(\d+p)", r".HDR.\1", release_name)
         elif m := re.search(r"\.HLG\b", release_name, flags=re.I):
@@ -280,9 +289,15 @@ class BroadcasTheNetUploader(Uploader):
         else:
             file = path
         if file.suffix == ".mkv":
-            info = json.loads(subprocess.run(["mkvmerge", "-J", file], capture_output=True, encoding="utf-8").stdout)
+            info = json.loads(
+                subprocess.run(
+                    ["mkvmerge", "-J", file], capture_output=True, encoding="utf-8"
+                ).stdout
+            )
             audio = next(x for x in info["tracks"] if x["type"] == "audio")
-            lang = audio["properties"].get("language_ietf") or audio["properties"].get("language")
+            lang = audio["properties"].get("language_ietf") or audio["properties"].get(
+                "language"
+            )
             if not lang:
                 eprint("Unable to determine audio language.")
                 return False
@@ -299,7 +314,9 @@ class BroadcasTheNetUploader(Uploader):
 
         if lang.territory == "419":
             if auto:
-                lang.territory = "ES"  # Technically Latin America but we can't guess automatically
+                lang.territory = (
+                    "ES"  # Technically Latin America but we can't guess automatically
+                )
             else:
                 lang.territory = Prompt.ask("Enter country code")
 
@@ -308,22 +325,38 @@ class BroadcasTheNetUploader(Uploader):
 
         # Strip episode title if name is too long
         if len(release_name) > 100:
-            release_name = release_name.replace(gi["episode_title"].replace(" ", "."), "").replace("..", ".")
+            release_name = release_name.replace(
+                gi["episode_title"].replace(" ", "."), ""
+            ).replace("..", ".")
 
         thumbnails_str = ""
         if self.config.get(self, "img_uploader"):
             uploader = Img(self)
             snapshot_urls = []
             for snap in uploader.upload(snapshots):
-                snapshot_urls.append(f"https://i.kek.sh/{snap['filename']}" if snap.get("filename") else "")
+                snapshot_urls.append(
+                    f"https://i.kek.sh/{snap['filename']}"
+                    if snap.get("filename")
+                    else ""
+                )
 
-            thumbnail_row_width = min(530, self.config.get(self, "snapshot_row_width", 530))
-            thumbnail_width = (thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)) - 5
+            thumbnail_row_width = min(
+                530, self.config.get(self, "snapshot_row_width", 530)
+            )
+            thumbnail_width = (
+                thumbnail_row_width / self.config.get(self, "snapshot_columns", 2)
+            ) - 5
             thumbnail_urls = []
-            thumbnails = generate_thumbnails(snapshots, file_type="jpg", width=thumbnail_width)
+            thumbnails = generate_thumbnails(
+                snapshots, file_type="jpg", width=thumbnail_width
+            )
 
             for thumb in uploader.upload(thumbnails):
-                thumbnail_urls.append(f"https://i.kek.sh/{thumb['filename']}" if thumb.get("filename") else "")
+                thumbnail_urls.append(
+                    f"https://i.kek.sh/{thumb['filename']}"
+                    if thumb.get("filename")
+                    else ""
+                )
 
             for i in range(len(snapshots)):
                 snap = snapshot_urls[i]
@@ -372,7 +405,27 @@ class BroadcasTheNetUploader(Uploader):
         if el := soup.select_one("[name=media] [selected]"):
             media = el.get("value")
         else:
-            source: list = ["HDTV", "PDTV", "DSR", "DVDRip", "TVRip", "VHSRip", "Bluray", "BDRip", "BRRip", "DVD5", "DVD9", "HDDVD", "WEB-DL", "WEBRip", "BD5", "BD9", "BD25", "BD50", "Mixed"]
+            source: list = [
+                "HDTV",
+                "PDTV",
+                "DSR",
+                "DVDRip",
+                "TVRip",
+                "VHSRip",
+                "Bluray",
+                "BDRip",
+                "BRRip",
+                "DVD5",
+                "DVD9",
+                "HDDVD",
+                "WEB-DL",
+                "WEBRip",
+                "BD5",
+                "BD9",
+                "BD25",
+                "BD50",
+                "Mixed",
+            ]
             media = next(iter([x for x in source if x in release_name] or []), None)
         if not media:
             media = "Unknown"
@@ -422,13 +475,24 @@ class BroadcasTheNetUploader(Uploader):
         return True
 
     def upload(  # type: ignore[override]
-        self, path: Path, torrent_path: Path, mediainfo: str, snapshots: list[Path], *, note: Optional[str], auto: bool
+        self,
+        path: Path,
+        torrent_path: Path,
+        mediainfo: str,
+        snapshots: list[Path],
+        *,
+        note: Optional[str],
+        auto: bool,
     ) -> bool:
         r = self.session.post(
             url="https://backup.landof.tv/upload.php",
             data=self.data,
             files={
-                "file_input": (str(torrent_path), torrent_path.open("rb"), "application/x-bittorrent"),
+                "file_input": (
+                    str(torrent_path),
+                    torrent_path.open("rb"),
+                    "application/x-bittorrent",
+                ),
             },
             timeout=60,
         )

@@ -8,7 +8,14 @@ import sys
 import shutil
 import itertools
 from typing import (
-    TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, overload, Pattern
+    TYPE_CHECKING,
+    Any,
+    IO,
+    Iterable,
+    Literal,
+    NoReturn,
+    overload,
+    Pattern,
 )
 
 import humanize
@@ -45,17 +52,25 @@ class Config:
             self._config = CaseInsensitiveDict(toml.load(file))
         except FileNotFoundError:
             shutil.copy(
-                Path(__file__).resolve().parent.with_name('config.example.toml'), file
+                Path(__file__).resolve().parent.with_name("config.example.toml"), file
             )
             eprint(
-                f"Config file doesn't exist, created to: [cyan]{file}[/]", fatal=True)  # noqa: E501
+                f"Config file doesn't exist, created to: [cyan]{file}[/]", fatal=True
+            )  # noqa: E501
 
-    def get(self, tracker: Uploader | Literal["default"] | str, key: str, default: Any = None) -> Any:
+    def get(
+        self,
+        tracker: Uploader | Literal["default"] | str,
+        key: str,
+        default: Any = None,
+    ) -> Any:
         value = None
         if isinstance(tracker, str) and tracker != "default":
             value = self._config.get(tracker, {}).get(key)
         elif tracker != "default":
-            value = self._config.get(tracker.name, {}).get(key) or self._config.get(tracker.abbrev, {}).get(key)
+            value = self._config.get(tracker.name, {}).get(key) or self._config.get(
+                tracker.abbrev, {}
+            ).get(key)
 
         if value is False:
             return value
@@ -75,10 +90,16 @@ class RParse(argparse.ArgumentParser):
         if message:
             if message.startswith("usage"):
                 message = f"[bold cyan]{PROG_NAME}[/] {PROG_VERSION}\n\n{message}"
-                message = re.sub(r"(-[a-z]+\s*|\[)([A-Z]+)(?=]|,|\s\s|\s\.)", r"\1[bold color(231)]\2[/]", message)
+                message = re.sub(
+                    r"(-[a-z]+\s*|\[)([A-Z]+)(?=]|,|\s\s|\s\.)",
+                    r"\1[bold color(231)]\2[/]",
+                    message,
+                )
                 message = re.sub(r"((-|--)[a-z]+)", r"[green]\1[/]", message)
                 message = message.replace("usage", "[yellow]USAGE[/]")
-                message = message.replace("positional arguments", "[yellow]POSITIONAL ARGUMENTS[/]")
+                message = message.replace(
+                    "positional arguments", "[yellow]POSITIONAL ARGUMENTS[/]"
+                )
                 message = message.replace("options", "[yellow]FLAGS[/]", 1)
                 message = message.replace(" file ", "[bold magenta] file [/]", 2)
                 message = message.replace(self.prog, f"[bold cyan]{self.prog}[/]")
@@ -113,17 +134,26 @@ class Img:
         self.tracker = tracker
         self.uploader = tracker.config.get(tracker, "img_uploader")
         key_ = f"{self.uploader}_api_key"
-        self.api_key = tracker.config.get("img_uploaders", key_, None) or os.environ.get(key_.upper()) or None
+        self.api_key = (
+            tracker.config.get("img_uploaders", key_, None)
+            or os.environ.get(key_.upper())
+            or None
+        )
 
-    def hdbimg(self, files: list[Path], thumbnail_width: int = 220, name: str = "") -> list[Any | None] | None:
-        with Console().status("Uploading snapshots..."), contextlib.ExitStack() as stack:
+    def hdbimg(
+        self, files: list[Path], thumbnail_width: int = 220, name: str = ""
+    ) -> list[Any | None] | None:
+        with Console().status(
+            "Uploading snapshots..."
+        ), contextlib.ExitStack() as stack:
             r = self.tracker.session.post(
                 url="https://img.hdbits.org/upload_api.php",
                 files={
                     **{
                         f"images_files[{i}]": stack.enter_context(  # type: ignore[misc]
                             snap.open("rb")
-                        ) for i, snap in enumerate(files)
+                        )
+                        for i, snap in enumerate(files)
                     },
                     "thumbsize": f"w{thumbnail_width}",
                     "galleryoption": "1",
@@ -144,9 +174,7 @@ class Img:
         headers = dict()
 
         if self.api_key:
-            headers = {
-                "x-kek-auth": self.api_key
-            }
+            headers = {"x-kek-auth": self.api_key}
 
         with Progress(
             TextColumn("[progress.description]{task.description}[/]"),
@@ -155,9 +183,7 @@ class Img:
             TaskProgressColumn(),
             TimeRemainingColumn(elapsed_when_finished=True),
         ) as progress:
-            for snap in progress.track(
-                files, description="Uploading snapshots"
-            ):
+            for snap in progress.track(files, description="Uploading snapshots"):
                 with open(snap, "rb") as fd:
                     r = self.tracker.session.post(
                         url="https://kek.sh/api/v1/posts",
@@ -182,9 +208,7 @@ class Img:
             TaskProgressColumn(),
             TimeRemainingColumn(elapsed_when_finished=True),
         ) as progress:
-            for snap in progress.track(
-                files, description="Uploading snapshots"
-            ):
+            for snap in progress.track(files, description="Uploading snapshots"):
                 with open(snap, "rb") as fd:
                     r = self.tracker.session.post(
                         url="https://ptpimg.me/upload.php",
@@ -204,7 +228,12 @@ class Img:
 
         return res
 
-    def upload(self, files: list[Path], thumbnail_width: int | None = None, name: str | None = None) ->  list[Any | dict[Any, Any] | None] | None:
+    def upload(
+        self,
+        files: list[Path],
+        thumbnail_width: int | None = None,
+        name: str | None = None,
+    ) -> list[Any | dict[Any, Any] | None] | None:
         if self.uploader == "keksh":
             return self.keksh(files)
         elif self.uploader == "ptpimg":
@@ -221,7 +250,11 @@ def flatten(L: Iterable[Any]) -> list[Any]:
 
 
 def print(  # noqa: A001
-    text: Any = "", highlight: bool = False, file: IO[str] = sys.stdout, flush: bool = False, **kwargs: Any
+    text: Any = "",
+    highlight: bool = False,
+    file: IO[str] = sys.stdout,
+    flush: bool = False,
+    **kwargs: Any,
 ) -> None:
     with Console(highlight=highlight) as console:
         console.print(text, **kwargs)
@@ -271,7 +304,9 @@ def first_or_none(iterable: Iterable[Any]) -> Any | None:
     return first_or_else(iterable, None)
 
 
-def find(pattern: Pattern, string: str, group: int | None = None, flags: Any = 0) -> str | None:
+def find(
+    pattern: Pattern, string: str, group: int | None = None, flags: Any = 0
+) -> str | None:
     if group:
         if m := re.search(pattern, string, flags=flags):
             return m.group(group)
@@ -283,7 +318,13 @@ def first(iterable: Iterable[Any]) -> Any:
     return next(iter(iterable))
 
 
-def generate_thumbnails(snapshots: list[Path], width: int = 300, file_type: str = "png", *, progress_obj: Progress | None = None) -> list[Path]:
+def generate_thumbnails(
+    snapshots: list[Path],
+    width: int = 300,
+    file_type: str = "png",
+    *,
+    progress_obj: Progress | None = None,
+) -> list[Path]:
     width = int(width)
     print(f"Using thumbnail width: [bold cyan]{width}[/]")
 
