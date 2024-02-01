@@ -154,7 +154,7 @@ class PassThePopcornUploader(Uploader):
             else:
                 wprint("Unable to extract title from filename.")
         except Exception as e:
-            wprint(e)
+            wprint(f"Cinemagoer got error {str(e)}")
         if not imdb:
             if auto:
                 eprint("Unable to get IMDb URL")
