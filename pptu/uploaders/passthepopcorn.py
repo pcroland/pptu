@@ -142,16 +142,19 @@ class PassThePopcornUploader(Uploader):
         auto: bool,
     ) -> bool:
         imdb = None
-        if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (
-            m := re.search(r"(.+?\.\d{4})\.", path.name)
-        ):
-            title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
-            print(f"Detected title: [bold cyan]{title}[/]")
+        try:
+            if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (
+                m := re.search(r"(.+?\.\d{4})\.", path.name)
+            ):
+                title = re.sub(r" (\d{4})$", r" (\1)", m.group(1).replace(".", " "))
+                print(f"Detected title: [bold cyan]{title}[/]")
 
-            if imdb_results := ia.search_movie(title):
-                imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
-        else:
-            wprint("Unable to extract title from filename.")
+                if imdb_results := ia.search_movie(title):
+                    imdb = f"https://www.imdb.com/title/tt{imdb_results[0].movieID}/"
+            else:
+                wprint("Unable to extract title from filename.")
+        except Exception as e:
+            wprint(e)
         if not imdb:
             if auto:
                 eprint("Unable to get IMDb URL")
