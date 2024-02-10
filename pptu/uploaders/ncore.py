@@ -314,7 +314,7 @@ class nCoreUploader(Uploader):
 
         r = self.session.get("https://ncore.pro/")
         if "login.php" in r.url:
-            eprint("Failed to login.", exit_code=1)
+            eprint("Failed to login.", True)
 
         return True
 
