@@ -163,14 +163,15 @@ class HDBitsUploader(Uploader):
 
         if "error" in r.url:
             soup = load_html(r.text)
-            if el := soup.select_one("embedded"):
+            if el := soup.find("td", {"class": "text"}):
                 error = re.sub(r"\s+", " ", el.text).strip()
+            elif el := soup.select_one("embedded"):
+                error = re.sub(r"\s+", " ", el.text).strip()                
             else:
                 error = "Unknown error"
                 if m := re.search(r"error=(\d+)", r.url):
                     error += f" {m[1]}"
-            eprint(error)
-            return False
+            eprint(error, True)
 
         return True
 
@@ -313,7 +314,7 @@ class HDBitsUploader(Uploader):
 
         thumbnails_str = ""
         uploader = Img(self)
-        for i, url in enumerate(uploader.upload(self, thumbnail_width, name)):
+        for i, url in enumerate(uploader.upload(snapshots, thumbnail_width, name)):
             thumbnails_str += url
             if i % self.config.get(self, "snapshot_columns", 2) == 0:
                 thumbnails_str += " "
