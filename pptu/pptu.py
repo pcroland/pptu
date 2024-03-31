@@ -66,6 +66,9 @@ class PPTU:
         else:
             self.num_snapshots = tracker.min_snapshots or 0
 
+    def __repr__(self) -> str:
+        return f"PPTU(path={self.path!r}, tracker={self.tracker.abbrev!r})"
+
     def create_torrent(self) -> bool:
         announce_url: list = as_list(self.tracker.announce_url)
 
