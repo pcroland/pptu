@@ -363,20 +363,25 @@ class nCoreUploader(Uploader):
         print(f"Detected: [bold cyan]{typ}[/]")
 
         if path.is_dir():
-            self.nfo_file = sorted([*path.glob("*.nfo")])
-            if self.nfo_file:
-                self.nfo_file = self.nfo_file[0]
+            nfo_file = first_or_none(sorted([*path.glob("*.nfo")]))
+            if nfo_file:
                 urls = self.extract_nfo_urls(
-                    Path(self.nfo_file).read_text(encoding="CP437", errors="ignore")
+                    Path(nfo_file).read_text(encoding="CP437", errors="ignore")
                 )
                 imdb_id: Optional[str] = None
                 imdb_url = next((x for x in urls if "imdb.com" in x), None)
                 if imdb_url:
                     imdb_id = find(r"title/tt(\d+)", imdb_url)
             else:
-                self.nfo_file = Path(path / f"{release_name}.nfo")
-                with self.nfo_file.open("w", encoding="ascii") as f:
+                nfo_file = Path(path / f"{release_name}.nfo")
+                with nfo_file.open("w", encoding="ascii") as f:
                     f.write(mediainfo)
+        else:
+            eprint("Input is not a directory.", exit_code=1)
+            #nfo_file = Path(path.parent / f"{release_name}.nfo")
+            #with nfo_file.open("w", encoding="ascii") as f:
+            #    f.write(mediainfo)
+
         if not imdb_id:
             if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (
                 m := re.search(r"(.+?\.\d{4})\.", path.name)
@@ -555,6 +560,11 @@ class nCoreUploader(Uploader):
         note: Optional[str],
         auto: bool,
     ) -> bool:
+        if path.is_dir():
+            nfo_file = first_or_none(sorted([*path.glob("*.nfo")]))
+        else:
+            eprint("Input is not a directory.", exit_code=1)
+
         r = self.session.post(
             url="https://ncore.pro/upload.php",
             files={
@@ -564,8 +574,8 @@ class nCoreUploader(Uploader):
                     "application/x-bittorrent",
                 ),
                 "nfo_fajl": (
-                    str(self.nfo_file),
-                    self.nfo_file.open("rb"),
+                    str(nfo_file),
+                    nfo_file.open("rb"),
                     "application/octet-stream",
                 ),
                 "kep1": (str(snapshots[-3]), snapshots[-3].open("rb"), "image/png"),
