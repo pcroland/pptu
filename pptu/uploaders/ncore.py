@@ -363,24 +363,20 @@ class nCoreUploader(Uploader):
         print(f"Detected: [bold cyan]{typ}[/]")
 
         if path.is_dir():
-            nfo_file = first_or_none(sorted([*path.glob("*.nfo")]))
-            if nfo_file:
+            self.nfo_file = sorted([*path.glob("*.nfo")])
+            if self.nfo_file:
+                self.nfo_file = self.nfo_file[0]
                 urls = self.extract_nfo_urls(
-                    Path(nfo_file).read_text(encoding="CP437", errors="ignore")
+                    Path(self.nfo_file).read_text(encoding="CP437", errors="ignore")
                 )
                 imdb_id: Optional[str] = None
                 imdb_url = next((x for x in urls if "imdb.com" in x), None)
                 if imdb_url:
                     imdb_id = find(r"title/tt(\d+)", imdb_url)
             else:
-                nfo_file = Path(path / f"{release_name}.nfo")
-                with nfo_file.open("w", encoding="ascii") as f:
+                self.nfo_file = Path(path / f"{release_name}.nfo")
+                with self.nfo_file.open("w", encoding="ascii") as f:
                     f.write(mediainfo)
-        else:
-            eprint("Input is not a directory.", exit_code=1)
-            #nfo_file = Path(path.parent / f"{release_name}.nfo")
-            #with nfo_file.open("w", encoding="ascii") as f:
-            #    f.write(mediainfo)
 
         if not imdb_id:
             if (m := re.search(r"(.+?)\.S\d+(?:E\d+|\.)", path.name)) or (
@@ -474,7 +470,7 @@ class nCoreUploader(Uploader):
                     else ""
                 )
 
-            for i in range(len(snapshots) - 3):
+            for i in range(len(snapshot_urls)):
                 snap = snapshot_urls[i]
                 thumb = thumbnail_urls[i]
                 thumbnails_str += f"[url={snap}][img]{thumb}[/img][/url]"
@@ -510,6 +506,7 @@ class nCoreUploader(Uploader):
             description = f"[center][highlight][size=10pt]{release_name}[/size][/highlight][/center]\n\n\n{description}"
 
         en_title = self.ajax_parser("movie_angol_cim")
+        hun_title = self.ajax_parser("movie_magyar_cim") or hun_name
 
         self.data = {
             "getUnique": self.get_unique,
@@ -529,13 +526,9 @@ class nCoreUploader(Uploader):
             "megjelent": self.ajax_parser("movie_megjelenes_eve") or year,
             "orszag": self.ajax_parser("movie_orszag"),
             "hossz": self.ajax_parser("movie_hossz"),
-            "film_magyar_cim": self.ajax_parser("movie_magyar_cim") or hun_name
-            if en_title != hun_name
-            else "",
+            "film_magyar_cim": hun_title if en_title != hun_title else "",
             "film_angol_cim": en_title,
-            "film_idegen_cim": self.ajax_parser("movie_magyar_cim") or hun_name
-            if en_title != hun_name
-            else "",
+            "film_idegen_cim": hun_title if en_title and en_title != hun_title else "",
             "rendezo": self.ajax_parser("movie_rendezo"),
             "szereplok": self.ajax_parser("movie_szereplok"),
             "szezon": "",
@@ -560,11 +553,6 @@ class nCoreUploader(Uploader):
         note: Optional[str],
         auto: bool,
     ) -> bool:
-        if path.is_dir():
-            nfo_file = first_or_none(sorted([*path.glob("*.nfo")]))
-        else:
-            eprint("Input is not a directory.", exit_code=1)
-
         r = self.session.post(
             url="https://ncore.pro/upload.php",
             files={
@@ -574,8 +562,8 @@ class nCoreUploader(Uploader):
                     "application/x-bittorrent",
                 ),
                 "nfo_fajl": (
-                    str(nfo_file),
-                    nfo_file.open("rb"),
+                    str(self.nfo_file),
+                    self.nfo_file.open("rb"),
                     "application/octet-stream",
                 ),
                 "kep1": (str(snapshots[-3]), snapshots[-3].open("rb"), "image/png"),
