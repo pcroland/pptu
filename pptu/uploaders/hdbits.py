@@ -210,7 +210,10 @@ class HDBitsUploader(Uploader):
                     "uid": str(int(time.time() * 1000)),
                 },
             ).json()
-            print(res, highlight=True)
+
+            for key, value in res.items():
+                print(f"{key}: [cyan][bold]{value}[/]")
+
             if not (tvdb := res.get("tvdb_id")):
                 r = self.session.get(
                     url="https://hdbits.org/ajax/tvdb.php",
