@@ -241,6 +241,11 @@ class Img:
         elif self.uploader == "hdbimg":
             return self.hdbimg(files, thumbnail_width, name)
         else:
+            if not self.uploader:
+                wprint("Img uploader missing for from config!")
+            else:
+                wprint("Set Img uploader doesn't exist!")
+
             return []
 
 
