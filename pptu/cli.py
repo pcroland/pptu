@@ -157,7 +157,7 @@ def main() -> None:
             / f"{path.name}_files"
         )
         cache_dir.mkdir(parents=True, exist_ok=True)
-        mediainfo = ""
+
         for tracker in trackers:
             pptu = PPTU(
                 path,
