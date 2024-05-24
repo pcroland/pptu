@@ -66,9 +66,6 @@ class PPTU:
         else:
             self.num_snapshots = tracker.min_snapshots or 0
 
-    def __repr__(self) -> str:
-        return f"PPTU(path={self.path!r}, tracker={self.tracker.abbrev!r})"
-
     def create_torrent(self) -> bool:
         announce_url: list = as_list(self.tracker.announce_url)
 
@@ -155,7 +152,7 @@ class PPTU:
             if self.path.is_file() or self.tracker.all_files:
                 f = self.path
             else:
-                f = sorted([*self.path.glob("*.mkv"), *self.path.glob("*.mp4")])[0]
+                f = sorted([*self.path.glob("*.mkv"), *self.path.glob("*.mp4"), *self.path.glob("*.m2ts")])[0]
 
             mediainfo = MediaInfo.parse(f, output="", full=False)
             mediainfo_path.write_text(mediainfo)
@@ -289,3 +286,6 @@ class PPTU:
             resume_path = Path(str(torrent_path).replace(".torrent", "-resume.torrent"))
             metafile.save(resume_path)
             shutil.copy(resume_path, watch_dir)
+
+    def __str__(self) -> str:
+        return f"{self.tracker.abbrev} ({self.torrent_path})"
