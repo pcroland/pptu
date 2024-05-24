@@ -208,6 +208,7 @@ class PassThePopcornUploader(Uploader):
         no_eng_subs = all(
             not x.language.startswith("en") for x in mediainfo_obj.audio_tracks
         ) and all(not x.language.startswith("en") for x in mediainfo_obj.text_tracks)
+        any_sub = any(x for x in mediainfo_obj.text_tracks)
 
         snapshot_urls = []
         uploader = Img(self)
@@ -257,17 +258,14 @@ class PassThePopcornUploader(Uploader):
 
         tag = (path.name if path.is_dir() else path.stem).split("-")[-1]
 
-        remaster = " / ".join(
-            {v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}
-        )
-
         self.data = {
             "AntiCsrfToken": self.anti_csrf_token,
             "type": type_,
             "imdb": imdb,
             "image": imdb_movie.data["cover url"],
-            "remaster": "on" if remaster else "",
-            "remaster_title": remaster,
+            "remaster_title": " / ".join(
+                {v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}
+            ),
             "remaster_year": "",
             **(
                 {"internalrip": "on"}
@@ -283,6 +281,7 @@ class PassThePopcornUploader(Uploader):
             "other_resolution_width": "",
             "other_resolution_height": "",
             "release_desc": desc,
+            "subtitles": "" if any_sub else "No Subtitles",
             "nfo_text": "",
             "trumpable[]": [14] if no_eng_subs else [],
             "uploadtoken": "",
