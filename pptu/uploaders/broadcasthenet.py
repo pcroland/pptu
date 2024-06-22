@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 import re
 import subprocess
-from typing import TYPE_CHECKING, Optional, Union
+from typing import TYPE_CHECKING
 
 import httpx
 from guessit import guessit
@@ -11,7 +11,7 @@ from langcodes import Language
 from pyotp import TOTP
 from rich.prompt import Prompt
 
-from ..utils import eprint, generate_thumbnails, load_html, print, wprint, Img, find
+from ..utils import Img, eprint, find, generate_thumbnails, load_html, print, wprint
 from . import Uploader
 
 
@@ -131,15 +131,15 @@ class BroadcasTheNetUploader(Uploader):
         "ZA": 26,
     }
 
-    def keksh(self, file) -> Optional[str]:
+    def keksh(self, file) -> str | None:
         files = {"file": open(file, "rb")}
         res: dict = httpx.post(url="https://kek.sh/api/v1/posts", files=files).json()
 
         if res.get("filename"):
-            return f"https://i.kek.sh/{res['filename']}"
+            return f"https://i.kek.sh/{res["filename"]}"
 
     @property
-    def passkey(self) -> Optional[str]:
+    def passkey(self) -> str | None:
         res = self.session.get("https://backup.landof.tv/upload.php").text
         soup = load_html(res)
         if not (el := soup.select_one("input[value$='/announce']")):
@@ -208,7 +208,7 @@ class BroadcasTheNetUploader(Uploader):
         mediainfo: str,
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         if re.search(r"\.S\d+(E\d+|\.Special)+\.", str(path)):
@@ -404,7 +404,7 @@ class BroadcasTheNetUploader(Uploader):
         if el := soup.select_one("[name=bitrate] [selected]"):
             bitrate = el.get("value")
 
-        media: Optional[Union[str, list[str]]] = None
+        media: str | list[str] | None = None
         if el := soup.select_one("[name=media] [selected]"):
             media = el.get("value")
         else:
@@ -446,7 +446,7 @@ class BroadcasTheNetUploader(Uploader):
 
         if release_name.endswith(("-BTW", "-NTb", "-TVSmash")):
             origin: str = "Internal"
-        elif release_name.endswith(("-NOGRP")):
+        elif release_name.endswith("-NOGRP"):
             origin: str = "None"
         else:
             origin: str = "P2P"
@@ -484,7 +484,7 @@ class BroadcasTheNetUploader(Uploader):
         mediainfo: str,
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         r = self.session.post(

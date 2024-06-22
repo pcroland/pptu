@@ -15,7 +15,7 @@
 <p align="center"><img width="350" src="logo/logo.svg"><br>Python P2P Torrent Uploader</p>
 
 ## Requirements
-* Python 3.8+
+* Python 3.10+
 * Python package dependencies (`poetry install` – requires poetry 1.2.0 or newer – or `pip install .`)
 * torrenttools (for creating torrents)
 * MediaInfo CLI (for generating tech info)

@@ -2,8 +2,9 @@ import importlib
 import sys
 from pathlib import Path
 
-from ._base import Uploader
 from ..utils import pluralize
+from ._base import Uploader
+
 
 # Load all services
 failed_uploader = []

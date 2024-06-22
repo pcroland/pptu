@@ -13,18 +13,11 @@ import torf
 from platformdirs import PlatformDirs
 from pymediainfo import MediaInfo
 from pyrosimple.util.metafile import Metafile
-from rich.progress import (
-    BarColumn,
-    MofNCompleteColumn,
-    Progress,
-    TaskProgressColumn,
-    TextColumn,
-    TimeRemainingColumn,
-)
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from torf import Torrent
 from wand.image import Image
 
-from .utils import Config, CustomTransferSpeedColumn, eprint, flatten, wprint, as_list
+from .utils import Config, CustomTransferSpeedColumn, as_list, eprint, flatten, wprint
 
 
 if TYPE_CHECKING:
@@ -37,7 +30,7 @@ class PPTU:
         path: Path,
         tracker: Uploader,
         *,
-        note: Optional[str] = None,
+        note: str | None = None,
         auto: bool = False,
         snapshots: bool = False,
     ):
@@ -138,7 +131,7 @@ class PPTU:
 
         return True
 
-    def get_mediainfo(self) -> Union[str, list[str]]:
+    def get_mediainfo(self) -> str | list[str]:
         mediainfo_path = self.cache_dir / "mediainfo.txt"
         if self.tracker.all_files and self.path.is_dir():
             mediainfo_path = self.cache_dir / "mediainfo_all.txt"
@@ -251,7 +244,7 @@ class PPTU:
 
         return snapshots
 
-    def prepare(self, mediainfo: Union[str, list[str]], snapshots: list[Path]) -> bool:
+    def prepare(self, mediainfo: str | list[str], snapshots: list[Path]) -> bool:
         if not self.tracker.prepare(
             self.path,
             self.torrent_path,
@@ -264,7 +257,7 @@ class PPTU:
             return False
         return True
 
-    def upload(self, mediainfo: Union[str, list[str]], snapshots: list[Path]) -> None:
+    def upload(self, mediainfo: str | list[str], snapshots: list[Path]) -> None:
         if not self.tracker.upload(
             self.path,
             self.torrent_path,

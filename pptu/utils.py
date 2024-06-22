@@ -2,26 +2,17 @@ from __future__ import annotations
 
 import argparse
 import contextlib
-import re
-import os
-import sys
-import shutil
 import itertools
-from typing import (
-    TYPE_CHECKING,
-    Any,
-    IO,
-    Iterable,
-    Literal,
-    NoReturn,
-    overload,
-    Pattern,
-)
+import os
+import re
+import shutil
+import sys
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, IO, Iterable, Literal, NoReturn, Pattern, overload
 
 import humanize
 import oxipng
 import toml
-from pathlib import Path
 from bs4 import BeautifulSoup
 from requests.utils import CaseInsensitiveDict
 from rich.console import Console
@@ -56,7 +47,7 @@ class Config:
             )
             eprint(
                 f"Config file doesn't exist, created to: [cyan]{file}[/]", fatal=True
-            )  # noqa: E501
+            )
 
     def get(
         self,
@@ -254,7 +245,7 @@ def flatten(L: Iterable[Any]) -> list[Any]:
     return [item for sublist in L for item in sublist]
 
 
-def print(  # noqa: A001
+def print(
     text: Any = "",
     highlight: bool = False,
     file: IO[str] = sys.stdout,

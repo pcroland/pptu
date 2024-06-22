@@ -3,14 +3,14 @@ from __future__ import annotations
 import hashlib
 import re
 import time
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from guessit import guessit
 from imdb import Cinemagoer
 from pyotp import TOTP
 from rich.prompt import Prompt
 
-from ..utils import eprint, load_html, print, wprint, Img
+from ..utils import Img, eprint, load_html, print, wprint
 from . import Uploader
 
 
@@ -165,7 +165,7 @@ class HDBitsUploader(Uploader):
             if el := soup.find("td", {"class": "text"}):
                 error = re.sub(r"\s+", " ", el.text).strip()
             elif el := soup.select_one("embedded"):
-                error = re.sub(r"\s+", " ", el.text).strip()                
+                error = re.sub(r"\s+", " ", el.text).strip()
             else:
                 error = "Unknown error"
                 if m := re.search(r"error=(\d+)", r.url):
@@ -175,7 +175,7 @@ class HDBitsUploader(Uploader):
         return True
 
     @property
-    def passkey(self) -> Optional[str]:
+    def passkey(self) -> str | None:
         res = self.session.get("https://hdbits.org/").text
         if m := re.search(r"passkey=([a-f0-9]+)", res):
             return m.group(1)
@@ -188,7 +188,7 @@ class HDBitsUploader(Uploader):
         mediainfo: str,
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         if re.search(r"\.S\d+(E\d+)*\.", str(path)):
@@ -353,7 +353,7 @@ class HDBitsUploader(Uploader):
         mediainfo: str,
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         res = self.session.post(
@@ -371,7 +371,7 @@ class HDBitsUploader(Uploader):
         if not (el := soup.select_one(".js-download")):
             eprint("Failed to get torrent download URL.")
             return False
-        torrent_url = f"https://hdbits.org{el.attrs['href']}"
+        torrent_url = f"https://hdbits.org{el.attrs["href"]}"
         torrent_path.write_bytes(self.session.get(torrent_url).content)
 
         return True

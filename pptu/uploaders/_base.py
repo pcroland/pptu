@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-from hashlib import sha1
-from typing import Optional, Union
 from abc import ABC, abstractmethod
+from hashlib import sha1
 from http.cookiejar import MozillaCookieJar
 from typing import TYPE_CHECKING, Any
 
@@ -21,7 +20,7 @@ class Uploader(ABC):
     name: str  # Name of the tracker
     abbrev: str  # Abbreviation of the tracker
 
-    source: Optional[str] = None  # Source tag to use in created torrent files
+    source: str | None = None  # Source tag to use in created torrent files
 
     all_files: bool = False  # Whether to generate MediaInfo and snapshots for all files
     min_snapshots: int = 0
@@ -76,7 +75,7 @@ class Uploader(ABC):
         return True
 
     @property
-    def passkey(self) -> Optional[str]:
+    def passkey(self) -> str | None:
         """
         This method can define a way to get the passkey from the tracker
         if not specified by the user in the config.
@@ -88,10 +87,10 @@ class Uploader(ABC):
         self,
         path: Path,
         torrent_path: Path,
-        mediainfo: Union[str, list[str]],
+        mediainfo: str | list[str],
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         """
@@ -104,10 +103,10 @@ class Uploader(ABC):
         self,
         path: Path,
         torrent_path: Path,
-        mediainfo: Union[str, list[str]],
+        mediainfo: str | list[str],
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         """Perform the actual upload."""

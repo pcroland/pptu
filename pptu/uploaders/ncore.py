@@ -2,30 +2,19 @@ from __future__ import annotations
 
 import json
 import re
-from typing import Optional, Union
 from pathlib import Path
-import requests
 
 import httpx
-from langcodes import Language
+import requests
 from guessit import guessit
-from pymediainfo import MediaInfo
 from imdb import Cinemagoer
+from langcodes import Language
+from pymediainfo import MediaInfo
 from pyotp import TOTP
 from rich.prompt import Prompt
 from rich.status import Status
 
-from ..utils import (
-    eprint,
-    generate_thumbnails,
-    print,
-    wprint,
-    load_html,
-    find,
-    first_or_none,
-    first,
-    Img,
-)
+from ..utils import Img, eprint, find, first, first_or_none, generate_thumbnails, load_html, print, wprint
 from . import Uploader
 
 
@@ -42,10 +31,10 @@ class nCoreUploader(Uploader):
     min_snapshots: int = 3
     snapshots_plus: int = 3
     exclude_regexs: str = r".*\.(ffindex|jpg|png|torrent|txt)$"
-    source: Optional[str] = "ncore.pro"
+    source: str | None = "ncore.pro"
 
     @property
-    def passkey(self) -> Optional[str]:
+    def passkey(self) -> str | None:
         res = self.session.get("https://ncore.pro/torrents.php").text
         if m := find(
             r'<link rel="alternate" href="/rss.php\?key=([a-f0-9]+)" title', res
@@ -64,7 +53,7 @@ class nCoreUploader(Uploader):
 
         return id if id else ""
 
-    def link_shortener(self, url: Union[str, None]) -> Optional[str]:
+    def link_shortener(self, url: str | None) -> str | None:
         url = url.replace("www.", "").replace("http://", "https://")
 
         if not url.startswith("https://"):
@@ -114,7 +103,7 @@ class nCoreUploader(Uploader):
 
     def mafab_scraper(
         self, imdb: str, gi: dict, urls: list, auto: bool
-    ) -> dict[str, Union[str, list[str]]]:
+    ) -> dict[str, str | list[str]]:
         """
         If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Mafab.hu and returns the link.
         """
@@ -159,7 +148,7 @@ class nCoreUploader(Uploader):
 
     def port_scraper(
         self, imdb: str, gi: dict, urls: list, auto: bool
-    ) -> dict[str, Union[str, list[str]]]:
+    ) -> dict[str, str | list[str]]:
         """
         If NFO contains a Mafab link, it returns that. Otherwise, it tries to find the movie on Port.hu and returns the link.
         """
@@ -328,13 +317,13 @@ class nCoreUploader(Uploader):
         mediainfo: str,
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         type_: str = ""
         urls = list()
         self.databse_urls = list()
-        imdb_id: Optional[str] = None
+        imdb_id: str | None = None
         release_name = path.stem if path.is_file() else path.name
         gi: dict = guessit(path.name)
         self.client = httpx.Client(
@@ -369,7 +358,7 @@ class nCoreUploader(Uploader):
                 urls = self.extract_nfo_urls(
                     Path(self.nfo_file).read_text(encoding="CP437", errors="ignore")
                 )
-                imdb_id: Optional[str] = None
+                imdb_id: str | None = None
                 imdb_url = next((x for x in urls if "imdb.com" in x), None)
                 if imdb_url:
                     imdb_id = find(r"title/tt(\d+)", imdb_url)
@@ -550,7 +539,7 @@ class nCoreUploader(Uploader):
         mediainfo: str,
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         r = self.session.post(

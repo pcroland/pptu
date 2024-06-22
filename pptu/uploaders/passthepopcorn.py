@@ -9,7 +9,7 @@ from pyotp import TOTP
 from rich.markup import escape
 from rich.prompt import Prompt
 
-from ..utils import eprint, load_html, print, wprint, Img
+from ..utils import Img, eprint, load_html, print, wprint
 from . import Uploader
 
 
@@ -51,10 +51,10 @@ class PassThePopcornUploader(Uploader):
 
     def __init__(self) -> None:
         super().__init__()
-        self.anti_csrf_token: Optional[str] = None
+        self.anti_csrf_token: str | None = None
 
     @property
-    def passkey(self) -> Optional[str]:
+    def passkey(self) -> str | None:
         r = self.session.get("https://passthepopcorn.me/upload.php")
         soup = load_html(r.text)
         if not (el := soup.select_one("input[value$='/announce']")):
@@ -138,7 +138,7 @@ class PassThePopcornUploader(Uploader):
         mediainfo: list[str],
         snapshots: list[Path],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         imdb = None
@@ -297,7 +297,7 @@ class PassThePopcornUploader(Uploader):
         mediainfo: list[str],
         snapshots: list[str],
         *,
-        note: Optional[str],
+        note: str | None,
         auto: bool,
     ) -> bool:
         r = self.session.post(

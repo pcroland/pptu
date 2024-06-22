@@ -4,21 +4,14 @@ import re
 import time
 import uuid
 from abc import ABC
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from guessit import guessit
 from pymediainfo import MediaInfo
 from pyotp import TOTP
 from rich.console import Console
 from rich.markup import escape
-from rich.progress import (
-    BarColumn,
-    MofNCompleteColumn,
-    Progress,
-    TaskProgressColumn,
-    TextColumn,
-    TimeRemainingColumn,
-)
+from rich.progress import BarColumn, MofNCompleteColumn, Progress, TaskProgressColumn, TextColumn, TimeRemainingColumn
 from rich.prompt import Confirm, Prompt
 
 from ..utils import eprint, load_html, print, wprint
@@ -29,7 +22,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 
-class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
+class AvistaZNetworkUploader(Uploader, ABC):
     min_snapshots: int = 3
     random_snapshots: bool = True
     exclude_regexs: str = r".*\.(ffindex|jpg|png|srt|nfo|torrent|txt)$"
@@ -225,7 +218,7 @@ class AvistaZNetworkUploader(Uploader, ABC):  # noqa: B024
         return True
 
     @property
-    def passkey(self) -> Optional[str]:
+    def passkey(self) -> str | None:
         r = self.session.get(f"{self.base_url}/account")
         soup = load_html(r.text)
         if not (el := soup.select_one(".current_pid")):
