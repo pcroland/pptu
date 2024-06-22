@@ -9,7 +9,6 @@ from typing import TYPE_CHECKING, Optional
 from guessit import guessit
 from pymediainfo import MediaInfo
 from pyotp import TOTP
-import regex
 from rich.console import Console
 from rich.markup import escape
 from rich.progress import (
