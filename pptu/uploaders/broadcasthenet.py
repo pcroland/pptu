@@ -11,7 +11,7 @@ from langcodes import Language
 from pyotp import TOTP
 from rich.prompt import Prompt
 
-from ..utils import eprint, generate_thumbnails, load_html, print, wprint, Img
+from ..utils import eprint, generate_thumbnails, load_html, print, wprint, Img, find
 from . import Uploader
 
 
@@ -176,6 +176,9 @@ class BroadcasTheNetUploader(Uploader):
                 "login": "Log In!",
             },
         )
+        if "Your IP is banned indefinitely." in r.text:
+            eprint("Your IP is banned indefinitely.", fatal=True)
+
         r.raise_for_status()
 
         if "login.php" in r.url:
@@ -502,5 +505,12 @@ class BroadcasTheNetUploader(Uploader):
             error = el.text
             eprint(f"Upload failed: [cyan]{error}[/cyan]")
             return False
+
+        id = find(r'<a href="(torrents\.php\?id=\d+)">', r.text)
+        if id:
+            print(
+                f"Link: https://broadcasthe.net/{id}",
+                True,
+            )
 
         return True
