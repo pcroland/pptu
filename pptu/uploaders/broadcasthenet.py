@@ -136,7 +136,7 @@ class BroadcasTheNetUploader(Uploader):
         res: dict = httpx.post(url="https://kek.sh/api/v1/posts", files=files).json()
 
         if res.get("filename"):
-            return f"https://i.kek.sh/{res["filename"]}"
+            return f"https://i.kek.sh/{res['filename']}"
 
     @property
     def passkey(self) -> str | None:
