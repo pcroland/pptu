@@ -371,7 +371,7 @@ class HDBitsUploader(Uploader):
         if not (el := soup.select_one(".js-download")):
             eprint("Failed to get torrent download URL.")
             return False
-        torrent_url = f"https://hdbits.org{el.attrs["href"]}"
+        torrent_url = f"https://hdbits.org{el.attrs['href']}"
         torrent_path.write_bytes(self.session.get(torrent_url).content)
 
         return True
