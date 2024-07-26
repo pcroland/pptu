@@ -258,14 +258,17 @@ class PassThePopcornUploader(Uploader):
 
         tag = (path.name if path.is_dir() else path.stem).split("-")[-1]
 
+        remaster_title = " / ".join(
+            {v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}
+        )
+
         self.data = {
             "AntiCsrfToken": self.anti_csrf_token,
             "type": type_,
             "imdb": imdb,
             "image": imdb_movie.data["cover url"],
-            "remaster_title": " / ".join(
-                {v for k, v in self.EDITION_MAP.items() if re.search(k, str(path))}
-            ),
+            "remaster_title": remaster_title,
+            "remaster": "on" if remaster_title else "off",
             "remaster_year": "",
             **(
                 {"internalrip": "on"}
