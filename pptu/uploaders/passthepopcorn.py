@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 
 from imdb import Cinemagoer
 from pymediainfo import MediaInfo
@@ -284,7 +284,7 @@ class PassThePopcornUploader(Uploader):
             "other_resolution_width": "",
             "other_resolution_height": "",
             "release_desc": desc,
-            "subtitles": "" if any_sub else "No Subtitles",
+            "subtitles": "" if any_sub else "44",
             "nfo_text": "",
             "trumpable[]": [14] if no_eng_subs else [],
             "uploadtoken": "",
