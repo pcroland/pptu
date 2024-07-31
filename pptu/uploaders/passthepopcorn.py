@@ -284,7 +284,7 @@ class PassThePopcornUploader(Uploader):
             "other_resolution_width": "",
             "other_resolution_height": "",
             "release_desc": desc,
-            "subtitles": "" if any_sub else "44",
+            "subtitles[]": "" if any_sub else "44",
             "nfo_text": "",
             "trumpable[]": [14] if no_eng_subs else [],
             "uploadtoken": "",
