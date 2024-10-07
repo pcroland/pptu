@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 import re
 from typing import TYPE_CHECKING
@@ -62,7 +63,7 @@ class PassThePopcornUploader(Uploader):
             return None
         return el.attrs["value"].split("/")[-2]
 
-    def login(self, *, auto: bool) -> bool:
+    def login(self, *, args: Any) -> bool:
         r = self.session.get(
             "https://passthepopcorn.me/user.php?action=edit", allow_redirects=False
         )
@@ -106,7 +107,7 @@ class PassThePopcornUploader(Uploader):
         ).json()
 
         if res["Result"] == "TfaRequired":
-            if auto:
+            if args.auto:
                 eprint("No TOTP secret specified in config")
                 return False
             tfa_code = Prompt.ask("Enter 2FA code")

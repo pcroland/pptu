@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 import re
 import time
@@ -49,7 +50,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
     def announce_url(self) -> str:
         return f"https://tracker.{self.domain}/{{passkey}}/announce"
 
-    def login(self, *, auto: bool) -> bool:
+    def login(self, *, args: Any) -> bool:
         with Console().status("Checking cookie validity..."):
             r = self.session.get(
                 f"{self.base_url}/account", allow_redirects=False, timeout=60
@@ -188,7 +189,7 @@ class AvistaZNetworkUploader(Uploader, ABC):
             if totp_secret:
                 tfa_code = TOTP(totp_secret).now()
             else:
-                if auto:
+                if args.auto:
                     eprint("No TOTP secret specified in config")
                     return False
                 tfa_code = Prompt.ask("Enter 2FA code")

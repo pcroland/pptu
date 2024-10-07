@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 from abc import ABC, abstractmethod
 from hashlib import sha1
@@ -67,7 +68,7 @@ class Uploader(ABC):
     def exclude_regexs(self) -> str:
         """Torrent excluded file of the tracker."""
 
-    def login(self, *, auto: bool) -> bool:
+    def login(self, *, args: Any) -> bool:
         if not self.session.cookies:
             eprint(f"No cookies found for {self.abbrev}, cannot log in.")
             return False

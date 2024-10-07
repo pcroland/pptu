@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 import hashlib
 import re
@@ -94,7 +95,7 @@ class HDBitsUploader(Uploader):
         r"\bSTAN\b": 32,  # Stan
     }
 
-    def login(self, *, auto: bool) -> bool:
+    def login(self, *, args: Any) -> bool:
         r = self.session.get("https://hdbits.org")
         if not r.url.startswith("https://hdbits.org/login"):
             return True
@@ -145,7 +146,7 @@ class HDBitsUploader(Uploader):
         )
         if "error=7" in r.url:
             print("2FA detected")
-            if auto:
+            if args.auto:
                 eprint("No TOTP secret specified in config")
                 return False
             r = self.session.post(

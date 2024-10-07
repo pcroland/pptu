@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 import json
 import re
@@ -147,7 +148,7 @@ class BroadcasTheNetUploader(Uploader):
             return None
         return el.attrs["value"].split("/")[-2]
 
-    def login(self, *, auto: bool) -> bool:
+    def login(self, *, auto: Any) -> bool:
         # Allow cookies from either broadcasthe.net or backup.landof.tv
         for cookie in self.session.cookies:
             cookie.domain = cookie.domain.replace("broadcasthe.net", "backup.landof.tv")

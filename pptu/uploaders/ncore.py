@@ -1,4 +1,5 @@
 from __future__ import annotations
+from typing import Any
 
 import json
 import re
@@ -257,8 +258,8 @@ class nCoreUploader(Uploader):
 
         return return_data
 
-    def login(self, *, auto: bool) -> bool:
-        if self.config.get(self, "snapshots"):
+    def login(self, *, args: Any) -> bool:
+        if not args.disable_snapshots and self.config.get(self, "snapshots"):
             # set snapshots number from config
             self.min_snapshots += self.config.get(
                 self, "snapshot_columns", 2
@@ -282,7 +283,7 @@ class nCoreUploader(Uploader):
         if totp_secret := self.config.get(self, "totp_secret"):
             tfa_code = TOTP(totp_secret).now()
         else:
-            if auto:
+            if args.auto:
                 eprint("No TOTP secret specified in config")
                 return False
             tfa_code = Prompt.ask("Enter 2FA code")

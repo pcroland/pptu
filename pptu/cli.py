@@ -128,7 +128,7 @@ def main() -> None:
     for tracker in trackers:
         print(f"[bold cyan]Logging in to {tracker.abbrev}[/]")
 
-        if not tracker.login(auto=args.auto):
+        if not tracker.login(args=args):
             eprint(f"Failed to log in to tracker [cyan]{tracker.name}[/].")
             continue
         for cookie in tracker.session.cookies:
