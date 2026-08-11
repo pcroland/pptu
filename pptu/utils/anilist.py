@@ -28,7 +28,7 @@ def extract_name_from_filename(file_name: str) -> tuple[str, bool]:
 
 
 def get_anilist_title(
-    search_name: str = "", non_english: bool = False, anilist_data: dict | None = None
+    search_name: str = "", non_english: bool = False, anilist_data: dict[str, Any] | None = None
 ) -> str | None:
     if not anilist_data:
         if not search_name:
@@ -112,19 +112,30 @@ def get_anilist_data(search_name: str = "", anilist_url: str = "") -> dict[str, 
             "variables": {"search": search_name},
         }
 
-    with niquests.Session(retries=5, disable_http3=True) as session:
-        res = session.post(
-            url="https://graphql.anilist.co",
-            headers={"Content-Type": "application/json", "Accept": "application/json"},
-            json=json_data,
-        ).json()
+    try:
+        with niquests.Session(retries=2, disable_http3=True) as session:
+            res_raw = session.post(
+                url="https://graphql.anilist.co",
+                headers={"Content-Type": "application/json", "Accept": "application/json"},
+                json=json_data,
+                timeout=15,
+            )
+            res_raw.raise_for_status()
+            res = res_raw.json()
+    except Exception as e:
+        wprint(f"Failed to fetch AniList data: {e}")
+        return {}
+
+    if not isinstance(res, dict):
+        return {}
 
     if error := first_or_none(res.get("errors", [])):
-        wprint(f"Anilist error: {error.get('message')}")
+        wprint(f"Anilist error: {error.get('message') if isinstance(error, dict) else error}")
         return {}
 
     if anilist_url:
-        return res.get("data", {}).get("Media") or {}
+        media_res = res.get("data", {}).get("Media")
+        return dict(media_res) if isinstance(media_res, dict) else {}
     else:
         if data := res.get("data", {}).get("Page", {}).get("media", []):
             for result in data:
@@ -140,9 +151,10 @@ def get_anilist_data(search_name: str = "", anilist_url: str = "") -> dict[str, 
                         x for x in name_synonyms if similar(x.casefold(), name_in) >= 0.75
                     )
                 ):
-                    return result
+                    return dict(result) if isinstance(result, dict) else {}
 
-            return first_or_else(data, {})
+            res_item = first_or_else(data, {})
+            return dict(res_item) if isinstance(res_item, dict) else {}
 
     return {}
 
@@ -158,33 +170,37 @@ def get_anilist_link(anilist_url: str = "", search_name: str = "") -> dict[str, 
 
 def process_anilist_info(link: str | None, name: str) -> tuple[str, str]:
     """Process AniList info and return name additions and info URL."""
-    base_search_name, is_movie = extract_name_from_filename(name)
-    gi = guessit(name)
-    season = str(gi.get("season", "")) if gi.get("season") else ""
+    try:
+        base_search_name, is_movie = extract_name_from_filename(name)
+        gi = guessit(name)
+        season = str(gi.get("season", "")) if gi.get("season") else ""
 
-    search_name = base_search_name
-    if not is_movie and season and season not in ["01", "1"]:
-        search_name = f"{base_search_name} season {season}"
-
-    anilist_data = get_anilist_link(link or "", search_name)
-
-    # Fallback to search without season if initial season search returned nothing
-    if not anilist_data and search_name != base_search_name:
-        anilist_data = get_anilist_link(link or "", base_search_name)
         search_name = base_search_name
+        if not is_movie and season and season not in ["01", "1"]:
+            search_name = f"{base_search_name} season {season}"
 
-    target_url = link or ""
-    if not target_url and anilist_data:
-        target_url = anilist_data.get("siteUrl") or ""
+        anilist_data = get_anilist_link(link or "", search_name)
 
-    title = ""
-    if anilist_data:
-        t = get_anilist_title(search_name=search_name, anilist_data=anilist_data)
-        if t is not None:
-            title = t
+        # Fallback to search without season if initial season search returned nothing
+        if not anilist_data and search_name != base_search_name:
+            anilist_data = get_anilist_link(link or "", base_search_name)
+            search_name = base_search_name
+
+        target_url = link or ""
+        if not target_url and anilist_data:
+            target_url = anilist_data.get("siteUrl") or ""
+
+        title = ""
+        if anilist_data:
+            t = get_anilist_title(search_name=search_name, anilist_data=anilist_data)
+            if t is not None:
+                title = t
+            else:
+                wprint("Failed to get AniList title")
         else:
-            wprint("Failed to get AniList title")
-    else:
-        wprint("Failed to get AniList data")
+            wprint("Failed to get AniList data")
 
-    return title, target_url
+        return title, target_url
+    except Exception as e:
+        wprint(f"Error processing AniList info: {e}")
+        return "", link or ""

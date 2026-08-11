@@ -195,7 +195,7 @@ class Nyaa(Uploader):
         ),
     )
     @cloup.pass_context
-    def cli(ctx: cloup.Context, **kwargs: Any) -> Nyaa:
+    def cli(ctx: cloup.Context, /, **kwargs: Any) -> Nyaa:
         return Nyaa(ctx, SimpleNamespace(**kwargs))
 
     def __init__(self, ctx: cloup.Context, args: Any) -> None:
