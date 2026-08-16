@@ -1,4 +1,6 @@
 import time
+from functools import lru_cache
+from typing import Any
 
 from pymal.anime import Anime
 from pymal.searches.search_animes_provider import SearchAnimesProvider
@@ -11,7 +13,10 @@ from pptu.utils.log import eprint, wprint
 from pptu.utils.regex import find
 
 
-def get_mal_data(search_name: str = "", mal_id: int | str | None = None) -> dict | None:
+@lru_cache(maxsize=128)
+def get_mal_data(
+    search_name: str = "", mal_id: int | str | None = None
+) -> dict[str, Any] | None:
     console = get_console()
 
     if mal_id:
@@ -116,6 +121,7 @@ def get_mal_title(
     return ""
 
 
+@lru_cache(maxsize=128)
 def get_mal_link(mal_url: str = "", search_name: str = "") -> dict | None:
     """Get MAL data from input URL (MAL or AniList link) or search name."""
     if mal_url:

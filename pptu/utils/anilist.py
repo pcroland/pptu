@@ -1,4 +1,5 @@
 import re
+from functools import lru_cache
 from typing import Any
 
 import niquests
@@ -28,7 +29,9 @@ def extract_name_from_filename(file_name: str) -> tuple[str, bool]:
 
 
 def get_anilist_title(
-    search_name: str = "", non_english: bool = False, anilist_data: dict[str, Any] | None = None
+    search_name: str = "",
+    non_english: bool = False,
+    anilist_data: dict[str, Any] | None = None,
 ) -> str | None:
     if not anilist_data:
         if not search_name:
@@ -53,6 +56,7 @@ def get_anilist_title(
     return ""
 
 
+@lru_cache(maxsize=128)
 def get_anilist_data(search_name: str = "", anilist_url: str = "") -> dict[str, Any]:
     if anilist_url:
         if mal_id := find(r"https://myanimelist.net/anime/(\d+)", anilist_url):
@@ -116,7 +120,10 @@ def get_anilist_data(search_name: str = "", anilist_url: str = "") -> dict[str, 
         with niquests.Session(retries=2, disable_http3=True) as session:
             res_raw = session.post(
                 url="https://graphql.anilist.co",
-                headers={"Content-Type": "application/json", "Accept": "application/json"},
+                headers={
+                    "Content-Type": "application/json",
+                    "Accept": "application/json",
+                },
                 json=json_data,
                 timeout=15,
             )
@@ -130,7 +137,9 @@ def get_anilist_data(search_name: str = "", anilist_url: str = "") -> dict[str, 
         return {}
 
     if error := first_or_none(res.get("errors", [])):
-        wprint(f"Anilist error: {error.get('message') if isinstance(error, dict) else error}")
+        wprint(
+            f"Anilist error: {error.get('message') if isinstance(error, dict) else error}"
+        )
         return {}
 
     if anilist_url:
@@ -159,6 +168,7 @@ def get_anilist_data(search_name: str = "", anilist_url: str = "") -> dict[str, 
     return {}
 
 
+@lru_cache(maxsize=128)
 def get_anilist_link(anilist_url: str = "", search_name: str = "") -> dict[str, Any]:
     """Get AniList data from URL or search name."""
     if anilist_url:
