@@ -368,6 +368,8 @@ class Nyaa(Uploader):
         multi_sub = self.multi_subs
 
         if self.auto:
+            if path.is_dir() and not find(r"(?:S\d+)?E\d+(?:\.)?", path.stem):
+                self.batch = True
             dual_audio = dual_audio or (audio_langs_count == 2)
             multi_audio = multi_audio or (audio_langs_count > 2)
             multi_sub = multi_sub or (subtitle_langs_count > 1)

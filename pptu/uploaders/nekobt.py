@@ -367,6 +367,8 @@ class nekoBT(Uploader):
         secondary_groups: list[dict[str, Any]] = []
 
         if path.is_dir():
+            if path.is_dir() and not find(r"(?:S\d+)?E\d+(?:\.)?", path.stem):
+                self.batch = True
             files: list[Path] = sorted([*path.glob("*.mkv"), *path.glob("*.mp4")])
         else:
             files = [path]
